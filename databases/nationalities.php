@@ -1,7 +1,7 @@
 <?php
 include 'db_connection.php'; // Include database connection
 
-$sql = "SELECT * FROM nationalities ORDER BY nationality_name ASC";
+$sql = "SELECT * FROM nationalities ORDER BY nationality_id  ASC";
 $result = $conn->query($sql);
 
 $nationalities = array();
