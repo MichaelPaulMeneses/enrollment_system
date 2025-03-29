@@ -153,23 +153,23 @@ $adminLastName = $_SESSION['last_name'];
             <div class="col-md-3 col-lg-2 d-md-block sidebar pt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link active" href="Admin.php">
+                        <a class="nav-link active" href="admin-dashboard.php">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="Enrollment For Review.php">
+                        <a class="nav-link" href="admin-application-for-review.php">
                             <i class="fas fa-file-alt me-2"></i>Applications for Review
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-approved-application.php">
+                            <i class="fas fa-check-circle me-2"></i>Approved Applications
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="Payment.php">
                             <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="Approved.php">
-                            <i class="fas fa-check-circle me-2"></i>Approved Applications
                         </a>
                     </li>
                     <li class="nav-item">

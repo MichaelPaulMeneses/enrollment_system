@@ -156,6 +156,14 @@
                             <div class="row mb-4">
                                 <div class="col-md-4">
                                     <div class="form-group">
+                                        <label for="region" class="form-label">Region <span class="required">*</span></label>
+                                        <select class="form-select" id="region" name="region" required>
+                                            <option value="">Select Region</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
                                         <label for="province" class="form-label">Province <span class="required">*</span></label>
                                         <select class="form-select" id="province" name="province" required>
                                             <option value="">Select Province</option>
@@ -170,6 +178,9 @@
                                         </select>
                                     </div>
                                 </div>
+                            </div>
+                            
+                            <div class="row mb-4">
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label for="barangay" class="form-label">Barangay <span class="required">*</span></label>
@@ -178,10 +189,7 @@
                                         </select>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <div class="row mb-4">
-                                <div class="col-12">
+                                <div class="col-md-8">
                                     <div class="form-group">
                                         <label for="streetAddress" class="form-label">House Number, Street, Subdivision <span class="required">*</span></label>
                                         <input type="text" class="form-control" id="streetAddress" name="streetAddress" required>
@@ -402,19 +410,35 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12 mb-3" id="academicTrackField" style="display: none;">
-                                    <div class="form-group">
-                                        <label for="academicTrack" class="form-label">Select Academic Track <span class="required">*</span></label>
-                                        <select class="form-select academic-validator" id="academicTrack" name="academicTrack">
-                                            <option value="" selected disabled>Select Academic Track</option>
-                                            <option value="STEM">STEM - Science, Technology, Engineering, and Mathematics</option>
-                                            <option value="ABM">ABM - Accountancy, Business, and Management</option>
-                                            <option value="HUMSS">HUMSS - Humanities and Social Sciences</option>
-                                        </select>
+                                <div class="row mb-3" id="academicTrackField" style="display: none;">
+                                    <div class="col-12">
+                                        <div class="row">
+                                            <div class="col-md-7 mb-3">
+                                                <div class="form-group">
+                                                    <label for="academicTrack" class="form-label">Select Academic Track <span class="required">*</span></label>
+                                                    <select class="form-select academic-validator" id="academicTrack" name="academicTrack">
+                                                        <option value="" selected disabled>Select Academic Track</option>
+                                                        <option value="STEM">STEM - Science, Technology, Engineering, and Mathematics</option>
+                                                        <option value="ABM">ABM - Accountancy, Business, and Management</option>
+                                                        <option value="HUMSS">HUMSS - Humanities and Social Sciences</option>
+                                                    </select>
+                                                </div>
+                                                <small id="academicTrackError" class="text-danger"></small> <!-- Error Message -->
+                                            </div>
+                                            <div class="col-md-5 mb-3">
+                                                <div class="form-group">
+                                                    <label for="academicSemester" class="form-label">Select Academic Semester <span class="required">*</span></label>
+                                                    <select class="form-select academic-validator" id="academicSemester" name="academicSemester">
+                                                        <option value="" selected disabled>Select Academic Semester</option>
+                                                        <option value="1">1st Semester</option>
+                                                        <option value="2">2nd Semester</option>
+                                                    </select>
+                                                </div>
+                                                <small id="academicSemesterError" class="text-danger"></small> <!-- Error Message -->
+                                            </div>
+                                        </div>
                                     </div>
-                                    <small id="academicTrackError" class="text-danger"></small> <!-- Error Message -->
                                 </div>
-
                             </div>
 
                             
@@ -498,7 +522,7 @@
     <!-- Inputs in the Admission Form and Some Validation -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            console.log("AJAX Call for Provinces Started...");
+            console.log("AJAX Call for Regions Started...");
 
             // Function to fetch data and populate dropdown
             function fetchData(url, callback) {
@@ -508,46 +532,84 @@
                     .catch(error => console.error("Fetch Error:", error));
             }
 
-            // Load Provinces
-            fetchData("databases/provinces.php", function (data) {
-                console.log("Provinces Loaded:", data);
-                const provinceSelect = document.getElementById("province");
-                provinceSelect.innerHTML = '<option value="" disabled selected>Select Province</option>';
-                data.forEach(province => {
-                    provinceSelect.innerHTML += `<option value="${province.province_id}">${province.province_name}</option>`;
-                });
-            });
+            // Function to reset dropdowns
+            function resetDropdown(dropdown, defaultText) {
+                dropdown.innerHTML = `<option value=''>${defaultText}</option>`;
+            }
 
-            document.getElementById("province").addEventListener("change", function () {
-                let provinceId = this.value;
-                console.log("Selected Province ID:", provinceId);
+            // Load Regions
+            fetch("databases/regions.php")
+                .then(response => response.json())
+                .then(data => {
+                    let regionDropdown = document.getElementById("region");
+                    data.forEach(region => {
+                        let option = document.createElement("option");
+                        option.value = region.id;
+                        option.textContent = region.regDesc;
+                        regionDropdown.appendChild(option);
+                    });
+                })
+                .catch(error => console.error("Error fetching regions:", error));
 
-                document.getElementById("municipality").innerHTML = '<option value="" disabled selected>Select Municipality</option>';
-                document.getElementById("barangay").innerHTML = '<option value="" disabled selected>Select Barangay</option>';
-
-                if (provinceId) {
-                    fetchData(`databases/municipalities.php?province_id=${provinceId}`, function (data) {
-                        console.log("Municipalities Loaded:", data);
-                        const municipalitySelect = document.getElementById("municipality");
-                        data.forEach(municipality => {
-                            municipalitySelect.innerHTML += `<option value="${municipality.municipality_id}">${municipality.municipality_name}</option>`;
+            // Event listeners for cascading reset and fetch operations
+            document.getElementById("region").addEventListener("change", function() {
+                let regionId = this.value;
+                let provinceDropdown = document.getElementById("province");
+                let municipalityDropdown = document.getElementById("municipality");
+                let barangayDropdown = document.getElementById("barangay");
+                
+                // Reset all lower-level dropdowns
+                resetDropdown(provinceDropdown, "Select Province");
+                resetDropdown(municipalityDropdown, "Select Municipality");
+                resetDropdown(barangayDropdown, "Select Barangay");
+                
+                if (regionId) {
+                    fetchData("databases/provinces.php?regionId=" + regionId, data => {
+                        data.forEach(province => {
+                            let option = document.createElement("option");
+                            option.value = province.id;
+                            option.textContent = province.provDesc;
+                            provinceDropdown.appendChild(option);
                         });
                     });
                 }
             });
 
-            document.getElementById("municipality").addEventListener("change", function () {
+            document.getElementById("province").addEventListener("change", function() {
+                let provinceId = this.value;
+                let municipalityDropdown = document.getElementById("municipality");
+                let barangayDropdown = document.getElementById("barangay");
+                
+                // Reset all lower-level dropdowns
+                resetDropdown(municipalityDropdown, "Select Municipality");
+                resetDropdown(barangayDropdown, "Select Barangay");
+                
+                if (provinceId) {
+                    fetchData("databases/municipalities.php?provinceId=" + provinceId, data => {
+                        data.forEach(municipality => {
+                            let option = document.createElement("option");
+                            option.value = municipality.id;
+                            option.textContent = municipality.citymunDesc;
+                            municipalityDropdown.appendChild(option);
+                        });
+                    });
+                }
+            });
+
+            document.getElementById("municipality").addEventListener("change", function() {
                 let municipalityId = this.value;
-                console.log("Selected Municipality ID:", municipalityId);
-
-                document.getElementById("barangay").innerHTML = '<option value="" disabled selected>Select Barangay</option>';
-
+                let barangayDropdown = document.getElementById("barangay");
+                
+                // Reset barangay dropdown
+                resetDropdown(barangayDropdown, "Select Barangay");
+                
                 if (municipalityId) {
-                    fetchData(`databases/barangays.php?municipality_id=${municipalityId}`, function (data) {
-                        console.log("Barangays Loaded:", data);
-                        const barangaySelect = document.getElementById("barangay");
+                    fetchData("databases/barangays.php?municipalityId=" + municipalityId, data => {
                         data.forEach(barangay => {
-                            barangaySelect.innerHTML += `<option value="${barangay.barangay_id}">${barangay.barangay_name}</option>`;
+                            let option = document.createElement("option");
+                            option.value = barangay.id;
+                            option.textContent = barangay.brgyDesc;
+                            barangayDropdown.appendChild(option);
                         });
                     });
                 }
@@ -597,6 +659,7 @@
                 const applyingForSelect = document.getElementById("applyingFor");
                 const academicTrackField = document.getElementById("academicTrackField");
                 const academicTrack = document.getElementById("academicTrack");
+                const academicSemester = document.getElementById("academicSemester"); // Fixed typo
                 const allGradeLevels = {};
 
                 prevGradeSelect.innerHTML = '<option value="" disabled selected>Select Grade Level</option>';
@@ -614,8 +677,9 @@
                     applyingForSelect.innerHTML = '<option value="" disabled selected>Select Grade Level</option>';
                     academicTrackField.style.display = "none";
                     academicTrack.removeAttribute("required");
+                    academicSemester.removeAttribute("required");
 
-                    if (selectedPrev) {
+                    if (selectedPrev && allGradeLevels[selectedPrev]) { // Added check to prevent errors
                         const nextGrade = getNextGradeLevel(allGradeLevels[selectedPrev].grade_name, allGradeLevels);
                         if (nextGrade) {
                             applyingForSelect.innerHTML += `<option value="${nextGrade.grade_level_id}">${nextGrade.grade_name}</option>`;
@@ -630,9 +694,13 @@
                     if (selectedApplyingFor && (allGradeLevels[selectedApplyingFor].grade_name === "Grade 11" || allGradeLevels[selectedApplyingFor].grade_name === "Grade 12")) {
                         academicTrackField.style.display = "block";
                         academicTrack.setAttribute("required", "required");
+                        academicSemester.setAttribute("required", "required"); // Fixed typo
                     } else {
                         academicTrackField.style.display = "none";
                         academicTrack.removeAttribute("required");
+                        academicSemester.removeAttribute("required"); // Fixed typo
+                        academicTrack.value = ""; // Reset value
+                        academicSemester.value = ""; // Reset value
                     }
                 });
             });
@@ -646,6 +714,7 @@
                 }
                 return null;
             }
+
 
             // Toggle Appointment Fields based on Student Type
             function toggleAppointmentField() {
@@ -670,28 +739,28 @@
             document.getElementById("studentType").addEventListener("change", toggleAppointmentField);
 
 
-
-            // **Check Duplicate Student Using AJAX**
+            // Check Duplicate Student Using AJAX
             async function checkDuplicateStudent() {
-                // Get form field values safely
                 const firstName = document.getElementById("studentFirstName")?.value?.trim() || "";
                 const middleName = document.getElementById("studentMiddleName")?.value?.trim() || "";
                 const lastName = document.getElementById("studentLastName")?.value?.trim() || "";
                 const birthDate = document.getElementById("dateOfBirth")?.value?.trim() || "";
+                const gradeApplyingFor = parseInt(document.getElementById("applyingFor")?.value?.trim()) || 0; // Convert to integer
+
                 const duplicateError = document.getElementById("duplicateError");
 
-                if (!firstName || !middleName || !lastName || !birthDate) {
+                if (!firstName || !middleName || !lastName || !birthDate || gradeApplyingFor === 0) {
                     console.log("Please fill in all fields before submitting.");
                     return false;
                 }
 
-                console.log("Sending payload:", { firstName, middleName, lastName, birthDate }); // Debugging
+                console.log("Sending payload:", { firstName, middleName, lastName, birthDate, gradeApplyingFor });
 
                 try {
                     const response = await fetch("databases/check_duplicate_student.php", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ firstName, middleName, lastName, birthDate })
+                        body: JSON.stringify({ firstName, middleName, lastName, birthDate, gradeApplyingFor })
                     });
 
                     if (!response.ok) {
@@ -701,11 +770,11 @@
                     }
 
                     const data = await response.json();
-                    console.log("Server Response:", data); // Debugging
+                    console.log("Server Response:", data);
 
                     if (data.exists) {
-                        showError(duplicateError, "A student with the same name and birth date is already registered. Change the Name and Birth Date.");
-                        alert("A student with the same name and birth date is already registered.");
+                        showError(duplicateError, "A student with the same name, birth date, and grade level is already registered.");
+                        alert("A student with the same name, birth date, and grade level is already registered.");
                         return false;
                     }
 
@@ -718,6 +787,7 @@
                 }
             }
 
+
             // **Form Submission**
             document.getElementById("enrollmentForm").addEventListener("submit", async function (event) {
                 event.preventDefault(); // Prevent actual form submission
@@ -728,13 +798,16 @@
                 let certError = document.getElementById("certError");
                 let emailField = document.getElementById("email");
 
-                let firstNameField = document.getElementById("studentFirstName");
-                let middleNameField = document.getElementById("studentMiddleName");
-                let lastNameField = document.getElementById("studentLastName");
-                let birthDateField = document.getElementById("dateOfBirth");
-                
+               // Get form fields first
+                let firstNameField = document.getElementById("studentFirstName").value;
+                let middleNameField = document.getElementById("studentMiddleName").value;
+                let lastNameField = document.getElementById("studentLastName").value;
+                let birthDateField = document.getElementById("dateOfBirth").value;
                 let studentType = document.getElementById("studentType").value;
-                let gradeApplyingFor = document.getElementById("applyingFor").value;
+                let schoolYear = document.getElementById("schoolYear").value;
+                let gradeApplyingFor = parseInt(document.getElementById("applyingFor").value); // Convert to INT
+                let academicSemester = document.getElementById("academicSemester").value;
+
 
                 requiredFields.forEach(field => {
                     if (!field.value.trim()) {
@@ -745,6 +818,16 @@
                     }
                 });
 
+                // **Check for Duplicate Student Before Submitting**
+                console.log("Checking for duplicate student...");
+                let isDuplicate = await checkDuplicateStudent();
+
+                if (isDuplicate === false) {
+                    console.log("Duplicate student found. Aborting submission.");
+                    return;
+                }
+
+
                 // **Email Format Validation**
                 if (emailField) {
                     let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -753,30 +836,41 @@
                         showError(emailField, "Enter a valid email address.");
                     } else {
                         removeError(emailField);
-                        await checkEmailExists(emailField.value.trim());
+                        await checkEmailExists(emailField.value.trim(), schoolYear, gradeApplyingFor, academicSemester);
+
                     }
                 }
-
-                // **Check Email Exists Using AJAX**
-                async function checkEmailExists(email) {
+                // **Email Already Exist Validator**
+                async function checkEmailExists(email, schoolYear, gradeLevel, academicSemester) {
                     try {
+                        // Convert empty string to null for academicSemester
+                        if (academicSemester === "") {
+                            academicSemester = null;
+                        }
+
+                        const requestData = { 
+                            email, 
+                            schoolYear, 
+                            gradeLevel, 
+                            academicSemester 
+                        };
+
+                        console.log("Sending data:", requestData); // Debug: Check what is being sent
+
                         const response = await fetch("databases/check_email.php", {
                             method: "POST",
-                            body: JSON.stringify({ email }),
+                            body: JSON.stringify(requestData),
                             headers: { "Content-Type": "application/json" }
                         });
 
-                        if (!response.ok) {
-                            console.error(`HTTP error! status: ${response.status}`);
-                            showError(emailField, "Unable to verify email at the moment. Please try again later.");
-                            return;
-                        }
+                        const text = await response.text();
+                        console.log("Raw Response:", text); // Debug: log response
 
-                        const data = await response.json();
-                        if (data && data.exists) {
-                            isValid = false;
-                            showError(emailField, "This email is already registered.");
-                            alert("This email is already registered.");
+                        const data = JSON.parse(text); 
+
+                        if (data.exists) {
+                            showError(emailField, "This email is already registered for the selected school year and/or semester.");
+                            alert("This email is already registered for the selected school year and/or semester.");
                         } else {
                             removeError(emailField);
                         }
@@ -785,22 +879,8 @@
                         showError(emailField, "Unable to verify email at the moment. Please try again later.");
                     }
                 }
-
-                // **Check for Duplicate Student Before Submitting**
-                let isDuplicate = await checkDuplicateStudent(
-                    console.log("Checking for duplicate student..."),
-                    firstNameField.value.trim(),
-                    middleNameField.value.trim(),
-                    lastNameField.value.trim(),
-                    birthDateField.value.trim()
-                );
-
-                if (!isDuplicate) {
-                    console.log("Duplicate student found. Aborting submission.");
-                    isValid = false;
-                }
                 
-                //Appointment Validator on type
+                //Appointment Validator on Student type
                 if (studentType == "new/transferee") {
                     let appointmentDateValidator = document.getElementById("appointmentDate").value;
                     let appointmentTimeValidator = document.getElementById("appointmentTime").value;
@@ -848,14 +928,17 @@
                     let academicTrackRequiredFields = document.querySelectorAll(".academic-validator");
 
                     const academicTrackError = document.getElementById("academicTrackError");
+                    const academicSemesterError = document.getElementById("academicSemesterError");
 
                     academicTrackRequiredFields.forEach(field => {
                         if (!field.value.trim()) {
                             isValid = false;
                             removeError(field);
                             showError(academicTrackError, "This field is required.");
+                            showError(academicSemesterError, "This field is required.");
                         } else {
                             removeError(academicTrackError);
+                            removeError(academicSemesterError);
                         }
                     });
                 }
@@ -936,6 +1019,19 @@
                         showError(academicTrackError, "This field is required.");
                     } else {
                         removeError(academicTrackError);
+                    }
+                });
+            }
+
+            // **Real-time Validation for Academic Semester**
+            const academicSemester = document.getElementById("academicSemester");
+            if (academicSemester) {
+                academicSemester.addEventListener("change", function () {
+                    const academicTrackError = document.getElementById("academicSemesterError");
+                    if (this.value.trim() === "") {
+                        showError(academicSemesterError, "This field is required.");
+                    } else {
+                        removeError(academicSemesterError);
                     }
                 });
             }
