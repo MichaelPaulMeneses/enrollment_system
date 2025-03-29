@@ -1,7 +1,7 @@
 <?php
 include 'db_connection.php'; // Include database connection
 
-$sql = "SELECT * FROM religions ORDER BY religion_name ASC";
+$sql = "SELECT * FROM religions ORDER BY religion_id ASC";
 $result = $conn->query($sql);
 
 $religions = array();

@@ -25,11 +25,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'], $_POST['surna
         $salutation = '';
     }
 
-    // Log the salutation to the console
-    echo "<script>console.log('Salutation: " . addslashes($gender) . "');</script>";
-    echo "<script>console.log('Salutation: " . addslashes($salutation) . "');</script>";
-    
-
     $mail = new PHPMailer(true);
 
     try {
@@ -37,22 +32,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'], $_POST['surna
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com'; // Your SMTP server
         $mail->SMTPAuth = true;
-        $mail->Username = 'keegankaisss@gmail.com'; // Your email
-        $mail->Password = 'ddlybhhngbeutztd'; // Your email password (Use App Password if using Gmail)
+        $mail->Username = 'sasatoru510@gmail.com'; // Your email
+        $mail->Password = 'iuddupmiyesabbvi'; // Your email password (Use App Password if using Gmail)
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 
         // Sender and Recipient
-        $mail->setFrom('keegankaisss@gmail.com', 'SJBPS Admin');
+        $mail->setFrom('sasatoru510@gmail.com', 'SJBPS Admin');
         $mail->addAddress($userEmail); // Send email to user
 
         // Email Content
         $mail->isHTML(true);
         $mail->Subject = 'Registration For Review';
         $mail->Body    = "<p>Dear $salutation $surname,</p>
-                            <p>Your application has been successfully submitted!</p>
-                            <p>We've sent a confirmation email to your registered address with a copy of your submission details. 
-                            Our admissions team will review your application and contact you within 5-7 business days regarding the next steps.</p>
+                            <p>Thank you for your interest in enrolling at Saint John the Baptist Parochial School. We are pleased to inform you that we have received your application for the upcoming school year.</p>
+                            <p>To ensure a smooth enrollment process, please make sure to check your email regularly for updates and further instructions.</p>
+                            <p>Our admissions team will review your application and contact you within 5-7 business days regarding the next steps.</p>
                             <p>If you have any immediate questions, please contact our Admissions Office at 
                             <a href='mailto:registrar.sjbps@gmail.com'>registrar.sjbps@gmail.com</a> or call (02) 8296 5896 and 0920 122 5764.</p>";
 

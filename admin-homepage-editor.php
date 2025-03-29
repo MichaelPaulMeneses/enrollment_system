@@ -17,7 +17,7 @@ $adminLastName = $_SESSION['last_name'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - SJBPS Dashboard</title>
+    <title>Admin - SJBPS Homepage Editor</title>
     <link rel="icon" type="image/png" href="images/logo/st-johns-logo.png">
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -34,6 +34,13 @@ $adminLastName = $_SESSION['last_name'];
         body {
             background-color: #f4f6f9;
             font-family: 'Arial', sans-serif;
+        }
+        .logo-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
         }
         .navbar {
             background-color: var(--primary-blue);
@@ -114,13 +121,6 @@ $adminLastName = $_SESSION['last_name'];
             padding: 20px;
             margin-bottom: 20px;
         }
-        .logo-image {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid white;
-        }
         @media (max-width: 768px) {
             .sidebar {
                 display: none;
@@ -166,7 +166,7 @@ $adminLastName = $_SESSION['last_name'];
             <div class="col-md-3 col-lg-2 d-md-block sidebar pt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link active" href="admin-dashboard.php">
+                        <a class="nav-link" href="admin-dashboard.php">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                         </a>
                     </li>
@@ -191,7 +191,7 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-homepage-editor.php">
+                        <a class="nav-link active" href="admin-homepage-editor.php">
                             <i class="fas fa-edit me-2"></i>Home Page Editor
                         </a>
                     </li>
@@ -207,77 +207,7 @@ $adminLastName = $_SESSION['last_name'];
             <div class="col-md-9 col-lg-10 px-md-4 pt-3">
                 <div class="row">
                     <!-- First Row - 4 Cards -->
-                    <div class="col-md-6 col-lg-3 mb-4">
-                        <div class="card-container">
-                            <div class="card-title">Applications For Review</div>
-                            <div class="metric-card red">
-                                <div class="metric-value">77</div>
-                                <i class="fas fa-arrow-right"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6 col-lg-3 mb-4">
-                        <div class="card-container">
-                            <div class="card-title">Payment Transactions</div>
-                            <div class="metric-card orange">
-                                <div class="metric-value">77</div>
-                                <i class="fas fa-arrow-right"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6 col-lg-3 mb-4">
-                        <div class="card-container">
-                            <div class="card-title">Total Revenue</div>
-                            <div class="metric-card green">
-                                <div class="metric-value">₱ 77,777</div>
-                                <i class="fas fa-arrow-right"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6 col-lg-3 mb-4">
-                        <div class="card-container">
-                            <div class="card-title">Total Enrollees</div>
-                            <div class="metric-card blue">
-                                <div class="metric-value">77</div>
-                                <i class="fas fa-arrow-right"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Second Row - 2 Cards -->
-                    <div class="col-md-6 mb-4">
-                        <div class="card-container">
-                            <div class="card-title">Total Enrollees</div>
-                            <div class="metric-card navy">
-                                <div class="metric-value">77</div>
-                                <i class="fas fa-arrow-right"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6 mb-4">
-                        <div class="card-container">
-                            <div class="card-title">Total Users</div>
-                            <div class="metric-card yellow">
-                                <div class="metric-value">77</div>
-                                <i class="fas fa-arrow-right"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Chart Section -->
-                    <div class="col-12">
-                        <div class="chart-container">
-                            <h5 class="mb-3">Number of Students per Grade Level</h5>
-                            <div style="height: 300px; display: flex; align-items: center; justify-content: center;">
-                                <canvas id="gradeLevelChart" style="width: 100%; height: 100%;"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
             </div>
         </div>
     </div>
@@ -286,72 +216,7 @@ $adminLastName = $_SESSION['last_name'];
 <!-- Bootstrap JS and dependencies -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Example: Render a bar chart for "Number of Students per Grade Level"
-        const ctx = document.createElement('canvas');
-        ctx.style.width = '100%';
-        ctx.style.height = '100%';
-        const chartContainer = document.querySelector('.chart-container div');
-        chartContainer.innerHTML = ''; // Clear placeholder text
-        chartContainer.appendChild(ctx);
 
-        const data = {
-            labels: [
-            'Pre-Kindergarten', 'Kindergarten', 'Grade 1', 'Grade 2', 'Grade 3', 
-            'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 
-            'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'
-            ],
-            datasets: [{
-            label: 'Number of Students',
-            data: [30, 40, 50, 45, 60, 55, 70, 65, 80, 75, 85, 90, 95, 100],
-            backgroundColor: [
-                'rgba(52, 152, 219, 0.7)', 'rgba(46, 204, 113, 0.7)', 
-                'rgba(241, 196, 15, 0.7)', 'rgba(231, 76, 60, 0.7)', 
-                'rgba(155, 89, 182, 0.7)', 'rgba(52, 73, 94, 0.7)', 
-                'rgba(26, 188, 156, 0.7)', 'rgba(22, 160, 133, 0.7)', 
-                'rgba(39, 174, 96, 0.7)', 'rgba(41, 128, 185, 0.7)', 
-                'rgba(142, 68, 173, 0.7)', 'rgba(44, 62, 80, 0.7)', 
-                'rgba(243, 156, 18, 0.7)', 'rgba(192, 57, 43, 0.7)'
-            ],
-            borderColor: [
-                'rgba(52, 152, 219, 1)', 'rgba(46, 204, 113, 1)', 
-                'rgba(241, 196, 15, 1)', 'rgba(231, 76, 60, 1)', 
-                'rgba(155, 89, 182, 1)', 'rgba(52, 73, 94, 1)', 
-                'rgba(26, 188, 156, 1)', 'rgba(22, 160, 133, 1)', 
-                'rgba(39, 174, 96, 1)', 'rgba(41, 128, 185, 1)', 
-                'rgba(142, 68, 173, 1)', 'rgba(44, 62, 80, 1)', 
-                'rgba(243, 156, 18, 1)', 'rgba(192, 57, 43, 1)'
-            ],
-            borderWidth: 1
-            }]
-        };
-
-        const options = {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Grade Level Distribution'
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        };
-
-        new Chart(ctx, {
-            type: 'bar',
-            data: data,
-            options: options
-        });
-    });
-</script>
 
 
 </body>

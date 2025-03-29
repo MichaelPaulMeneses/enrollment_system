@@ -17,12 +17,14 @@ $adminLastName = $_SESSION['last_name'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SJBPS Admin Dashboard - Applications Review</title>
+    <title>Admin - SJBPS Applications for Review</title>
+    <link rel="icon" type="image/png" href="images/logo/st-johns-logo.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-blue: #3498db;
+            --bg-light-gray: #f0f2f5;
             --sidebar-bg: #f8f9fa;
             --sidebar-active-bg: #f0f0f0;
             --sidebar-hover-bg: #e9ecef;
@@ -30,6 +32,13 @@ $adminLastName = $_SESSION['last_name'];
         body {
             background-color: #f4f6f9;
             font-family: 'Arial', sans-serif;
+        }
+        .logo-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
         }
         .navbar {
             background-color: var(--primary-blue);
@@ -100,13 +109,6 @@ $adminLastName = $_SESSION['last_name'];
             box-shadow: none;
             border-color: var(--primary-blue);
         }
-        .logo-image {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid white;
-        }
         @media (max-width: 768px) {
             .sidebar {
                 display: none;
@@ -124,12 +126,12 @@ $adminLastName = $_SESSION['last_name'];
     </script>
 </head>
 <body>
-        <!-- Top Navigation Bar -->
-        <nav class="navbar navbar-expand-lg navbar-dark">
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <div class="d-flex align-items-center">
                 <img src="images/logo/st-johns-logo.png" alt="Profile" class="logo-image me-2">
-                <a class="navbar-brand" href="#" id="adminWelcomeMessage">WELCOME! Admin</a>
+                <a class="navbar-brand" href="admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Admin</a>
             </div>
             <div class="ms-auto">
                 <ul class="navbar-nav">
@@ -148,7 +150,7 @@ $adminLastName = $_SESSION['last_name'];
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar py-3">
+            <div class="col-md-3 col-lg-2 d-md-block sidebar pt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
                         <a class="nav-link" href="admin-dashboard.php">
@@ -161,27 +163,27 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="Payment.php">
-                            <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="Approved.php">
+                        <a class="nav-link" href="admin-approved-application.php">
                             <i class="fas fa-check-circle me-2"></i>Approved Applications
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="All Enrollees.php">
-                            <i class="fas fa-users me-2"></i>All Enrollees
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">
+                            <i class="fas fa-users me-2"></i>All Enrollees
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-homepage-editor.php">
                             <i class="fas fa-edit me-2"></i>Home Page Editor
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="Users.php">
+                        <a class="nav-link" href="#">
                             <i class="fas fa-user-cog me-2"></i>Users
                         </a>
                     </li>
@@ -200,12 +202,13 @@ $adminLastName = $_SESSION['last_name'];
                 <!-- Search Bar -->
                 <div class="search-container d-flex justify-content-end">
                     <div class="input-group" style="max-width: 300px;">
-                        <input type="text" class="form-control" placeholder="Search applications" aria-label="Search">
-                        <button class="btn btn-outline-secondary" type="button">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search applications" aria-label="Search">
+                        <button class="btn btn-outline-secondary" type="button" id="clearBtn">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                 </div>
+
                 
                 <!-- Table -->
                 <div class="table-responsive">
@@ -221,6 +224,7 @@ $adminLastName = $_SESSION['last_name'];
                             </tr>
                         </thead>
                         <tbody>
+                            <!-- JavaScript will populate this section -->
                             <tr>
                                 <td colspan="6" class="text-center py-5 empty-table-message">
                                     <i class="fas fa-inbox fa-3x mb-3"></i>
@@ -245,33 +249,154 @@ $adminLastName = $_SESSION['last_name'];
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Enrollment Type</label>
-                        <select class="form-select">
-                            <option>All Types</option>
-                            <option>New Student</option>
-                            <option>Transfer Student</option>
-                            <option>Old Student</option>
+                        <select id="enrollmentTypeFilter" class="form-select">
+                            <option value="">All Types</option>
+                            <option value="old">Old Student</option>
+                            <option value="new/transferee">New/Transferee Student</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Grade Level</label>
-                        <select class="form-select">
-                            <option>All Grade Levels</option>
-                            <option>Pre-School</option>
-                            <option>Kindergarten</option>
-                            <option>Elementary</option>
-                            <option>Junior High School</option>
-                            <option>Senior High School</option>
+                        <label class="form-label">Previous Grade Level</label>
+                        <select id="prevGradeFilter" class="form-select">
+                            <option value="">All Grade Levels</option>
+                            <option value="Prekindergarten">Prekindergarten</option>
+                            <option value="Kindergarten">Kindergarten</option>
+                            <option value="Grade 1">Grade 1</option>
+                            <option value="Grade 2">Grade 2</option>
+                            <option value="Grade 3">Grade 3</option>
+                            <option value="Grade 4">Grade 4</option>
+                            <option value="Grade 5">Grade 5</option>
+                            <option value="Grade 6">Grade 6</option>
+                            <option value="Grade 7">Grade 7</option>
+                            <option value="Grade 8">Grade 8</option>
+                            <option value="Grade 9">Grade 9</option>
+                            <option value="Grade 10">Grade 10</option>
+                            <option value="Grade 11">Grade 11</option>
+                            <option value="Grade 12">Grade 12</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Grade Applying For</label>
+                        <select id="gradeApplyingFilter" class="form-select">
+                            <option value="">All Grade Levels</option>
+                            <option value="Prekindergarten">Prekindergarten</option>
+                            <option value="Kindergarten">Kindergarten</option>
+                            <option value="Grade 1">Grade 1</option>
+                            <option value="Grade 2">Grade 2</option>
+                            <option value="Grade 3">Grade 3</option>
+                            <option value="Grade 4">Grade 4</option>
+                            <option value="Grade 5">Grade 5</option>
+                            <option value="Grade 6">Grade 6</option>
+                            <option value="Grade 7">Grade 7</option>
+                            <option value="Grade 8">Grade 8</option>
+                            <option value="Grade 9">Grade 9</option>
+                            <option value="Grade 10">Grade 10</option>
+                            <option value="Grade 11">Grade 11</option>
+                            <option value="Grade 12">Grade 12</option>
                         </select>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary">Apply Filters</button>
+                    <button type="button" id="applyFiltersBtn" class="btn btn-primary">Apply Filters</button>
                 </div>
             </div>
         </div>
     </div>
 
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchEnrollments();
+
+            // Get filter elements
+            const enrollmentTypeFilter = document.getElementById("enrollmentTypeFilter");
+            const prevGradeFilter = document.getElementById("prevGradeFilter");
+            const gradeApplyingFilter = document.getElementById("gradeApplyingFilter");
+            const applyFiltersBtn = document.getElementById("applyFiltersBtn");
+
+            // Apply filters when the button is clicked
+            applyFiltersBtn.addEventListener("click", () => {
+                filterTable();
+                // Close modal after applying filters
+                let filterModal = new bootstrap.Modal(document.getElementById("filterModal"));
+                filterModal.hide();
+            });
+        });
+
+        function fetchEnrollments() {
+            fetch("databases/fetch_applications_for_review.php")
+                .then(response => response.json())
+                .then(data => {
+                    let tbody = document.querySelector("tbody");
+                    tbody.innerHTML = ""; // Clear existing rows
+
+                    if (data.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6" class="text-center py-5 empty-table-message">
+                                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                                    <p>No applications for review at this time</p>
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        data.forEach(student => {
+                            let row = document.createElement("tr");
+                            row.classList.add("student-row"); // Add a class for easy filtering
+                            row.setAttribute("data-type", student.type_of_student.toLowerCase());
+                            row.setAttribute("data-prev-grade", student.prev_grade_name);
+                            row.setAttribute("data-applying-grade", student.grade_applying_name);
+                            row.innerHTML = `
+                                <td>${student.student_id}</td>
+                                <td>${student.student_name}</td>
+                                <td>${student.type_of_student}</td>
+                                <td>${student.prev_grade_name}</td>
+                                <td>${student.grade_applying_name}</td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm">Review</button>
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    }
+                })
+                .catch(error => console.error("Error fetching data:", error));
+        }
+
+        function filterTable() {
+            const selectedType = document.getElementById("enrollmentTypeFilter").value.toLowerCase();
+            const selectedPrevGrade = document.getElementById("prevGradeFilter").value;
+            const selectedApplyingGrade = document.getElementById("gradeApplyingFilter").value;
+
+            const rows = document.querySelectorAll("tbody .student-row");
+
+            rows.forEach(row => {
+                const studentType = row.getAttribute("data-type");
+                const prevGrade = row.getAttribute("data-prev-grade");
+                const applyingGrade = row.getAttribute("data-applying-grade");
+
+                const matchesType = selectedType === "" || studentType === selectedType;
+                const matchesPrevGrade = selectedPrevGrade === "" || prevGrade === selectedPrevGrade;
+                const matchesApplyingGrade = selectedApplyingGrade === "" || applyingGrade === selectedApplyingGrade;
+
+                if (matchesType && matchesPrevGrade && matchesApplyingGrade) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+
+
+        
+
+
+
+
+    </script>
 </body>
 </html>

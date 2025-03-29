@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SJBPS Admin - Approved Applications</title>
+    <title>Admin - SJBPS Approved Applications</title>
+    <link rel="icon" type="image/png" href="images/logo/st-johns-logo.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-blue: #3498db;
+            --bg-light-gray: #f0f2f5;
             --sidebar-bg: #f8f9fa;
             --sidebar-active-bg: #f0f0f0;
             --sidebar-hover-bg: #e9ecef;
@@ -20,6 +22,13 @@
         .navbar {
             background-color: var(--primary-blue);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .logo-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
         }
         .navbar-brand {
             display: flex;
@@ -78,69 +87,70 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
+    <!-- Top Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <img src="logo.jpg" alt="SJBPS Logo" width="40" height="40" class="rounded-circle">
-                WELCOME! SJBPS Admin
-            </a>
+            <div class="d-flex align-items-center">
+                <img src="images/logo/st-johns-logo.png" alt="Profile" class="logo-image me-2">
+                <a class="navbar-brand" href="admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Admin</a>
+            </div>
             <div class="ms-auto">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-home me-2"></i>Dashboard</a>
+                        <a class="nav-link" href="admin-dashboard.php"><i class="fas fa-home me-2"></i>Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-sign-out-alt me-2"></i>Log Out</a>
+                        <a class="nav-link" href="logout.php"><i class="fas fa-sign-out-alt me-2"></i>Log Out</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
+    
 
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar py-3">
+            <div class="col-md-3 col-lg-2 d-md-block sidebar pt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" href="Admin.php">
+                        <a class="nav-link" href="admin-dashboard.php">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="Enrollment For Review.php">
+                        <a class="nav-link" href="admin-application-for-review.php">
                             <i class="fas fa-file-alt me-2"></i>Applications for Review
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="Payment.php">
-                            <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="Approved.php">
+                        <a class="nav-link active" href="admin-approved-application.php">
                             <i class="fas fa-check-circle me-2"></i>Approved Applications
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="All Enrollees.php">
-                            <i class="fas fa-users me-2"></i>All Enrollees
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">
+                            <i class="fas fa-users me-2"></i>All Enrollees
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-homepage-editor.php">
                             <i class="fas fa-edit me-2"></i>Home Page Editor
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="Users.php">
+                        <a class="nav-link" href="#">
                             <i class="fas fa-user-cog me-2"></i>Users
                         </a>
                     </li>
                 </ul>
             </div>
-      
+        
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">

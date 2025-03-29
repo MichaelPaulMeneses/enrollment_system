@@ -127,6 +127,7 @@ CREATE TABLE students (
     birth_certificate VARCHAR(255) NOT NULL,
     report_card VARCHAR(255) NOT NULL,
     id_picture VARCHAR(255) NOT NULL,
+    enrollment_status ENUM('Pending Review', 'For Payment', 'Fully Enrolled') NOT NULL DEFAULT 'Pending Review',
 
     -- Foreign Key Constraints
     FOREIGN KEY (region_id) REFERENCES refregion(id) ON DELETE CASCADE,

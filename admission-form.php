@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Enrollment Form</title>
+    <title>SJBPS Admission Form</title>
+    <link rel="icon" type="image/png" href="images/logo/st-johns-logo.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -502,8 +503,8 @@
         document.addEventListener("DOMContentLoaded", function () {
             const privacyModal = new bootstrap.Modal(document.getElementById("privacyNoticeModal"), {
                 backdrop: 'static',  // Prevent closing by clicking outside
-                //keyboard: false      // Prevent closing with ESC key
-            })
+                keyboard: false      // Prevent closing with ESC key
+            });
 
             const privacyOkayBtn = document.getElementById("privacyOkayBtn");
 
@@ -985,26 +986,31 @@
 
                                 successModal.show();
 
-                                let userEmail = document.getElementById('email').value; // Get the email from the response
+                                let userGender = document.getElementById('gender').value;
+                                let userSurname = document.getElementById('studentLastName').value; 
+                                let userEmail = document.getElementById('email').value;  // Get the email from the response
+                                
+                                console.log(userEmail, userGender, userSurname); // Debug: Check values
+                                if (!userEmail || !userSurname || !userGender) {
+                                    alert("Please fill in all required fields.");
+                                    return;
+                                }
 
-                                if (!userEmail) {
-                                        alert("Please enter an email.");
-                                        return;
-                                    }
-
-                                    fetch('databases/send_registration_email.php', {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/x-www-form-urlencoded'
-                                        },
-                                        body: 'email=' + encodeURIComponent(userEmail)
-                                    })
-                                    .then(response => response.text())
-                                    .then(data => {
-                                        console.log(data); // Log success or error message
-                                        alert(data); // Show success or error message
-                                    })
-                                    .catch(error => console.error('Error:', error));
+                                fetch('databases/send_registration_email.php', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded'
+                                    },
+                                    body: 'email=' + encodeURIComponent(userEmail) +
+                                        '&surname=' + encodeURIComponent(userSurname) +
+                                        '&gender=' + encodeURIComponent(userGender)
+                                })
+                                .then(response => response.text())
+                                .then(data => {
+                                    console.log(data); // Log success or error message
+                                    alert(data); // Show success or error message
+                                })
+                                .catch(error => console.error('Error:', error));
 
                                 document.getElementById("successGoHomeBtn").addEventListener("click", function () {                                    
                                    window.location.href = 'homepage.php'; // Redirect to homepage
@@ -1140,7 +1146,7 @@
         function preventInvalidInput(event) {
             const key = event.key;
             // Allow: alphabets, space, and dot
-            if (!/^[A-Za-z\s\.,']$/.test(key)) {
+            if (!/^[A-Za-z\s\.,'/]$/.test(key)) {
                 event.preventDefault();  // Prevent invalid keypress
             }
         }
