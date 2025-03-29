@@ -59,9 +59,9 @@
     <div class="modal fade" id="privacyNoticeModal" tabindex="-1" aria-labelledby="privacyNoticeLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header border-0">
+                <!--<div class="modal-header border-0">
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+                </div>-->
                 <div class="modal-body">
                     <div class="circle-icon">
                         <span>i</span>
@@ -77,9 +77,9 @@
     <div class="modal fade" id="applicationSuccessModal" tabindex="-1" aria-labelledby="applicationSuccessLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg"> <!-- Added modal-lg class here -->
             <div class="modal-content">
-                <div class="modal-header border-0">
+                <!--<div class="modal-header border-0">
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+                </div>-->
                 <div class="modal-body text-center p-4">
                     <div class="mb-4">
                         <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -92,7 +92,7 @@
                     <p class="mb-4">If you have any immediate questions, please contact our Admissions Office at 
                         <a href="mailto:registrar.sjbps@gmail.com">registrar.sjbps@gmail.com</a> or (02) 8296 5896 and 0920 122 5764.
                     </p>
-                    <button type="button" class="btn btn-primary px-4" id="successGoHomeBtn" onclick="window.location.href='homepage.php';">Go Home</button>
+                    <button type="button" class="btn btn-primary px-4" id="successGoHomeBtn">Go Home</button>
                 </div>
             </div>
         </div>
@@ -372,8 +372,8 @@
                                         <label for="studentType" class="form-label">Type of Student <span class="required">*</span></label>
                                         <select class="form-select" id="studentType" name="studentType" required>
                                             <option value="" disabled selected>Select Type of Student</option>
-                                            <option value="new/transferee">New/Transferee</option>
                                             <option value="old">Old</option>
+                                            <option value="new/transferee">New/Transferee</option>
                                         </select>
                                     </div>
                                 </div>
@@ -503,7 +503,7 @@
             const privacyModal = new bootstrap.Modal(document.getElementById("privacyNoticeModal"), {
                 backdrop: 'static',  // Prevent closing by clicking outside
                 //keyboard: false      // Prevent closing with ESC key
-            });
+            })
 
             const privacyOkayBtn = document.getElementById("privacyOkayBtn");
 
@@ -517,7 +517,7 @@
             });
         });
     </script>
-    
+
 
     <!-- Inputs in the Admission Form and Some Validation -->
     <script>
@@ -818,13 +818,22 @@
                     }
                 });
 
+                // **Certify Checkbox Validation**
+                if (!certificationCheck.checked) {
+                    isValid = false;
+                    certError.innerHTML = `<small class="text-danger">You must certify the information before submitting.</small>`;
+                } else {
+                    certError.innerHTML = "";
+                }
+
+
                 // **Check for Duplicate Student Before Submitting**
                 console.log("Checking for duplicate student...");
                 let isDuplicate = await checkDuplicateStudent();
 
                 if (isDuplicate === false) {
                     console.log("Duplicate student found. Aborting submission.");
-                    return;
+                    isValid = false;
                 }
 
 
@@ -871,6 +880,7 @@
                         if (data.exists) {
                             showError(emailField, "This email is already registered for the selected school year and/or semester.");
                             alert("This email is already registered for the selected school year and/or semester.");
+                            isValid = false;
                         } else {
                             removeError(emailField);
                         }
@@ -880,7 +890,7 @@
                     }
                 }
                 
-                //Appointment Validator on Student type
+                // Appointment Validator on Student type
                 if (studentType == "new/transferee") {
                     let appointmentDateValidator = document.getElementById("appointmentDate").value;
                     let appointmentTimeValidator = document.getElementById("appointmentTime").value;
@@ -894,15 +904,24 @@
                             isValid = false;
                             removeError(field);
                             showError(dateError, "This field is required.");
-                            showError(timeError, "This field is required.")
+                            showError(timeError, "This field is required.");
                         } else {
+                            // Check if the selected date is a future date
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0); // Reset time to start of the day for comparison
+                            const selectedDate = new Date(appointmentDateValidator);
+
+                            if (selectedDate <= today) {
+                                showError(dateError, "Please select a future date.");
+                                isValid = false;
+                            }
+
                             // Check if the selected time is between 08:00 AM and 03:00 PM
                             const time = appointmentTimeValidator.split(":");
                             const hours = parseInt(time[0], 10);
                             const minutes = parseInt(time[1], 10);
                             
-                            const date = new Date(appointmentDateValidator);
-                            const day = date.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+                            const day = selectedDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
                             // Check if the selected date is between Monday (1) and Friday (5)
                             if (day === 0 || day === 6) {
@@ -922,6 +941,7 @@
                         }
                     });
                 }
+
 
                 if (gradeApplyingFor == 13 || gradeApplyingFor == 14) {
                     console.log("student is senior high school student");
@@ -943,20 +963,7 @@
                     });
                 }
 
-                
-
-                
-                // **Certify Checkbox Validation**
-                if (!certificationCheck.checked) {
-                    isValid = false;
-                    certError.innerHTML = `<small class="text-danger">You must certify the information before submitting.</small>`;
-                } else {
-                    certError.innerHTML = "";
-                }
-
                 if (isValid) {
-                    event.preventDefault();
-    
                     let formData = new FormData(this);
                     fetch("databases/submit_form.php", {
                         method: "POST",
@@ -978,9 +985,37 @@
 
                                 successModal.show();
 
-                                document.getElementById("successGoHomeBtn").addEventListener("click", function () {
-                                    window.location.href = 'homepage.php';
+                                let userGender = document.getElementById('gender').value;
+                                let userSurname = document.getElementById('studentLastName').value; 
+                                let userEmail = document.getElementById('email').value;  // Get the email from the response
+                                
+                                console.log(userEmail, userGender, userSurname); // Debug: Check values
+                                if (!userEmail || !userSurname || !userGender) {
+                                    alert("Please fill in all required fields.");
+                                    return;
+                                }
+
+                                fetch('databases/send_registration_email.php', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded'
+                                    },
+                                    body: 'email=' + encodeURIComponent(userEmail) +
+                                        '&surname=' + encodeURIComponent(userSurname) +
+                                        '&gender=' + encodeURIComponent(userGender)
+                                })
+                                .then(response => response.text())
+                                .then(data => {
+                                    console.log(data); // Log success or error message
+                                    alert(data); // Show success or error message
+                                })
+                                .catch(error => console.error('Error:', error));
+
+
+                                document.getElementById("successGoHomeBtn").addEventListener("click", function () {                                    
+                                   window.location.href = 'homepage.php'; // Redirect to homepage
                                 });
+
 
                                 document.getElementById("enrollmentForm").reset();
                             } else {
@@ -994,6 +1029,7 @@
 
 
                 } else {
+                    event.preventDefault();
                     alert("Please fill out all required fields correctly.");
                 }
             });
@@ -1040,9 +1076,13 @@
             document.getElementById("appointmentDate").addEventListener("input", function () {
                 const dateError = document.getElementById("dateError");
                 const selectedDate = new Date(this.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Reset time to start of the day for comparison
                 const day = selectedDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
-                if (day === 0 || day === 6) {
+                if (selectedDate <= today) {
+                    showError(dateError, "Please select a future date.");
+                } else if (day === 0 || day === 6) {
                     showError(dateError, "Please select a date from Monday to Friday.");
                 } else {
                     removeError(dateError);

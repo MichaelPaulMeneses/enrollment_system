@@ -100,7 +100,7 @@ CREATE TABLE students (
     zip_code VARCHAR(10) NOT NULL,
     date_of_birth DATE NOT NULL,
     place_of_birth VARCHAR(100) NOT NULL,
-    gender ENUM('Male', 'Female', 'Other') NOT NULL,
+    gender ENUM('Male', 'Female') NOT NULL,
     nationality_id INT(11) NOT NULL,
     religion_id INT(11) NOT NULL,
     prev_grade_lvl INT(11) NOT NULL,
