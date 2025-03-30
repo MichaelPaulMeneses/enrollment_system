@@ -13,6 +13,7 @@ DROP TABLE IF EXISTS school_logo;
 DROP TABLE IF EXISTS homepage_carousel;
 DROP TABLE IF EXISTS homepage_mission;
 DROP TABLE IF EXISTS homepage_vision;
+DROP TABLE IF EXISTS homepage_gallery;
 DROP TABLE IF EXISTS homepage_enrollment_important_info;
 DROP TABLE IF EXISTS homepage_transferee_new_students;
 DROP TABLE IF EXISTS homepage_old_students;
@@ -164,10 +165,16 @@ CREATE TABLE homepage_mission (
     content TEXT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE homepage_homepage_vision (
+CREATE TABLE homepage_vision (
     id INT AUTO_INCREMENT PRIMARY KEY,
     content TEXT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE homepage_gallery (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    image_path VARCHAR(255) NOT NULL
+);
+
 
 CREATE TABLE homepage_enrollment_important_info (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -187,6 +194,9 @@ CREATE TABLE homepage_old_students (
     description TEXT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+INSERT INTO homepage_mission (content) VALUES ('This is a test mission statement.');
+
+INSERT INTO homepage_vision (content) VALUES ('This is a test vision statement.');
 
 INSERT INTO nationalities (nationality_id, nationality_name) VALUES 
     (1, 'Filipino'),

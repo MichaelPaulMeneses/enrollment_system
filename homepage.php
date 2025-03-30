@@ -244,7 +244,49 @@
             background-color: #f8f9fa;
             border-radius: 10px;
         }
+        .gallery-card {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            max-width: 500px;
+            max-height: 500px;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 1 / 1;
+        }
+        .gallery-card:hover {
+            transform: scale(1.05);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
     </style>
+
+    <!--for the mobile menu toggle-->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburger = document.querySelector('.navbar-toggler');
+            const mobileMenu = document.querySelector('.mobile-menu');
+
+            hamburger.addEventListener('click', function() {
+                mobileMenu.classList.toggle('show');
+                this.classList.toggle('active');
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!hamburger.contains(event.target) && !mobileMenu.contains(event.target)) {
+                    mobileMenu.classList.remove('show');
+                    hamburger.classList.remove('active');
+                }
+            });
+
+            // Prevent mobile menu from closing when clicking inside it
+            mobileMenu.addEventListener('click', function(event) {
+                event.stopPropagation();
+            });
+        });
+    </script>
 
     <!-- Fetch the logo from the database and display it in the navbar -->
     <script>
@@ -298,16 +340,8 @@
 
     <!-- Banner Carousel -->
     <div id="bannerCarousel" class="carousel slide container banner" data-bs-ride="carousel">
-        <div class="carousel-inner">
-            <div class="carousel-item active">
-                <img src="images/carousel/banner1.jpeg" alt="Banner 1" class="d-block w-100" style="height: 50vh; object-fit: cover;">
-            </div>
-            <div class="carousel-item">
-                <img src="images/carousel/banner2.png" alt="Banner 2" class="d-block w-100" style="height: 50vh; object-fit: cover;">
-            </div>
-            <div class="carousel-item">
-                <img src="images/carousel/banner3.jpg" alt="Banner 3" class="d-block w-100" style="height: 50vh; object-fit: cover;">
-            </div>
+        <div class="carousel-inner" id="carouselContainer">
+            <!-- Images will be dynamically loaded here -->
         </div>
         <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -332,13 +366,65 @@
             <div class="col-md-6 mb-3 mb-md-0">
                 <div class="mission-vision-box">
                     <h3><i class="fas fa-bullseye me-2"></i>Mission</h3>
-                    <p>The St. John the Baptist Parochial School commits itself as a living witness of Christ and as an agent of quality Catholic education in response to the mission of the Church by proclaiming the Gospel Values and providing 21st century competencies to the Johannine community through the spirit of St. sJohn.</p>
+                    <p id="missionText">Loading...</p>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mission-vision-box">
                     <h3><i class="fas fa-eye me-2"></i>Vision</h3>
-                    <p>The St. John Baptist Parochial School envisions itself as globally academic competent community that embodies Christ's teachings.</p>
+                    <p id="visionText">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchMissionAndVision();
+        });
+
+        function fetchMissionAndVision() {
+            // Fetch Mission
+            fetch("databases/fetch_mission.php")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success" && data.mission) {
+                        document.getElementById("missionText").textContent = data.mission;
+                    } else {
+                        document.getElementById("missionText").textContent = "Unable to load mission.";
+                        console.error("Error fetching mission:", data.message);
+                    }
+                })
+                .catch(error => {
+                    document.getElementById("missionText").textContent = "Error loading mission.";
+                    console.error("Error fetching mission:", error);
+                });
+
+            // Fetch Vision
+            fetch("databases/fetch_vision.php")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success" && data.vision) {
+                        document.getElementById("visionText").textContent = data.vision;
+                    } else {
+                        document.getElementById("visionText").textContent = "Unable to load vision.";
+                        console.error("Error fetching vision:", data.message);
+                    }
+                })
+                .catch(error => {
+                    document.getElementById("visionText").textContent = "Error loading vision.";
+                    console.error("Error fetching vision:", error);
+                });
+        }
+    </script>
+
+    <!-- School Gallery -->
+    <div id="schoolGallery" class="container mt-5">
+        <h2 class="text-center mb-4">SCHOOL GALLERY</h2>
+        <div id="galleryCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="row" id="galleryContainer">
+                    <!-- Gallery cards will be dynamically loaded here -->
                 </div>
             </div>
         </div>
@@ -426,29 +512,72 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Load the carousel images dynamically -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const hamburger = document.querySelector('.navbar-toggler');
-            const mobileMenu = document.querySelector('.mobile-menu');
-
-            hamburger.addEventListener('click', function() {
-                mobileMenu.classList.toggle('show');
-                this.classList.toggle('active');
-            });
-
-            // Close mobile menu when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!hamburger.contains(event.target) && !mobileMenu.contains(event.target)) {
-                    mobileMenu.classList.remove('show');
-                    hamburger.classList.remove('active');
-                }
-            });
-
-            // Prevent mobile menu from closing when clicking inside it
-            mobileMenu.addEventListener('click', function(event) {
-                event.stopPropagation();
-            });
+        document.addEventListener("DOMContentLoaded", function () {
+            loadBannerCarousel();
         });
+
+        function loadBannerCarousel() {
+            fetch("databases/fetch_carousel.php")
+                .then(response => response.json())
+                .then(images => {
+                    let container = document.getElementById("carouselContainer");
+                    container.innerHTML = ""; // Clear existing content
+
+                    if (images.length === 0) {
+                        container.innerHTML = `<div class="carousel-item active">
+                            <img src="assets/homepage_images/logo/placeholder.png" alt="Default Banner" class="d-block w-100" style="height: 50vh; object-fit: cover;">
+                        </div>`;
+                        return;
+                    }
+
+                    images.forEach((image, index) => {
+                        let carouselItem = document.createElement("div");
+                        carouselItem.className = `carousel-item ${index === 0 ? "active" : ""}`;
+                        carouselItem.innerHTML = `<img src="${image.image_path}" class="d-block w-100" style="height: 50vh; object-fit: cover;">`;
+                        container.appendChild(carouselItem);
+                    });
+                })
+                .catch(error => console.error("Error loading carousel images:", error));
+        }
+    </script>
+
+    <!-- Load the gallery images dynamically -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            loadGallery();
+        });
+
+        function loadGallery() {
+            fetch("databases/fetch_gallery.php")
+                .then(response => response.json())
+                .then(data => {
+                    const galleryContainer = document.getElementById("galleryContainer");
+                    galleryContainer.innerHTML = ""; // Clear existing content
+
+                    if (data.status === "success" && data.images.length > 0) {
+                        data.images.forEach(image => {
+                            const imageElement = `
+                                <div class="col-md-3 col-lg-4 mb-4">
+                                    <div class="card gallery-card">
+                                        <img src="${image}" class="card-img-top" alt="Gallery Image">
+                                    </div>
+                                </div>
+                            `;
+                            galleryContainer.innerHTML += imageElement;
+                        });
+                    } else {
+                        galleryContainer.innerHTML = `<p class="text-center">No images available.</p>`;
+                        console.error("Error:", data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching gallery data:", error);
+                    document.getElementById("galleryContainer").innerHTML = `<p class="text-center">Error loading gallery.</p>`;
+                });
+        }
     </script>
 </body>
 </html>

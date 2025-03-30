@@ -232,8 +232,13 @@ $adminLastName = $_SESSION['last_name'];
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 px-md-4 pt-3">
                 <div class="row">
-                    <!-- First Row - 4 Cards -->
-                    <div class="col-md-6 col-lg-3 mb-4">
+                    <!-- First Row - 2 Cards -->
+                    <div class="col-12 mb-4">
+                        <h4 class="text-title text-align">
+                            Main Page
+                        </h4>
+                    </div>
+                    <div class="col-md-6 col-lg-6 mb-4">
                         <div class="card-container">
                             <div class="card-title">Logo</div>
                             <div class="metric-card red" data-bs-toggle="modal" data-bs-target="#editLogoModal">
@@ -243,7 +248,7 @@ $adminLastName = $_SESSION['last_name'];
                         </div>
                     </div>
                     
-                    <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="col-md-6 col-lg-6 mb-4">
                         <div class="card-container">
                             <div class="card-title">Carousel</div>
                             <div class="metric-card orange" data-bs-toggle="modal" data-bs-target="#editCarouselModal">
@@ -252,28 +257,51 @@ $adminLastName = $_SESSION['last_name'];
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="col-md-6 col-lg-3 mb-4">
+                    <!-- Second Row - 2 Cards -->
+                    <div class="col-12 mb-4">
+                        <h4 class="text-title text-align">
+                            Mission & Vission Page
+                        </h4>
+                    </div>
+
+                    <div class="col-md-6 col-lg-6 mb-4">
                         <div class="card-container">
                             <div class="card-title">Mission</div>
-                            <div class="metric-card green">
+                            <div class="metric-card green" data-bs-toggle="modal" data-bs-target="#editMissionModal">
                                 <div class="metric-value">Edit</div>
                                 <i class="fas fa-arrow-right"></i>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="col-md-6 col-lg-6 mb-4">
                         <div class="card-container">
                             <div class="card-title">Vision</div>
-                            <div class="metric-card blue">
+                            <div class="metric-card blue" data-bs-toggle="modal" data-bs-target="#editVisionModal">
                                 <div class="metric-value">Edit</div>
                                 <i class="fas fa-arrow-right"></i>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Second Row - 2 Cards -->
+                    <!-- Third Row - 2 Cards -->
+                    <div class="col-12 mb-4">
+                        <h4 class="text-title text-align">
+                            School Gallery
+                        </h4>
+                    </div>
+
+                    <div class="col-md-12 col-lg-12 mb-4">
+                        <div class="card-container">
+                            <div class="card-title">Pictures</div>
+                            <div class="metric-card navy" data-bs-toggle="modal" data-bs-target="#editGalleryModal">
+                                <div class="card-action">Edit</div>
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fourth Row - 3 Cards -->
                     <div class="col-12 mb-4">
                         <h4 class="text-title text-align">
                             Enrollment Procedure
@@ -283,7 +311,7 @@ $adminLastName = $_SESSION['last_name'];
                     <div class="col-md-6 col-lg-4 mb-4">
                         <div class="card-container">
                             <div class="card-title">Enrollment Important Information</div>
-                            <div class="metric-card navy">
+                            <div class="metric-card yellow">
                                 <div class="card-action">Edit</div>
                                 <i class="fas fa-arrow-right"></i>
                             </div>
@@ -293,7 +321,7 @@ $adminLastName = $_SESSION['last_name'];
                     <div class="col-md-6 col-lg-4 mb-4">
                         <div class="card-container">
                         <div class="card-title">For Transferee/New Students</div>
-                            <div class="metric-card yellow">
+                            <div class="metric-card purple">
                                 <div class="card-action">Edit</div>
                                 <i class="fas fa-arrow-right"></i>
                             </div>
@@ -303,7 +331,7 @@ $adminLastName = $_SESSION['last_name'];
                     <div class="col-md-6  col-lg-4 mb-4">
                         <div class="card-container">
                             <div class="card-title">For Old Students</div>
-                            <div class="metric-card purple">
+                            <div class="metric-card teal">
                                 <div class="card-action">Edit</div>
                                 <i class="fas fa-arrow-right"></i>
                             </div>
@@ -358,14 +386,53 @@ $adminLastName = $_SESSION['last_name'];
                     <div class="modal-body">
                         <!-- Display current carousel images -->
                         <h6>Current Carousel Images:</h6>
-                        <div id="carouselImagesContainer" class="mb-3">
+                        <div id="carouselImagesContainer" class="mb-3 text-center">
                             <!-- Images will be dynamically loaded here -->
                         </div>
                         <!-- File input for new images -->
                         <div class="mb-3">
-                            <label for="carouselFiles" class="form-label">Upload New Images</label>
-                            <input type="file" class="form-control" id="carouselFiles" name="carouselFiles[]" accept="image/*" multiple>
-                            <small class="text-muted">You can upload multiple images.</small>
+                            <label for="carouselFile1" class="form-label">Upload Image 1</label>
+                            <input type="file" class="form-control" id="carouselFile1" name="carouselFile1" accept="image/*" required>
+                            <small class="text-muted">Select an image file to replace the current carousel image.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="carouselFile2" class="form-label">Upload Image 2</label>
+                            <input type="file" class="form-control" id="carouselFile2" name="carouselFile2" accept="image/*" required>
+                            <small class="text-muted">Select an image file to replace the current carousel image.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="carouselFile3" class="form-label">Upload Image 3</label>
+                            <input type="file" class="form-control" id="carouselFile3" name="carouselFile3" accept="image/*"  required>
+                            <small class="text-muted">Select an image file to replace the current carousel image.</small>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal for Editing Mission -->
+    <div class="modal fade" id="editMissionModal" tabindex="-1" aria-labelledby="editMissionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editMissionModalLabel">Edit Mission</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="missionForm">
+                    <div class="modal-body">
+                        <!-- Textarea for editing mission -->
+                        <div class="mb-3">
+                            <label for="missionText" class="form-label">Mission Statement</label>
+                            <textarea class="form-control" id="missionText" name="missionText" rows="10" required></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -377,6 +444,103 @@ $adminLastName = $_SESSION['last_name'];
         </div>
     </div>
 
+    <!-- Modal for Editing Vision -->
+    <div class="modal fade" id="editVisionModal" tabindex="-1" aria-labelledby="editVisionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editVisionModalLabel">Edit Vision</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="visionForm">
+                    <div class="modal-body">
+                        <!-- Textarea for editing vision -->
+                        <div class="mb-3">
+                            <label for="visionText" class="form-label">Vision Statement</label>
+                            <textarea class="form-control" id="visionText" name="visionText" rows="10" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for Editing Gallery Pictures -->
+    <div class="modal fade" id="editGalleryModal" tabindex="-1" aria-labelledby="editGalleryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editGalleryModalLabel">Edit Gallery Pictures</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="galleryForm" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <h6>Current Gallery Pictures:</h6>
+                        <div id="galleryImagesContainer" class="mb-3 text-center">
+                            <!-- Images will be dynamically loaded here -->
+                        </div>
+                        <!-- File inputs for new images -->
+                        <div class="mb-3">
+                            <label for="galleryFile1" class="form-label">Upload Image 1</label>
+                            <input type="file" class="form-control" id="galleryFile1" name="galleryFile1" accept="image/*">
+                            <small class="text-muted">Select an image file to replace the current gallery image.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="galleryFile2" class="form-label">Upload Image 2</label>
+                            <input type="file" class="form-control" id="galleryFile2" name="galleryFile2" accept="image/*">
+                            <small class="text-muted">Select an image file to replace the current gallery image.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="galleryFile3" class="form-label">Upload Image 3</label>
+                            <input type="file" class="form-control" id="galleryFile3" name="galleryFile3" accept="image/*">
+                            <small class="text-muted">Select an image file to replace the current gallery image.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="galleryFile4" class="form-label">Upload Image 4</label>
+                            <input type="file" class="form-control" id="galleryFile4" name="galleryFile4" accept="image/*">
+                            <small class="text-muted">Select an image file to replace the current gallery image.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="galleryFile5" class="form-label">Upload Image 5</label>
+                            <input type="file" class="form-control" id="galleryFile5" name="galleryFile5" accept="image/*">
+                            <small class="text-muted">Select an image file to replace the current gallery image.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="galleryFile6" class="form-label">Upload Image 6</label>
+                            <input type="file" class="form-control" id="galleryFile6" name="galleryFile6" accept="image/*">
+                            <small class="text-muted">Select an image file to replace the current gallery image.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="galleryFile7" class="form-label">Upload Image 7</label>
+                            <input type="file" class="form-control" id="galleryFile7" name="galleryFile7" accept="image/*">
+                            <small class="text-muted">Select an image file to replace the current gallery image.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="galleryFile8" class="form-label">Upload Image 8</label>
+                            <input type="file" class="form-control" id="galleryFile8" name="galleryFile8" accept="image/*">
+                            <small class="text-muted">Select an image file to replace the current gallery image.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="galleryFile9" class="form-label">Upload Image 9</label>
+                            <input type="file" class="form-control" id="galleryFile9" name="galleryFile9" accept="image/*">
+                            <small class="text-muted">Select an image file to replace the current gallery image.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    
     <!-- Bootstrap JS and dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -422,8 +586,15 @@ $adminLastName = $_SESSION['last_name'];
                             modalInstance.hide();
                         }
 
+                        // Clear the file input fields after submission
+                        document.querySelectorAll("#logoForm input[type='file']").forEach(input => {
+                            input.value = "";
+
                         // Refresh the admin-homepage-editor.php page
-                        window.location.href = "admin-homepage-editor.php";
+                        setTimeout(() => {
+                            window.location.href = "admin-homepage-editor.php";
+                        }, 500);
+                        });
                     } else {
                         alert("Error: " + data.message);
                     }
@@ -431,86 +602,227 @@ $adminLastName = $_SESSION['last_name'];
                 .catch(error => console.error("Upload error:", error));
             });
         });
-
-
     </script>
 
-    <!-- Script to handle carousel image upload and deletion -->
+    <!-- Script to handle carousel image upload and edit -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            var editCarouselModal = document.getElementById("editCarouselModal");
+            loadCarouselImages();
 
-            // Fetch and display current carousel images when modal opens
-            editCarouselModal.addEventListener("show.bs.modal", function () {
-                fetch("databases/fetch_carousel.php")
+            document.getElementById("carouselForm").addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                let formData = new FormData(this);
+                fetch("databases/edit_carousel.php", {
+                    method: "POST",
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.status === "success") {
+                        loadCarouselImages();
+                        let modal = bootstrap.Modal.getInstance(document.getElementById("editCarouselModal"));
+                        modal.hide();
+
+                        // Clear the file input fields after submission
+                        document.querySelectorAll("#carouselForm input[type='file']").forEach(input => {
+                            input.value = "";
+                        });
+
+                        // Refresh the admin-homepage-editor.php page
+                        setTimeout(() => {
+                            window.location.href = "admin-homepage-editor.php";
+                        }, 500);
+
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            });
+        });
+
+        function loadCarouselImages() {
+            fetch("databases/fetch_carousel.php")
+                .then(response => response.json())
+                .then(images => {
+                    let container = document.getElementById("carouselImagesContainer");
+                    container.innerHTML = "";
+
+                    images.forEach((image, index) => {
+                        let imgElement = document.createElement("img");
+                        imgElement.src = image.image_path;
+                        imgElement.className = "img-thumbnail me-2";
+                        imgElement.style.width = "150px";
+                        container.appendChild(imgElement);
+                    });
+                })
+                .catch(error => console.error("Error loading images:", error));
+        }
+    </script>
+
+    <!-- Script to handle mission editing -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const missionModal = document.getElementById("editMissionModal");
+            const missionText = document.getElementById("missionText");
+            const missionForm = document.getElementById("missionForm");
+
+            // Fetch and display current mission when the modal opens
+            missionModal.addEventListener("show.bs.modal", function () {
+                fetch("databases/fetch_mission.php")
                     .then(response => response.json())
                     .then(data => {
-                        let container = document.getElementById("carouselImagesContainer");
-                        container.innerHTML = ""; // Clear previous content
-                        if (data.status === "success" && data.images.length > 0) {
-                            data.images.forEach((image, index) => {
-                                let imgElement = document.createElement("div");
-                                imgElement.classList.add("mb-2", "d-flex", "align-items-center");
-                                imgElement.innerHTML = `
-                                    <img src="${image.url}" alt="Carousel Image ${index + 1}" class="img-thumbnail me-2" style="max-width: 150px; height: auto;">
-                                    <button type="button" class="btn btn-danger btn-sm" data-image-id="${image.id}" onclick="deleteCarouselImage(${image.id})">Delete</button>
-                                `;
-                                container.appendChild(imgElement);
-                            });
+                        if (data.status === "success") {
+                            missionText.value = data.mission;
                         } else {
-                            container.innerHTML = "<p class='text-muted'>No images found.</p>";
+                            console.error("Error:", data.message);
+                            alert("Error fetching mission: " + data.message);
                         }
                     })
-                    .catch(error => console.error("Error fetching carousel images:", error));
+                    .catch(error => {
+                        console.error("Error fetching mission:", error);
+                        alert("Failed to load mission. Check your connection.");
+                    });
             });
 
-            // AJAX Upload Form Submission
-            document.getElementById("carouselForm").addEventListener("submit", function (e) {
+            // Handle form submission for updating mission
+            missionForm.addEventListener("submit", function (e) {
                 e.preventDefault();
-                let formData = new FormData(this);
+                const formData = new FormData(missionForm);
 
-                fetch("databases/edit_carousel.php", {
+                fetch("databases/edit_mission.php", {
                     method: "POST",
                     body: formData
                 })
                 .then(response => response.json())
                 .then(data => {
+                    alert(data.message);
                     if (data.status === "success") {
-                        // Refresh the carousel preview
-                        var modalInstance = bootstrap.Modal.getInstance(editCarouselModal);
-                        if (modalInstance) {
-                            modalInstance.hide();
-                        }
-                        window.location.href = "admin-homepage-editor.php";
-                    } else {
-                        alert("Error: " + data.message);
+                        // Close the modal after successful update
+                        const modalInstance = bootstrap.Modal.getOrCreateInstance(missionModal);
+                        modalInstance.hide();
+
+                        // Refresh the admin-homepage-editor.php page
+                        setTimeout(() => {
+                            window.location.href = "admin-homepage-editor.php";
+                        }, 500);
                     }
                 })
-                .catch(error => console.error("Upload error:", error));
+                .catch(error => {
+                    console.error("Error updating mission:", error);
+                    alert("Failed to update mission.");
+                });
             });
         });
+    </script>
 
-        // Function to delete a carousel image
-        function deleteCarouselImage(imageId) {
-            if (confirm("Are you sure you want to delete this image?")) {
-                fetch(`databases/delete_carousel_image.php?id=${imageId}`, {
-                    method: "GET"
+    <!-- Script to handle vision editing -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const visionModal = document.getElementById("editVisionModal");
+            const visionText = document.getElementById("visionText");
+            const visionForm = document.getElementById("visionForm");
+
+            // Fetch and display current vision when the modal opens
+            visionModal.addEventListener("show.bs.modal", function () {
+                fetch("databases/fetch_vision.php")
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            visionText.value = data.vision;
+                        } else {
+                            console.error("Error:", data.message);
+                            alert("Error fetching vision: " + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching vision:", error);
+                        alert("Failed to load vision. Check your connection.");
+                    });
+            });
+
+            // Handle form submission for updating vision
+            visionForm.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const formData = new FormData(visionForm);
+
+                fetch("databases/edit_vision.php", {
+                    method: "POST",
+                    body: formData
                 })
                 .then(response => response.json())
                 .then(data => {
+                    alert(data.message);
                     if (data.status === "success") {
-                        // Refresh the modal content
-                        var editCarouselModal = bootstrap.Modal.getInstance(document.getElementById("editCarouselModal"));
-                        if (editCarouselModal) {
-                            editCarouselModal.hide();
-                            editCarouselModal.show();
-                        }
-                    } else {
-                        alert("Error: " + data.message);
+                        // Close the modal after successful update
+                        const modalInstance = bootstrap.Modal.getOrCreateInstance(visionModal);
+                        modalInstance.hide();
+
+                        // Refresh the admin-homepage-editor.php page
+                        setTimeout(() => {
+                            window.location.href = "admin-homepage-editor.php";
+                        }, 500);
                     }
                 })
-                .catch(error => console.error("Error deleting image:", error));
-            }
+                .catch(error => {
+                    console.error("Error updating vision:", error);
+                    alert("Failed to update vision.");
+                });
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchGalleryImages();
+
+            document.getElementById("galleryForm").addEventListener("submit", function (e) {
+                e.preventDefault();
+                updateGalleryImages();
+            });
+        });
+
+        function fetchGalleryImages() {
+            fetch("databases/fetch_gallery.php")
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById("galleryImagesContainer");
+                    container.innerHTML = "";
+                    
+                    if (data.status === "success" && data.images.length > 0) {
+                        data.images.forEach(image => {
+                            container.innerHTML += `<img src="${image}" class="img-thumbnail m-2" width="150">`;
+                        });
+                    } else {
+                        container.innerHTML = "<p>No images found.</p>";
+                    }
+                })
+                .catch(error => console.error("Error fetching images:", error));
+        }
+
+        function updateGalleryImages() {
+            let formData = new FormData(document.getElementById("galleryForm"));
+
+            fetch("databases/edit_gallery.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                fetchGalleryImages(); // Refresh images after upload
+
+                // Clear the file input fields after submission
+                document.querySelectorAll("#galleryForm input[type='file']").forEach(input => {
+                    input.value = "";
+                });
+
+                // Refresh the admin-homepage-editor.php page
+                setTimeout(() => {
+                    window.location.href = "admin-homepage-editor.php";
+                }, 500);
+            })
+            .catch(error => console.error("Error updating gallery:", error));
         }
     </script>
 
