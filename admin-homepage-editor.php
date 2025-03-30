@@ -311,7 +311,7 @@ $adminLastName = $_SESSION['last_name'];
                     <div class="col-md-6 col-lg-4 mb-4">
                         <div class="card-container">
                             <div class="card-title">Enrollment Important Information</div>
-                            <div class="metric-card yellow">
+                            <div class="metric-card yellow" data-bs-toggle="modal" data-bs-target="#editEnrollmentInfoModal">
                                 <div class="card-action">Edit</div>
                                 <i class="fas fa-arrow-right"></i>
                             </div>
@@ -321,7 +321,7 @@ $adminLastName = $_SESSION['last_name'];
                     <div class="col-md-6 col-lg-4 mb-4">
                         <div class="card-container">
                         <div class="card-title">For Transferee/New Students</div>
-                            <div class="metric-card purple">
+                            <div class="metric-card purple" data-bs-toggle="modal" data-bs-target="#editTransfereeModal">
                                 <div class="card-action">Edit</div>
                                 <i class="fas fa-arrow-right"></i>
                             </div>
@@ -331,7 +331,7 @@ $adminLastName = $_SESSION['last_name'];
                     <div class="col-md-6  col-lg-4 mb-4">
                         <div class="card-container">
                             <div class="card-title">For Old Students</div>
-                            <div class="metric-card teal">
+                            <div class="metric-card teal" data-bs-toggle="modal" data-bs-target="#editOldStudentsModal">
                                 <div class="card-action">Edit</div>
                                 <i class="fas fa-arrow-right"></i>
                             </div>
@@ -539,7 +539,138 @@ $adminLastName = $_SESSION['last_name'];
         </div>
     </div>
 
+    <!-- Modal for Editing Enrollment Important Information -->
+    <div class="modal fade" id="editEnrollmentInfoModal" tabindex="-1" aria-labelledby="editEnrollmentInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editEnrollmentInfoModalLabel">Edit Enrollment Important Information</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="enrollmentInfoForm">
+                    <div class="modal-body">
+                        <!-- Textarea for editing enrollment information -->
+                        <div class="mb-3">
+                            <label for="enrollmentInfoText" class="form-label">Enrollment Important Information</label>
+                            <textarea class="form-control" id="enrollmentInfoText" name="enrollmentInfoText" rows="10" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
+    <!-- Modal for Editing For Transferee/New Students -->
+    <div class="modal fade" id="editTransfereeModal" tabindex="-1" aria-labelledby="editTransfereeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editTransfereeModalLabel">Edit Information for Transferee/New Students</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="transfereeForm">
+                    <div class="modal-body">
+                        <!-- Textarea for editing transferee/new students information -->
+                        <div class="mb-3">
+                            <label for="transfereeText" class="form-label">Information for Transferee/New Students</label>
+                            <textarea class="form-control" id="transfereeText" name="transfereeText" rows="10" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Editing For Old Students -->
+    <div class="modal fade" id="editOldStudentsModal" tabindex="-1" aria-labelledby="editOldStudentsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editOldStudentsModalLabel">Edit Information for Old Students</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="oldStudentsForm">
+                    <div class="modal-body">
+                        <!-- Textarea for editing old students information -->
+                        <div class="mb-3">
+                            <label for="oldStudentsText" class="form-label">Information for Old Students</label>
+                            <textarea class="form-control" id="oldStudentsText" name="oldStudentsText" rows="10" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const oldStudentsModal = document.getElementById("editOldStudentsModal");
+            const oldStudentsText = document.getElementById("oldStudentsText");
+            const oldStudentsForm = document.getElementById("oldStudentsForm");
+
+            // Fetch and display current information when the modal opens
+            oldStudentsModal.addEventListener("show.bs.modal", function () {
+                fetch("databases/fetch_old_students_req_info.php")
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            oldStudentsText.value = data.info;
+                        } else {
+                            console.error("Error:", data.message);
+                            alert("Error fetching information: " + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching information:", error);
+                        alert("Failed to load information. Check your connection.");
+                    });
+            });
+
+            // Handle form submission for updating information
+            oldStudentsForm.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const formData = new FormData(oldStudentsForm);
+
+                fetch("databases/edit_old_students_req_info.php", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.status === "success") {
+                        // Close the modal after successful update
+                        const modalInstance = bootstrap.Modal.getOrCreateInstance(oldStudentsModal);
+                        modalInstance.hide();
+
+                        // Refresh the admin-homepage-editor.php page
+                        setTimeout(() => {
+                            window.location.href = "admin-homepage-editor.php";
+                        }, 500);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error updating information:", error);
+                    alert("Failed to update information.");
+                });
+            });
+        });
+    </script>
+
+
+    
     
     <!-- Bootstrap JS and dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -772,6 +903,7 @@ $adminLastName = $_SESSION['last_name'];
         });
     </script>
 
+    <!-- Script to handle gallery image upload and edit -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             fetchGalleryImages();
@@ -826,5 +958,116 @@ $adminLastName = $_SESSION['last_name'];
         }
     </script>
 
+    <!-- Script to handle enrollment information editing -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const enrollmentInfoModal = document.getElementById("editEnrollmentInfoModal");
+            const enrollmentInfoText = document.getElementById("enrollmentInfoText");
+            const enrollmentInfoForm = document.getElementById("enrollmentInfoForm");
+
+            // Fetch and display current enrollment information when the modal opens
+            enrollmentInfoModal.addEventListener("show.bs.modal", function () {
+                fetch("databases/fetch_enrollment_info.php")
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            enrollmentInfoText.value = data.info;
+                        } else {
+                            console.error("Error:", data.message);
+                            alert("Error fetching enrollment information: " + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching enrollment information:", error);
+                        alert("Failed to load enrollment information. Check your connection.");
+                    });
+            });
+
+            // Handle form submission for updating enrollment information
+            enrollmentInfoForm.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const formData = new FormData(enrollmentInfoForm);
+
+                fetch("databases/edit_enrollment_info.php", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.status === "success") {
+                        // Close the modal after successful update
+                        const modalInstance = bootstrap.Modal.getOrCreateInstance(enrollmentInfoModal);
+                        modalInstance.hide();
+
+                        // Refresh the admin-homepage-editor.php page
+                        setTimeout(() => {
+                            window.location.href = "admin-homepage-editor.php";
+                        }, 500);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error updating enrollment information:", error);
+                    alert("Failed to update enrollment information.");
+                });
+            });
+        });
+    </script>
+    
+    <!-- Script to handle transferee/new students information editing -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const transfereeModal = document.getElementById("editTransfereeModal");
+            const transfereeText = document.getElementById("transfereeText");
+            const transfereeForm = document.getElementById("transfereeForm");
+
+            // Fetch and display current information when the modal opens
+            transfereeModal.addEventListener("show.bs.modal", function () {
+                fetch("databases/fetch_transferee_req_info.php")
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            transfereeText.value = data.info;
+                        } else {
+                            console.error("Error:", data.message);
+                            alert("Error fetching information: " + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching information:", error);
+                        alert("Failed to load information. Check your connection.");
+                    });
+            });
+
+            // Handle form submission for updating information
+            transfereeForm.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const formData = new FormData(transfereeForm);
+
+                fetch("databases/edit_transferee_req_info.php", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.status === "success") {
+                        // Close the modal after successful update
+                        const modalInstance = bootstrap.Modal.getOrCreateInstance(transfereeModal);
+                        modalInstance.hide();
+
+                        // Refresh the admin-homepage-editor.php page
+                        setTimeout(() => {
+                            window.location.href = "admin-homepage-editor.php";
+                        }, 500);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error updating information:", error);
+                    alert("Failed to update information.");
+                });
+            });
+        });
+    </script>
 </body>
 </html>

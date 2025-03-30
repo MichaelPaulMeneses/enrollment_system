@@ -175,28 +175,30 @@ CREATE TABLE homepage_gallery (
     image_path VARCHAR(255) NOT NULL
 );
 
-
 CREATE TABLE homepage_enrollment_important_info (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE homepage_transferee_new_students (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    requirement VARCHAR(255) NOT NULL,
-    description TEXT NULL
+    transferee_new_desc TEXT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE homepage_old_students (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    requirement VARCHAR(255) NOT NULL,
-    description TEXT NULL
+    old_desc  TEXT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO homepage_mission (content) VALUES ('This is a test mission statement.');
 
 INSERT INTO homepage_vision (content) VALUES ('This is a test vision statement.');
+
+INSERT INTO homepage_enrollment_important_info (content) VALUES ('This is a test important information for enrollment.');
+
+INSERT INTO homepage_transferee_new_students (transferee_new_desc) VALUES ('This is a test description for transferee/new students.');
+
+INSERT INTO homepage_old_students (old_desc) VALUES ('This is a test description for old students.');
 
 INSERT INTO nationalities (nationality_id, nationality_name) VALUES 
     (1, 'Filipino'),

@@ -434,44 +434,99 @@
     <div id="procedures" class="container procedures">
         <h2 class="text-center pt-5 mb-4">ENROLLMENT PROCEDURES</h2>
         
-        <div class="enrollment-highlight">
+        <div class="enrollment-highlight" id="enrollmentInfo">
             <h5><i class="fas fa-info-circle me-2"></i>Important Information</h5>
-            <p>Enrollment for the Academic Year 2025-2026 is now open. Early registrants can avail of special discounts and privileges. Senior High School applicants enjoy 100% FREE TUITION!</p>
+            <p>Loading enrollment information...</p>
         </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+            fetchEnrollmentInfo();
+            });
+
+            function fetchEnrollmentInfo() {
+            fetch("databases/fetch_enrollment_info.php")
+                .then(response => response.json())
+                .then(data => {
+                const enrollmentInfo = document.getElementById("enrollmentInfo");
+                if (data.status === "success" && data.info) {
+                    enrollmentInfo.innerHTML = `
+                    <h5><i class="fas fa-info-circle me-2"></i>Important Information</h5>
+                    <p>${data.info}</p>
+                    `;
+                } else {
+                    enrollmentInfo.innerHTML = `
+                    <h5><i class="fas fa-info-circle me-2"></i>Important Information</h5>
+                    <p>Unable to load enrollment information at the moment.</p>
+                    `;
+                    console.error("Error:", data.message);
+                }
+                })
+                .catch(error => {
+                document.getElementById("enrollmentInfo").innerHTML = `
+                    <h5><i class="fas fa-info-circle me-2"></i>Important Information</h5>
+                    <p>Error loading enrollment information.</p>
+                `;
+                console.error("Error fetching enrollment information:", error);
+                });
+            }
+        </script>
         
         <div class="row g-4">
             <div class="col-md-6">
                 <div class="procedure-card">
-                    <h4 class="procedure-title"><i class="fas fa-user-plus me-2"></i>For Transferee/New Students</h4>
-                    <ol>
-                        <li>Accomplish the <a href="admission-form.php">online admission form</a> or you may visit the school office to fill out the admission form.</li>
-                        <li>Submit the initial requirements at the Registrar's Office:
-                            <ul>
-                                <li>Original and Photocopy of Birth Certificate</li>
-                                <li>Copy of Latest Report Card</li>
-                                <li>Recent 2x2 ID Picture (2 pcs)</li>
-                                <li>Good Moral Certificate</li>
-                            </ul>
-                        </li>
-                        <li>The Guidance Counselor and/or the Academic Coordinator will conduct an assessment/interview of the student applicant.</li>
-                        <li>Submit the other requirements for the official registration.</li>
-                        <li>Pay the necessary fees at the Cashier's or Finance Office.</li>
-                        <li>Check the school's official social media accounts for the latest announcements.</li>
-                    </ol>
+                    <h4 class="procedure-title">
+                        <i class="fas fa-user-plus me-2"></i> For Transferee/New Students
+                    </h4>
+                    <div id="transfereeRequirements">Loading...</div> <!-- Placeholder for fetched data -->
                 </div>
             </div>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    fetch("databases/fetch_transferee_req_info.php")
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === "success") {
+                                document.getElementById("transfereeRequirements").innerHTML = data.info;
+                            } else {
+                                document.getElementById("transfereeRequirements").innerHTML = "<p>Error loading data: " + data.message + "</p>";
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error fetching transferee requirements:", error);
+                            document.getElementById("transfereeRequirements").innerHTML = "<p>Failed to load information.</p>";
+                        });
+                });
+            </script>
+
             <div class="col-md-6">
                 <div class="procedure-card">
-                    <h4 class="procedure-title"><i class="fas fa-user-check me-2"></i>For Old Students</h4>
-                    <ol>
-                        <li>Accomplish the <a href="admission-form.php">online admission form</a> or you may visit the school office to fill out the admission form.</li>
-                        <li>Proceed to the registrar's section to secure a permit to enroll.</li>
-                        <li>Proceed to the Finance section for payment.</li>
-                        <li>Submit the other requirements for the official registration.</li>
-                        <li>Check the school's official social media accounts for the latest announcements.</li>
-                    </ol>
+                    <h4 class="procedure-title">
+                        <i class="fas fa-user-check me-2"></i> For Old Students
+                    </h4>
+                    <div id="oldStudentsRequirements">Loading...</div> <!-- Placeholder for fetched data -->
                 </div>
             </div>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    fetch("databases/fetch_old_students_req_info.php")
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === "success") {
+                                document.getElementById("oldStudentsRequirements").innerHTML = data.info;
+                            } else {
+                                document.getElementById("oldStudentsRequirements").innerHTML = "<p>Error loading data: " + data.message + "</p>";
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error fetching old students' requirements:", error);
+                            document.getElementById("oldStudentsRequirements").innerHTML = "<p>Failed to load information.</p>";
+                        });
+                });
+            </script>
+
         </div>
     </div>
 
@@ -577,6 +632,40 @@
                     console.error("Error fetching gallery data:", error);
                     document.getElementById("galleryContainer").innerHTML = `<p class="text-center">Error loading gallery.</p>`;
                 });
+        }
+    </script>
+
+    <!-- Load the enrollment information dynamically -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        fetchEnrollmentInfo();
+        });
+
+        function fetchEnrollmentInfo() {
+        fetch("databases/fetch_enrollment_info.php")
+            .then(response => response.json())
+            .then(data => {
+            const enrollmentInfo = document.getElementById("enrollmentInfo");
+            if (data.status === "success" && data.info) {
+                enrollmentInfo.innerHTML = `
+                <h5><i class="fas fa-info-circle me-2"></i>Important Information</h5>
+                <p>${data.info}</p>
+                `;
+            } else {
+                enrollmentInfo.innerHTML = `
+                <h5><i class="fas fa-info-circle me-2"></i>Important Information</h5>
+                <p>Unable to load enrollment information at the moment.</p>
+                `;
+                console.error("Error:", data.message);
+            }
+            })
+            .catch(error => {
+            document.getElementById("enrollmentInfo").innerHTML = `
+                <h5><i class="fas fa-info-circle me-2"></i>Important Information</h5>
+                <p>Error loading enrollment information.</p>
+            `;
+            console.error("Error fetching enrollment information:", error);
+            });
         }
     </script>
 </body>
