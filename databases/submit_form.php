@@ -49,11 +49,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $academic_semester = $_POST['academicSemester'] ?? null;
     $appointment_date = $_POST['appointmentDate'] ?? null;
     $appointment_time = $_POST['appointmentTime'] ?? null;
-    $upload_dir = "uploads/";
 
-    $birth_certificate = uploadFile('birthCertificate', $upload_dir);
-    $report_card = uploadFile('reportCard', $upload_dir);
-    $id_picture = uploadFile('idPicture', $upload_dir);
+
+    $upload_dir = __DIR__ . "/../assets/uploads/";
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
+    }
+
+    $safe_date_of_birth = str_replace(['-', '/', ' '], '_', $date_of_birth);
+
+    $birth_certificate = uploadFile('birthCertificate', $upload_dir, $first_name . '_' . $last_name . '_' . $safe_date_of_birth);
+    $report_card = uploadFile('reportCard', $upload_dir, $first_name . '_' . $last_name .'_' . $safe_date_of_birth);
+    $id_picture = uploadFile('idPicture', $upload_dir, $first_name . '_' . $last_name .'_' . $safe_date_of_birth);
+    
+
 
     $stmt = $conn->prepare("INSERT INTO students (
         last_name, first_name, middle_name, suffix, 
@@ -89,14 +98,18 @@ $conn->close();
 echo json_encode($response);
 exit();
 
-function uploadFile($fileKey, $uploadDir) {
+function uploadFile($fileKey, $uploadDir, $applicantName) {
     if (isset($_FILES[$fileKey]) && $_FILES[$fileKey]['error'] === UPLOAD_ERR_OK) {
-        $filename = basename($_FILES[$fileKey]['name']);
+        $extension = pathinfo($_FILES[$fileKey]['name'], PATHINFO_EXTENSION);
+        $safeName = preg_replace('/[^a-zA-Z0-9]/', '_', $applicantName); // Remove special characters
+        $filename = $safeName . '_' . uniqid() . '.' . $extension;
         $filePath = $uploadDir . $filename;
+
         if (move_uploaded_file($_FILES[$fileKey]['tmp_name'], $filePath)) {
-            return $filePath;
+            return "assets/uploads/" . $filename;
         }
     }
     return "";
 }
+
 ?>

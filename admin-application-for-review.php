@@ -124,13 +124,30 @@ $adminLastName = $_SESSION['last_name'];
             document.getElementById('adminWelcomeMessage').textContent = welcomeMessage;
         });
     </script>
+    <!-- Fetch the logo from the database and display it in the navbar -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("databases/fetch_logo.php")
+                .then(response => response.json())
+                .then(data => {
+                    let navLogo = document.getElementById("navLogo");
+                    if (data.status === "success" && data.image) {
+                        navLogo.src = data.image; // Load logo from database
+                    } else {
+                        console.error("Error:", data.message);
+                        navLogo.src = "assets/homepage_images/logo/placeholder.png"; // Default placeholder
+                    }
+                })
+                .catch(error => console.error("Error fetching logo:", error));
+        });
+    </script>
 </head>
 <body>
     <!-- Top Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <div class="d-flex align-items-center">
-                <img src="images/logo/st-johns-logo.png" alt="Profile" class="logo-image me-2">
+                <img id="navLogo" src="assets/homepage_images/logo/placeholder.png" alt="Profile" class="logo-image me-2">
                 <a class="navbar-brand" href="admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Admin</a>
             </div>
             <div class="ms-auto">
@@ -308,6 +325,48 @@ $adminLastName = $_SESSION['last_name'];
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
+
+    <!-- Search Method --
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchEnrollments();
+
+            // Get search input element
+            const searchInput = document.getElementById("searchInput");
+            const clearBtn = document.getElementById("clearBtn");
+
+            // Attach event listener to the search input
+            searchInput.addEventListener("keyup", function () {
+                searchTable(this.value.toLowerCase());
+            });
+
+            // Clear search input when the clear button is clicked
+            clearBtn.addEventListener("click", function () {
+                searchInput.value = "";
+                searchTable(""); // Reset the table view
+            });
+
+            function searchTable(query) {
+                const rows = document.querySelectorAll("tbody .student-row");
+
+                rows.forEach(row => {
+                    const studentName = row.children[1].textContent.toLowerCase(); // Name column
+                    const studentType = row.children[2].textContent.toLowerCase(); // Type column
+                    const prevGrade = row.children[3].textContent.toLowerCase(); // Prev Grade column
+                    const applyingGrade = row.children[4].textContent.toLowerCase(); // Applying Grade column
+
+                    // Check if any column contains the search query
+                    if (studentName.includes(query) || studentType.includes(query) || prevGrade.includes(query) || applyingGrade.includes(query)) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+            }
+        });
+    </script>-->
+
+    <!-- Advance Filter Method -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             fetchEnrollments();
@@ -325,8 +384,25 @@ $adminLastName = $_SESSION['last_name'];
                 let filterModal = new bootstrap.Modal(document.getElementById("filterModal"));
                 filterModal.hide();
             });
+            
+            // Search Method
+            // Get search input element
+            const searchInput = document.getElementById("searchInput");
+            const clearBtn = document.getElementById("clearBtn");
+
+            // Attach event listener to the search input
+            searchInput.addEventListener("keyup", function () {
+                searchTable(this.value.toLowerCase());
+            });
+
+            // Clear search input when the clear button is clicked
+            clearBtn.addEventListener("click", function () {
+                searchInput.value = "";
+                searchTable(""); // Reset the table view
+            });
         });
 
+        // Fetch enrollments from the database
         function fetchEnrollments() {
             fetch("databases/fetch_applications_for_review.php")
                 .then(response => response.json())
@@ -367,6 +443,26 @@ $adminLastName = $_SESSION['last_name'];
                 .catch(error => console.error("Error fetching data:", error));
         }
 
+        // Search Method
+        function searchTable(query) {
+                const rows = document.querySelectorAll("tbody .student-row");
+
+                rows.forEach(row => {
+                    const studentName = row.children[1].textContent.toLowerCase(); // Name column
+                    const studentType = row.children[2].textContent.toLowerCase(); // Type column
+                    const prevGrade = row.children[3].textContent.toLowerCase(); // Prev Grade column
+                    const applyingGrade = row.children[4].textContent.toLowerCase(); // Applying Grade column
+
+                    // Check if any column contains the search query
+                    if (studentName.includes(query) || studentType.includes(query) || prevGrade.includes(query) || applyingGrade.includes(query)) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+            }
+
+        // Filter Method
         function filterTable() {
             const selectedType = document.getElementById("enrollmentTypeFilter").value.toLowerCase();
             const selectedPrevGrade = document.getElementById("prevGradeFilter").value;
@@ -390,6 +486,8 @@ $adminLastName = $_SESSION['last_name'];
                 }
             });
         }
+
+        
 
 
         

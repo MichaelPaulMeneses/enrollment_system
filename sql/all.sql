@@ -4,11 +4,18 @@ DROP TABLE IF EXISTS nationalities;
 DROP TABLE IF EXISTS religions;
 DROP TABLE IF EXISTS school_year;
 DROP TABLE IF EXISTS grade_levels;
-DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS refregion;
 DROP TABLE IF EXISTS refprovince;
 DROP TABLE IF EXISTS refcitymun;
 DROP TABLE IF EXISTS refbrgy;
+DROP TABLE IF EXISTS students;
+DROP TABLE IF EXISTS school_logo;
+DROP TABLE IF EXISTS homepage_carousel;
+DROP TABLE IF EXISTS homepage_mission;
+DROP TABLE IF EXISTS homepage_vision;
+DROP TABLE IF EXISTS homepage_enrollment_important_info;
+DROP TABLE IF EXISTS homepage_transferee_new_students;
+DROP TABLE IF EXISTS homepage_old_students;
 
 -- Create the users table
 CREATE TABLE users (
@@ -128,6 +135,7 @@ CREATE TABLE students (
     report_card VARCHAR(255) NOT NULL,
     id_picture VARCHAR(255) NOT NULL,
     enrollment_status ENUM('Pending Review', 'For Payment', 'Fully Enrolled') NOT NULL DEFAULT 'Pending Review',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp for record creation
 
     -- Foreign Key Constraints
     FOREIGN KEY (region_id) REFERENCES refregion(id) ON DELETE CASCADE,
@@ -139,6 +147,46 @@ CREATE TABLE students (
     FOREIGN KEY (prev_grade_lvl) REFERENCES grade_levels(grade_level_id) ON DELETE CASCADE,
     FOREIGN KEY (school_year_id) REFERENCES school_year(school_year_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE school_logo (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    image_path VARCHAR(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE homepage_carousel (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    image_path VARCHAR(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE homepage_mission (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    content TEXT NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE homepage_homepage_vision (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    content TEXT NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE homepage_enrollment_important_info (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE homepage_transferee_new_students (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    requirement VARCHAR(255) NOT NULL,
+    description TEXT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE homepage_old_students (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    requirement VARCHAR(255) NOT NULL,
+    description TEXT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 INSERT INTO nationalities (nationality_id, nationality_name) VALUES 
     (1, 'Filipino'),

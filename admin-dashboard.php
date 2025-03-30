@@ -35,6 +35,13 @@ $adminLastName = $_SESSION['last_name'];
             background-color: #f4f6f9;
             font-family: 'Arial', sans-serif;
         }
+        .logo-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+        }
         .navbar {
             background-color: var(--primary-blue);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -114,13 +121,6 @@ $adminLastName = $_SESSION['last_name'];
             padding: 20px;
             margin-bottom: 20px;
         }
-        .logo-image {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid white;
-        }
         @media (max-width: 768px) {
             .sidebar {
                 display: none;
@@ -137,13 +137,31 @@ $adminLastName = $_SESSION['last_name'];
             document.getElementById('adminWelcomeMessage').textContent = welcomeMessage;
         });
     </script>
+
+    <!-- Fetch the logo from the database and display it in the navbar -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("databases/fetch_logo.php")
+                .then(response => response.json())
+                .then(data => {
+                    let navLogo = document.getElementById("navLogo");
+                    if (data.status === "success" && data.image) {
+                        navLogo.src = data.image; // Load logo from database
+                    } else {
+                        console.error("Error:", data.message);
+                        navLogo.src = "assets/homepage_images/logo/placeholder.png"; // Default placeholder
+                    }
+                })
+                .catch(error => console.error("Error fetching logo:", error));
+        });
+    </script>
 </head>
 <body>
     <!-- Top Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <div class="d-flex align-items-center">
-                <img src="images/logo/st-johns-logo.png" alt="Profile" class="logo-image me-2">
+                <img id="navLogo" src="assets/homepage_images/logo/placeholder.png" alt="Profile" class="logo-image me-2">
                 <a class="navbar-brand" href="admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Admin</a>
             </div>
             <div class="ms-auto">
@@ -352,7 +370,6 @@ $adminLastName = $_SESSION['last_name'];
         });
     });
 </script>
-
 
 </body>
 </html>

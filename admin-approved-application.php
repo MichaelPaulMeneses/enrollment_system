@@ -1,3 +1,17 @@
+<?php
+session_start();
+
+// Redirect to login if the user is not authenticated
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+    header("Location: login.php");
+    exit();
+}
+
+// Retrieve admin details from session
+$adminFirstName = $_SESSION['first_name'];
+$adminLastName = $_SESSION['last_name'];
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -85,13 +99,42 @@
             font-weight: bold;
         }
     </style>
+
+        <!-- Fetch the name of the User -->
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const adminFirstName = "<?php echo htmlspecialchars($adminFirstName); ?>";
+            const adminLastName = "<?php echo htmlspecialchars($adminLastName); ?>";
+            const welcomeMessage = `WELCOME! Admin ${adminFirstName} ${adminLastName}`;
+            document.getElementById('adminWelcomeMessage').textContent = welcomeMessage;
+        });
+    </script>
+
+    <!-- Fetch the logo from the database and display it in the navbar -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("databases/fetch_logo.php")
+                .then(response => response.json())
+                .then(data => {
+                    let navLogo = document.getElementById("navLogo");
+                    if (data.status === "success" && data.image) {
+                        navLogo.src = data.image; // Load logo from database
+                    } else {
+                        console.error("Error:", data.message);
+                        navLogo.src = "assets/homepage_images/logo/placeholder.png"; // Default placeholder
+                    }
+                })
+                .catch(error => console.error("Error fetching logo:", error));
+        });
+    </script>
+
 </head>
 <body>
     <!-- Top Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <div class="d-flex align-items-center">
-                <img src="images/logo/st-johns-logo.png" alt="Profile" class="logo-image me-2">
+                <img id="navLogo" src="assets/homepage_images/logo/placeholder.png" alt="Profile" class="logo-image me-2">
                 <a class="navbar-brand" href="admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Admin</a>
             </div>
             <div class="ms-auto">

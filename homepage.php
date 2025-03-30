@@ -245,6 +245,24 @@
             border-radius: 10px;
         }
     </style>
+
+    <!-- Fetch the logo from the database and display it in the navbar -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("databases/fetch_logo.php")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success" && data.image) {
+                        document.getElementById("navLogo").src = data.image;
+                        document.getElementById("footerLogo").src = data.image; // Ensure footer updates too
+                    } else {
+                        console.error("Error:", data.message);
+                    }
+                })
+                .catch(error => console.error("Error fetching logo:", error));
+        });
+
+    </script>
 </head>
 <body>
     <!-- Header -->
@@ -252,7 +270,7 @@
         <div class="container">
             <div class="header-content d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
-                    <img src="images/logo/st-johns-logo.png" alt="School Logo" width="75" class="me-2">
+                    <img id="navLogo" src="assets/homepage_images/logo/placeholder.png" alt="School Logo" width="75" class="me-2 rounded-circle">
                     <span class="logo-text d-md-inline logo-container">ST. JOHN THE BAPTIST PAROCHIAL SCHOOL</span>
                 </div>
                 
@@ -377,7 +395,7 @@
             <div class="row">
                 <div class="col-md-6 mb-3 mb-md-0">
                     <div class="d-flex align-items-center justify-content-center justify-content-md-start mb-3">
-                        <img src="images/logo/st-johns-logo.png" alt="School Logo" width="75" class="me-2">
+                        <img id="footerLogo" src="assets/homepage_images/logo/placeholder.png" alt="School Logo" width="75" class="me-2 rounded-circle">
                         <span class="logo-text">ST. JOHN THE BAPTIST PAROCHIAL SCHOOL</span>
                     </div>
                     <div class="footer-text text-center text-md-start">

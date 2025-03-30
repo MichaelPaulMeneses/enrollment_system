@@ -77,12 +77,22 @@ $adminLastName = $_SESSION['last_name'];
             background-color: var(--sidebar-hover-bg);
             transform: translateX(5px);
         }
+        .text-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
         .card-container {
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-height: 150px;
             padding: 15px;
             margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             text-align: center;
             transition: transform 0.3s ease;
         }
@@ -92,7 +102,7 @@ $adminLastName = $_SESSION['last_name'];
         .card-title {
             font-weight: bold;
             margin-bottom: 10px;
-            font-size: 16px;
+            font-size: 22px;
             color: #555;
         }
         .metric-card {
@@ -109,17 +119,15 @@ $adminLastName = $_SESSION['last_name'];
         .metric-card.blue { background-color: #3498db; }
         .metric-card.navy { background-color: #34495e; }
         .metric-card.yellow { background-color: #f1c40f; }
+        .metric-card.purple { background-color: #9b59b6; }
+        .metric-card.teal { background-color: #1abc9c; }
+        .metric-card.gray { background-color: #95a5a6; }
+        .metric-card.pink { background-color: #e91e63; }
+        .metric-card.brown { background-color: #8d6e63; }
         
-        .metric-value {
+        .card-action {
             font-size: 24px;
             font-weight: bold;
-        }
-        .chart-container {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            padding: 20px;
-            margin-bottom: 20px;
         }
         @media (max-width: 768px) {
             .sidebar {
@@ -137,13 +145,31 @@ $adminLastName = $_SESSION['last_name'];
             document.getElementById('adminWelcomeMessage').textContent = welcomeMessage;
         });
     </script>
+
+    <!-- Fetch the logo from the database and display it in the navbar -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("databases/fetch_logo.php")
+                .then(response => response.json())
+                .then(data => {
+                    let navLogo = document.getElementById("navLogo");
+                    if (data.status === "success" && data.image) {
+                        navLogo.src = data.image; // Load logo from database
+                    } else {
+                        console.error("Error:", data.message);
+                        navLogo.src = "assets/homepage_images/logo/placeholder.png"; // Default placeholder
+                    }
+                })
+                .catch(error => console.error("Error fetching logo:", error));
+        });
+    </script>
 </head>
 <body>
     <!-- Top Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <div class="d-flex align-items-center">
-                <img src="images/logo/st-johns-logo.png" alt="Profile" class="logo-image me-2">
+                <img id="navLogo" src="assets/homepage_images/logo/placeholder.png" alt="Profile" class="logo-image me-2">
                 <a class="navbar-brand" href="admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Admin</a>
             </div>
             <div class="ms-auto">
@@ -207,17 +233,286 @@ $adminLastName = $_SESSION['last_name'];
             <div class="col-md-9 col-lg-10 px-md-4 pt-3">
                 <div class="row">
                     <!-- First Row - 4 Cards -->
-                
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card-container">
+                            <div class="card-title">Logo</div>
+                            <div class="metric-card red" data-bs-toggle="modal" data-bs-target="#editLogoModal">
+                                <div class="metric-value">Edit</div>
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card-container">
+                            <div class="card-title">Carousel</div>
+                            <div class="metric-card orange" data-bs-toggle="modal" data-bs-target="#editCarouselModal">
+                                <div class="metric-value">Edit</div>
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card-container">
+                            <div class="card-title">Mission</div>
+                            <div class="metric-card green">
+                                <div class="metric-value">Edit</div>
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card-container">
+                            <div class="card-title">Vision</div>
+                            <div class="metric-card blue">
+                                <div class="metric-value">Edit</div>
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Second Row - 2 Cards -->
+                    <div class="col-12 mb-4">
+                        <h4 class="text-title text-align">
+                            Enrollment Procedure
+                        </h4>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card-container">
+                            <div class="card-title">Enrollment Important Information</div>
+                            <div class="metric-card navy">
+                                <div class="card-action">Edit</div>
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card-container">
+                        <div class="card-title">For Transferee/New Students</div>
+                            <div class="metric-card yellow">
+                                <div class="card-action">Edit</div>
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6  col-lg-4 mb-4">
+                        <div class="card-container">
+                            <div class="card-title">For Old Students</div>
+                            <div class="metric-card purple">
+                                <div class="card-action">Edit</div>
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modal for Editing Logo -->
+    <div class="modal fade" id="editLogoModal" tabindex="-1" aria-labelledby="editLogoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editLogoModalLabel">Edit Logo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="logoForm" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <!-- Display the current logo -->
+                        <h6 >Current Logo:</h6>
+                        <div class="text-center mb-3">
+                            <img id="currentLogo" src="assets/homepage_images/logo/placeholder.png" alt="Current Logo" class="img-fluid rounded-circle" style="max-width: 150px; height: auto;">
+                        </div>
+                        <!-- File input -->
+                        <div class="mb-3">
+                            <label for="logoFile" class="form-label">Upload New Logo</label>
+                            <input type="file" class="form-control" id="logoFile" name="logoFile" accept="image/*" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
+    <!-- Modal for Editing Carousel -->
+    <div class="modal fade" id="editCarouselModal" tabindex="-1" aria-labelledby="editCarouselModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCarouselModalLabel">Edit Carousel</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="carouselForm" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <!-- Display current carousel images -->
+                        <h6>Current Carousel Images:</h6>
+                        <div id="carouselImagesContainer" class="mb-3">
+                            <!-- Images will be dynamically loaded here -->
+                        </div>
+                        <!-- File input for new images -->
+                        <div class="mb-3">
+                            <label for="carouselFiles" class="form-label">Upload New Images</label>
+                            <input type="file" class="form-control" id="carouselFiles" name="carouselFiles[]" accept="image/*" multiple>
+                            <small class="text-muted">You can upload multiple images.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
-<!-- Bootstrap JS and dependencies -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <!-- script to handle logo upload and display -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var editLogoModal = document.getElementById("editLogoModal");
+
+            // Fetch and display current logo when modal opens
+            editLogoModal.addEventListener("show.bs.modal", function () {
+                fetch("databases/fetch_logo.php")
+                    .then(response => response.json())
+                    .then(data => {
+                        let logoImg = document.getElementById("currentLogo");
+                        if (data.status === "success" && data.image) {
+                            logoImg.src = data.image; // Load logo from database
+                        } else {
+                            console.error("Error:", data.message);
+                            logoImg.src = "assets/homepage_images/logo/placeholder.png"; // Default placeholder
+                        }
+                    })
+                    .catch(error => console.error("Error fetching logo:", error));
+            });
+
+            // AJAX Upload Form Submission
+            document.getElementById("logoForm").addEventListener("submit", function (e) {
+                e.preventDefault();
+                let formData = new FormData(this);
+
+                fetch("databases/edit_logo.php", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        document.getElementById("currentLogo").src = data.image; // Update the logo preview
+                        
+                        // Close the modal
+                        var modalInstance = bootstrap.Modal.getInstance(editLogoModal);
+                        if (modalInstance) {
+                            modalInstance.hide();
+                        }
+
+                        // Refresh the admin-homepage-editor.php page
+                        window.location.href = "admin-homepage-editor.php";
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => console.error("Upload error:", error));
+            });
+        });
 
 
+    </script>
+
+    <!-- Script to handle carousel image upload and deletion -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var editCarouselModal = document.getElementById("editCarouselModal");
+
+            // Fetch and display current carousel images when modal opens
+            editCarouselModal.addEventListener("show.bs.modal", function () {
+                fetch("databases/fetch_carousel.php")
+                    .then(response => response.json())
+                    .then(data => {
+                        let container = document.getElementById("carouselImagesContainer");
+                        container.innerHTML = ""; // Clear previous content
+                        if (data.status === "success" && data.images.length > 0) {
+                            data.images.forEach((image, index) => {
+                                let imgElement = document.createElement("div");
+                                imgElement.classList.add("mb-2", "d-flex", "align-items-center");
+                                imgElement.innerHTML = `
+                                    <img src="${image.url}" alt="Carousel Image ${index + 1}" class="img-thumbnail me-2" style="max-width: 150px; height: auto;">
+                                    <button type="button" class="btn btn-danger btn-sm" data-image-id="${image.id}" onclick="deleteCarouselImage(${image.id})">Delete</button>
+                                `;
+                                container.appendChild(imgElement);
+                            });
+                        } else {
+                            container.innerHTML = "<p class='text-muted'>No images found.</p>";
+                        }
+                    })
+                    .catch(error => console.error("Error fetching carousel images:", error));
+            });
+
+            // AJAX Upload Form Submission
+            document.getElementById("carouselForm").addEventListener("submit", function (e) {
+                e.preventDefault();
+                let formData = new FormData(this);
+
+                fetch("databases/edit_carousel.php", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        // Refresh the carousel preview
+                        var modalInstance = bootstrap.Modal.getInstance(editCarouselModal);
+                        if (modalInstance) {
+                            modalInstance.hide();
+                        }
+                        window.location.href = "admin-homepage-editor.php";
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => console.error("Upload error:", error));
+            });
+        });
+
+        // Function to delete a carousel image
+        function deleteCarouselImage(imageId) {
+            if (confirm("Are you sure you want to delete this image?")) {
+                fetch(`databases/delete_carousel_image.php?id=${imageId}`, {
+                    method: "GET"
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        // Refresh the modal content
+                        var editCarouselModal = bootstrap.Modal.getInstance(document.getElementById("editCarouselModal"));
+                        if (editCarouselModal) {
+                            editCarouselModal.hide();
+                            editCarouselModal.show();
+                        }
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => console.error("Error deleting image:", error));
+            }
+        }
+    </script>
 
 </body>
 </html>
