@@ -238,6 +238,7 @@ $adminLastName = $_SESSION['last_name'];
                                 <th>Last Grade Level</th>
                                 <th>Applying For</th>
                                 <th>School Year</th>
+                                <th>Enrollment Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -419,6 +420,7 @@ $adminLastName = $_SESSION['last_name'];
                                 <td>${student.prev_grade_name}</td>
                                 <td>${student.grade_applying_name}</td>
                                 <td>${student.school_year}</td>
+                                <td>${student.enrollment_status}</td>
                                 <td>
                                     <form action="admin-view-form.php" method="POST" style="display:inline;">
                                         <input type="hidden" name="student_id" value="${student.student_id}">

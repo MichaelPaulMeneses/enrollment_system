@@ -717,112 +717,80 @@ $adminLastName = $_SESSION['last_name'];
                             </div>
                             
                             <!-- Document Buttons -->
-                            <div class="row mb-3">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label class="form-label">Birth Certificate <span class="text-danger">*</span></label>
-                                        <button class="btn btn-view" data-bs-toggle="modal" data-bs-target="#birthCertModal"
-                                            data-pdf="<?= htmlspecialchars($student['birth_certificate']) ?>">
-                                            <i class="fas fa-eye me-1"></i> View
-                                        </button>
-                                    </div>
+                        <!-- Document Buttons -->
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label">Birth Certificate <span class="text-danger">*</span></label>
+                                    <button class="btn btn-view" data-bs-toggle="modal" data-bs-target="#birthCertModal"
+                                        data-pdf="<?= htmlspecialchars($student['birth_certificate']) ?>">
+                                        <i class="fas fa-eye me-1"></i> View
+                                    </button>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label class="form-label">Report Card <span class="text-danger">*</span></label>
-                                        <button class="btn btn-view" data-bs-toggle="modal" data-bs-target="#reportCardModal"
-                                            data-pdf="<?= htmlspecialchars($student['report_card']) ?>">
-                                            <i class="fas fa-eye me-1"></i> View
-                                        </button>
-                                    </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label">Report Card <span class="text-danger">*</span></label>
+                                    <button class="btn btn-view" data-bs-toggle="modal" data-bs-target="#reportCardModal"
+                                        data-pdf="<?= htmlspecialchars($student['report_card']) ?>">
+                                        <i class="fas fa-eye me-1"></i> View
+                                    </button>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label class="form-label">2x2 Picture <span class="text-danger">*</span></label>
-                                        <button class="btn btn-view" data-bs-toggle="modal" data-bs-target="#idPictureModal"
-                                            data-img="<?= htmlspecialchars($student['id_picture']) ?>">
-                                            <i class="fas fa-eye me-1"></i> View
-                                        </button>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label">2x2 Picture <span class="text-danger">*</span></label>
+                                    <button class="btn btn-view" data-bs-toggle="modal" data-bs-target="#idPictureModal"
+                                        data-img="<?= htmlspecialchars($student['id_picture']) ?>">
+                                        <i class="fas fa-eye me-1"></i> View
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Birth Certificate Modal -->
+                        <div class="modal fade" id="birthCertModal" tabindex="-1" aria-labelledby="birthCertModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="birthCertModalLabel">Birth Certificate</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <iframe id="birthCertViewer" src="" width="100%" height="500px" style="border: none;"></iframe>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- Birth Certificate Modal -->
-                            <div class="modal fade" id="birthCertModal" tabindex="-1" aria-labelledby="birthCertModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="birthCertModalLabel">Birth Certificate</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <iframe id="birthCertViewer" src="" width="100%" height="500px" style="border: none;"></iframe>
-                                        </div>
+                        <!-- Report Card Modal -->
+                        <div class="modal fade" id="reportCardModal" tabindex="-1" aria-labelledby="reportCardModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="reportCardModalLabel">Report Card</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <iframe id="reportCardViewer" src="" width="100%" height="500px" style="border: none;"></iframe>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- Report Card Modal -->
-                            <div class="modal fade" id="reportCardModal" tabindex="-1" aria-labelledby="reportCardModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="reportCardModalLabel">Report Card</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <iframe id="reportCardViewer" src="" width="100%" height="500px" style="border: none;"></iframe>
-                                        </div>
+                        <!-- ID Picture Modal (2x2 Square Image) -->
+                        <div class="modal fade" id="idPictureModal" tabindex="-1" aria-labelledby="idPictureModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content text-center">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="idPictureModalLabel">2x2 ID Picture</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <img id="idPictureViewer" src="" alt="ID Picture" style="width: 150px; height: 150px; object-fit: cover; border: 2px solid #ccc;">
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- ID Picture Modal (2x2 Square Image) -->
-                            <div class="modal fade" id="idPictureModal" tabindex="-1" aria-labelledby="idPictureModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content text-center">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="idPictureModalLabel">2x2 ID Picture</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <img id="idPictureViewer" src="" alt="ID Picture" style="width: 150px; height: 150px; object-fit: cover; border: 2px solid #ccc;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- JavaScript to Load Documents Dynamically -->
-                            <script>
-                                document.addEventListener("DOMContentLoaded", function () {
-                                    // Birth Certificate
-                                    var birthCertModal = document.getElementById('birthCertModal');
-                                    birthCertModal.addEventListener('show.bs.modal', function (event) {
-                                        var button = event.relatedTarget;
-                                        var pdfUrl = button.getAttribute('data-pdf');
-                                        document.getElementById('birthCertViewer').src = pdfUrl;
-                                    });
-
-                                    // Report Card
-                                    var reportCardModal = document.getElementById('reportCardModal');
-                                    reportCardModal.addEventListener('show.bs.modal', function (event) {
-                                        var button = event.relatedTarget;
-                                        var pdfUrl = button.getAttribute('data-pdf');
-                                        document.getElementById('reportCardViewer').src = pdfUrl;
-                                    });
-
-                                    // ID Picture (2x2 Square)
-                                    var idPictureModal = document.getElementById('idPictureModal');
-                                    idPictureModal.addEventListener('show.bs.modal', function (event) {
-                                        var button = event.relatedTarget;
-                                        var imgUrl = button.getAttribute('data-img');
-                                        document.getElementById('idPictureViewer').src = imgUrl;
-                                    });
-                                });
-                            </script>
-
-
-
                         </div>
                         
                         <!-- Action Buttons -->
@@ -864,6 +832,40 @@ $adminLastName = $_SESSION['last_name'];
         </div>
     </div>
 
+    <script>
+        document.getElementById("confirmDeclineBtn").addEventListener("click", function () {
+            let declineReason = document.getElementById("declineReason").value;
+
+            if (declineReason.trim() === "") {
+                alert("Please provide a reason for declining.");
+                return;
+            }
+
+            let applicationId = <?= json_encode($student['student_id']); ?>;
+
+            // Send the data using AJAX
+            fetch("process_decline.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: `applicationId=${applicationId}&reason=${encodeURIComponent(declineReason)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Application declined successfully.");
+                    // Optionally, reload page or update UI
+                    location.reload();
+                } else {
+                    alert("Error: " + data.message);
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        });
+
+    </script>
+
     <!-- Confirmation Modal -->
     <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -883,9 +885,11 @@ $adminLastName = $_SESSION['last_name'];
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
+<!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
+    
+    <!-- Script for displaying the data in the form -->
     <script>
         document.getElementById("displayLastName").textContent = "<?= htmlspecialchars($student['last_name']) ?>";
         document.getElementById("displayFirstName").textContent = "<?= htmlspecialchars($student['first_name']) ?>";
@@ -921,9 +925,90 @@ $adminLastName = $_SESSION['last_name'];
         document.getElementById("displayAcademicSemester").textContent = "<?= htmlspecialchars($student['academic_semester']) ?>";
         document.getElementById("displayAppointmentDate").textContent = "<?= htmlspecialchars($student['appointment_date']) ?>";
         document.getElementById("displayAppointmentTime").textContent = "<?= htmlspecialchars($student['appointment_time']) ?>";
-        
+
     </script>
 
+    <!-- JavaScript to Load Documents Dynamically -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Birth Certificate
+        var birthCertModal = document.getElementById('birthCertModal');
+        birthCertModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var pdfUrl = button.getAttribute('data-pdf');
+            document.getElementById('birthCertViewer').src = pdfUrl;
+        });
 
+        // Report Card
+        var reportCardModal = document.getElementById('reportCardModal');
+        reportCardModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var pdfUrl = button.getAttribute('data-pdf');
+            document.getElementById('reportCardViewer').src = pdfUrl;
+        });
+
+        // ID Picture (2x2 Square)
+        var idPictureModal = document.getElementById('idPictureModal');
+        idPictureModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var imgUrl = button.getAttribute('data-img');
+            document.getElementById('idPictureViewer').src = imgUrl;
+        });
+    });
+    </script>
+
+    <!-- JavaScript for Approve Actions -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("finalConfirmBtn").addEventListener("click", function () {
+                let studentId = <?= json_encode($student['student_id']); ?>;
+                let email = <?= json_encode($student['email']); ?>;
+                let surname = <?= json_encode($student['last_name']); ?>;
+                let gender = <?= json_encode($student['gender']); ?>;
+
+                // Step 1: Update Enrollment Status
+                fetch("databases/approve_application.php", {
+                    method: "POST",
+                    body: JSON.stringify({ student_id: studentId }),
+                    headers: { "Content-Type": "application/json" },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("Enrollment approved! Status changed to 'For Payment'.");
+                        alert("Enrollment approved! Status changed to 'For Payment'.");
+
+                        // Step 2: Send Email Notification
+                        return fetch("databases/approve_application_email.php", {
+                            method: "POST",
+                            body: JSON.stringify({
+                                email: email,
+                                surname: surname,
+                                gender: gender
+                            }),
+                            headers: { "Content-Type": "application/json" },
+                        });
+                    } else {
+                        throw new Error("Error: " + data.message);
+                    }
+                })
+                .then(response => response.json())
+                .then(emailData => {
+                    if (emailData.success) {
+                        console.log("Confirmation email sent successfully!");
+                        alert("Enrollment approved and email sent successfully!");
+
+                        setTimeout(function() {
+                            window.location.href = "admin-application-for-review.php"; // Redirect to approved applications page
+                        }, 500); // Add a 500ms delay before redirecting
+
+                    } else {
+                        console.log("Failed to send email: " + emailData.message);
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            });
+        });
+    </script>
 </body>
 </html>
