@@ -6,11 +6,13 @@ $query = "SELECT
             CONCAT(s.last_name, ', ', s.first_name, ' ', s.middle_name, ' ', COALESCE(s.suffix, '')) AS student_name, 
             s.type_of_student, 
             gl_prev.grade_name AS prev_grade_name, 
-            gl_applying.grade_name AS grade_applying_name, 
+            gl_applying.grade_name AS grade_applying_name,
+            sy.school_year,
             s.enrollment_status
             FROM students s
             LEFT JOIN grade_levels gl_prev ON s.prev_grade_lvl = gl_prev.grade_level_id
-            LEFT JOIN grade_levels gl_applying ON s.grade_applying_for = gl_applying.grade_level_id"; 
+            LEFT JOIN grade_levels gl_applying ON s.grade_applying_for = gl_applying.grade_level_id
+            LEFT JOIN school_year sy ON s.school_year_id = sy.school_year_id"; // Join with the school_year table
 
 $result = $conn->query($query);
 $students = [];

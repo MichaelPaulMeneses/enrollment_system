@@ -460,15 +460,16 @@
                                 </div>
                             </div>
 
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="idPicture" class="form-label">Recent 2X2 ID Picture <span class="required">*</span></label>
-                                    <input type="file" class="form-control" id="idPicture" name="idPicture" required accept=".pdf,.jpg,.jpeg,.png" data-max-size="20971520">
-                                    <small class="text-muted">Maximum file size: 20MB. Accepted formats: PDF, JPEG, PNG only</small>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="idPicture" class="form-label">Recent 2X2 ID Picture <span class="required">*</span></label>
+                                        <input type="file" class="form-control" id="idPicture" name="idPicture" required accept=".jpg,.jpeg,.png" data-max-size="20971520">
+                                        <small class="text-muted">Maximum file size: 20MB. Accepted formats: JPEG, PNG only</small>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+
                             
                             <!-- Certification -->
                             <div class="mb-4 mt-5" class="certificationContainer">
@@ -707,7 +708,7 @@
             });
 
             function getNextGradeLevel(currentGrade, allGrades) {
-                const gradeOrder = ["Prekindergarten", "Kindergarten", "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
+                const gradeOrder = ["N/A", "Prekindergarten", "Kindergarten", "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
                 const currentIndex = gradeOrder.indexOf(currentGrade);
                 if (currentIndex !== -1 && currentIndex < gradeOrder.length - 1) {
                     const nextGradeName = gradeOrder[currentIndex + 1];
@@ -825,6 +826,23 @@
                     certError.innerHTML = `<small class="text-danger">You must certify the information before submitting.</small>`;
                 } else {
                     certError.innerHTML = "";
+                }
+
+                // **Date of Birth Validation**
+                const dateOfBirthField = document.getElementById("dateOfBirth");
+                const dateOfBirthError = document.getElementById("dateOfBirthError");
+
+                if (dateOfBirthField) {
+                    const selectedDate = new Date(dateOfBirthField.value);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); // Reset time to start of the day for comparison
+
+                    if (selectedDate > today) {
+                        isValid = false;
+                        showError(dateOfBirthError, "Date of Birth cannot be a future date.");
+                    } else {
+                        removeError(dateOfBirthError);
+                    }
                 }
 
 
@@ -1072,7 +1090,7 @@
                 });
             }
 
-            // **Real-time Validation for Appointment Date and Time**
+            // **Real-time Validation for Appointment Date**
             document.getElementById("appointmentDate").addEventListener("input", function () {
                 const dateError = document.getElementById("dateError");
                 const selectedDate = new Date(this.value);
@@ -1089,6 +1107,21 @@
                 }
             });
 
+            // **Real-time Validation for Date of Birth**
+            document.getElementById("dateOfBirth").addEventListener("input", function () {
+                const dateOfBirthError = document.getElementById("dateOfBirthError");
+                const selectedDate = new Date(this.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Reset time to start of the day for comparison
+
+                if (selectedDate > today) {
+                    showError(dateOfBirthError, "Date of Birth cannot be a future date.");
+                } else {
+                    removeError(dateOfBirthError);
+                }
+            });
+
+            // **Real-time Validation for Appointment Time**
             document.getElementById("appointmentTime").addEventListener("input", function () {
                 const timeError = document.getElementById("timeError");
                 const time = this.value.split(":");

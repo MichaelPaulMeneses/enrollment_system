@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $academic_semester = $_POST['academicSemester'] ?? null;
     $appointment_date = $_POST['appointmentDate'] ?? null;
     $appointment_time = $_POST['appointmentTime'] ?? null;
-
+    
 
     $upload_dir = __DIR__ . "/../assets/uploads/";
     if (!is_dir($upload_dir)) {
@@ -63,6 +63,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $id_picture = uploadFile('idPicture', $upload_dir, $first_name . '_' . $last_name .'_' . $safe_date_of_birth);
     
 
+    if ($type_of_student === 'old') {
+        $appointment_date = null;
+        $appointment_time = null;
+    }
+    
 
     $stmt = $conn->prepare("INSERT INTO students (
         last_name, first_name, middle_name, suffix, 

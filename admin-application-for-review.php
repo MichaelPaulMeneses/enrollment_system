@@ -190,7 +190,7 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="admin-all-enrollees.php">
                             <i class="fas fa-users me-2"></i>All Enrollees
                         </a>
                     </li>
@@ -237,6 +237,7 @@ $adminLastName = $_SESSION['last_name'];
                                 <th>Type of Enrollment</th>
                                 <th>Last Grade Level</th>
                                 <th>Applying For</th>
+                                <th>School Year</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -256,7 +257,7 @@ $adminLastName = $_SESSION['last_name'];
     </div>
 
     <!-- Advanced Filter Modal -->
-    <div class="modal fade" id="filterModal" tabindex="-1">
+    <d class="modal fade" id="filterModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -264,6 +265,7 @@ $adminLastName = $_SESSION['last_name'];
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
+                    <!-- Enrollment Type Filter -->
                     <div class="mb-3">
                         <label class="form-label">Enrollment Type</label>
                         <select id="enrollmentTypeFilter" class="form-select">
@@ -272,10 +274,13 @@ $adminLastName = $_SESSION['last_name'];
                             <option value="new/transferee">New/Transferee Student</option>
                         </select>
                     </div>
+                    
+                    <!-- Previous Grade Level Filter -->
                     <div class="mb-3">
                         <label class="form-label">Previous Grade Level</label>
                         <select id="prevGradeFilter" class="form-select">
                             <option value="">All Grade Levels</option>
+                            <option value="N/A">N/A</option>
                             <option value="Prekindergarten">Prekindergarten</option>
                             <option value="Kindergarten">Kindergarten</option>
                             <option value="Grade 1">Grade 1</option>
@@ -292,6 +297,8 @@ $adminLastName = $_SESSION['last_name'];
                             <option value="Grade 12">Grade 12</option>
                         </select>
                     </div>
+                    
+                    <!-- Grade Applying For Filter -->
                     <div class="mb-3">
                         <label class="form-label">Grade Applying For</label>
                         <select id="gradeApplyingFilter" class="form-select">
@@ -312,6 +319,18 @@ $adminLastName = $_SESSION['last_name'];
                             <option value="Grade 12">Grade 12</option>
                         </select>
                     </div>
+                    
+                    <!-- School Year Filter -->
+                    <div class="mb-3">
+                        <label class="form-label">School Year</label>
+                        <select id="schoolYearFilter" class="form-select">
+                            <option value="">All School Years</option>
+                            <option value="2023-2024">2023-2024</option>
+                            <option value="2024-2025">2024-2025</option>
+                            <option value="2025-2026">2025-2026</option>
+                            <!-- Add more school years as needed -->
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -321,50 +340,11 @@ $adminLastName = $_SESSION['last_name'];
         </div>
     </div>
 
+    
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
-
-    <!-- Search Method --
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            fetchEnrollments();
-
-            // Get search input element
-            const searchInput = document.getElementById("searchInput");
-            const clearBtn = document.getElementById("clearBtn");
-
-            // Attach event listener to the search input
-            searchInput.addEventListener("keyup", function () {
-                searchTable(this.value.toLowerCase());
-            });
-
-            // Clear search input when the clear button is clicked
-            clearBtn.addEventListener("click", function () {
-                searchInput.value = "";
-                searchTable(""); // Reset the table view
-            });
-
-            function searchTable(query) {
-                const rows = document.querySelectorAll("tbody .student-row");
-
-                rows.forEach(row => {
-                    const studentName = row.children[1].textContent.toLowerCase(); // Name column
-                    const studentType = row.children[2].textContent.toLowerCase(); // Type column
-                    const prevGrade = row.children[3].textContent.toLowerCase(); // Prev Grade column
-                    const applyingGrade = row.children[4].textContent.toLowerCase(); // Applying Grade column
-
-                    // Check if any column contains the search query
-                    if (studentName.includes(query) || studentType.includes(query) || prevGrade.includes(query) || applyingGrade.includes(query)) {
-                        row.style.display = "";
-                    } else {
-                        row.style.display = "none";
-                    }
-                });
-            }
-        });
-    </script>-->
 
     <!-- Advance Filter Method -->
     <script>
@@ -400,6 +380,13 @@ $adminLastName = $_SESSION['last_name'];
                 searchInput.value = "";
                 searchTable(""); // Reset the table view
             });
+
+            document.querySelector("tbody").addEventListener("click", function (event) {
+                if (event.target.classList.contains("review-btn")) {
+                    let studentId = event.target.getAttribute("data-id");
+                    fetchStudentDetails(studentId);
+                }
+            });
         });
 
         // Fetch enrollments from the database
@@ -413,7 +400,7 @@ $adminLastName = $_SESSION['last_name'];
                     if (data.length === 0) {
                         tbody.innerHTML = `
                             <tr>
-                                <td colspan="6" class="text-center py-5 empty-table-message">
+                                <td colspan="7" class="text-center py-5 empty-table-message">
                                     <i class="fas fa-inbox fa-3x mb-3"></i>
                                     <p>No applications for review at this time</p>
                                 </td>
@@ -422,70 +409,102 @@ $adminLastName = $_SESSION['last_name'];
                     } else {
                         data.forEach(student => {
                             let row = document.createElement("tr");
-                            row.classList.add("student-row"); // Add a class for easy filtering
-                            row.setAttribute("data-type", student.type_of_student.toLowerCase());
-                            row.setAttribute("data-prev-grade", student.prev_grade_name);
-                            row.setAttribute("data-applying-grade", student.grade_applying_name);
+                            row.classList.add("student-row");
+                            row.setAttribute("data-id", student.student_id);
+
                             row.innerHTML = `
                                 <td>${student.student_id}</td>
                                 <td>${student.student_name}</td>
                                 <td>${student.type_of_student}</td>
                                 <td>${student.prev_grade_name}</td>
                                 <td>${student.grade_applying_name}</td>
+                                <td>${student.school_year}</td>
                                 <td>
-                                    <button class="btn btn-primary btn-sm">Review</button>
+                                    <form action="admin-view-form.php" method="POST" style="display:inline;">
+                                        <input type="hidden" name="student_id" value="${student.student_id}">
+                                        <button type="submit" class="btn btn-primary btn-sm">Review</button>
+                                    </form>
                                 </td>
                             `;
                             tbody.appendChild(row);
                         });
+
                     }
                 })
                 .catch(error => console.error("Error fetching data:", error));
         }
 
+        document.querySelectorAll(".btn-review").forEach(button => {
+            button.addEventListener("click", function() {
+                let studentId = this.getAttribute("data-id");
+
+                // Use fetch to set the session
+                fetch("databases/set_student_id_sessions.php", {
+                    method: "POST",
+                    body: JSON.stringify({ student_id: studentId }),
+                    headers: { "Content-Type": "application/json" }
+                }).then(() => {
+                    window.location.href = "review_student.php"; // Redirect without ID in URL
+                });
+            });
+        });
+
+
         // Search Method
         function searchTable(query) {
-                const rows = document.querySelectorAll("tbody .student-row");
-
-                rows.forEach(row => {
-                    const studentName = row.children[1].textContent.toLowerCase(); // Name column
-                    const studentType = row.children[2].textContent.toLowerCase(); // Type column
-                    const prevGrade = row.children[3].textContent.toLowerCase(); // Prev Grade column
-                    const applyingGrade = row.children[4].textContent.toLowerCase(); // Applying Grade column
-
-                    // Check if any column contains the search query
-                    if (studentName.includes(query) || studentType.includes(query) || prevGrade.includes(query) || applyingGrade.includes(query)) {
-                        row.style.display = "";
-                    } else {
-                        row.style.display = "none";
-                    }
-                });
-            }
-
-        // Filter Method
-        function filterTable() {
-            const selectedType = document.getElementById("enrollmentTypeFilter").value.toLowerCase();
-            const selectedPrevGrade = document.getElementById("prevGradeFilter").value;
-            const selectedApplyingGrade = document.getElementById("gradeApplyingFilter").value;
-
             const rows = document.querySelectorAll("tbody .student-row");
 
             rows.forEach(row => {
-                const studentType = row.getAttribute("data-type");
-                const prevGrade = row.getAttribute("data-prev-grade");
-                const applyingGrade = row.getAttribute("data-applying-grade");
+                const studentName = row.children[1].textContent.toLowerCase(); // Name column
+                const studentType = row.children[2].textContent.toLowerCase(); // Type column
+                const prevGrade = row.children[3].textContent.toLowerCase(); // Prev Grade column
+                const applyingGrade = row.children[4].textContent.toLowerCase(); // Applying Grade column
+                const schoolYear = row.children[5].textContent.toLowerCase(); // School Year column
 
-                const matchesType = selectedType === "" || studentType === selectedType;
-                const matchesPrevGrade = selectedPrevGrade === "" || prevGrade === selectedPrevGrade;
-                const matchesApplyingGrade = selectedApplyingGrade === "" || applyingGrade === selectedApplyingGrade;
-
-                if (matchesType && matchesPrevGrade && matchesApplyingGrade) {
+                // Check if any column contains the search query
+                if (studentName.includes(query) || studentType.includes(query) || prevGrade.includes(query) || applyingGrade.includes(query) || schoolYear.includes(query)) {
                     row.style.display = "";
                 } else {
                     row.style.display = "none";
                 }
             });
         }
+
+        
+        document.getElementById("applyFiltersBtn").addEventListener("click", function() {
+            filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
+            $('#filterModal').modal('hide');  // Close the modal after applying filters
+        });
+
+        // Filter Method
+        function filterTable() {
+            const selectedType = document.getElementById("enrollmentTypeFilter").value.toLowerCase();
+            const selectedPrevGrade = document.getElementById("prevGradeFilter").value.toLowerCase();
+            const selectedApplyingGrade = document.getElementById("gradeApplyingFilter").value.toLowerCase();
+            const selectedSchoolYear = document.getElementById("schoolYearFilter").value.toLowerCase(); 
+
+            const rows = document.querySelectorAll("tbody .student-row");
+
+            rows.forEach(row => {
+                // Extract values from table cells (adjust index if column order changes)
+                const studentType = row.children[2].textContent.trim().toLowerCase();
+                const prevGrade = row.children[3].textContent.trim().toLowerCase();
+                const applyingGrade = row.children[4].textContent.trim().toLowerCase();
+                const schoolYear = row.children[5].textContent.trim().toLowerCase();
+
+                // Check if each column matches the selected filter, allowing empty filters to match any row
+                const matchesType = !selectedType || studentType === selectedType;
+                const matchesPrevGrade = !selectedPrevGrade || prevGrade === selectedPrevGrade;
+                const matchesApplyingGrade = !selectedApplyingGrade || applyingGrade === selectedApplyingGrade;
+                const matchesSchoolYear = !selectedSchoolYear || schoolYear === selectedSchoolYear;
+
+                // Show row if all selected filters match, otherwise hide it
+                row.style.display = (matchesType && matchesPrevGrade && matchesApplyingGrade && matchesSchoolYear) ? "" : "none";
+            });
+        }
+
+
+
 
         
 

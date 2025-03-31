@@ -438,39 +438,6 @@
             <h5><i class="fas fa-info-circle me-2"></i>Important Information</h5>
             <p>Loading enrollment information...</p>
         </div>
-
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-            fetchEnrollmentInfo();
-            });
-
-            function fetchEnrollmentInfo() {
-            fetch("databases/fetch_enrollment_info.php")
-                .then(response => response.json())
-                .then(data => {
-                const enrollmentInfo = document.getElementById("enrollmentInfo");
-                if (data.status === "success" && data.info) {
-                    enrollmentInfo.innerHTML = `
-                    <h5><i class="fas fa-info-circle me-2"></i>Important Information</h5>
-                    <p>${data.info}</p>
-                    `;
-                } else {
-                    enrollmentInfo.innerHTML = `
-                    <h5><i class="fas fa-info-circle me-2"></i>Important Information</h5>
-                    <p>Unable to load enrollment information at the moment.</p>
-                    `;
-                    console.error("Error:", data.message);
-                }
-                })
-                .catch(error => {
-                document.getElementById("enrollmentInfo").innerHTML = `
-                    <h5><i class="fas fa-info-circle me-2"></i>Important Information</h5>
-                    <p>Error loading enrollment information.</p>
-                `;
-                console.error("Error fetching enrollment information:", error);
-                });
-            }
-        </script>
         
         <div class="row g-4">
             <div class="col-md-6">
@@ -482,23 +449,7 @@
                 </div>
             </div>
 
-            <script>
-                document.addEventListener("DOMContentLoaded", function () {
-                    fetch("databases/fetch_transferee_req_info.php")
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.status === "success") {
-                                document.getElementById("transfereeRequirements").innerHTML = data.info;
-                            } else {
-                                document.getElementById("transfereeRequirements").innerHTML = "<p>Error loading data: " + data.message + "</p>";
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Error fetching transferee requirements:", error);
-                            document.getElementById("transfereeRequirements").innerHTML = "<p>Failed to load information.</p>";
-                        });
-                });
-            </script>
+            
 
             <div class="col-md-6">
                 <div class="procedure-card">
@@ -508,24 +459,6 @@
                     <div id="oldStudentsRequirements">Loading...</div> <!-- Placeholder for fetched data -->
                 </div>
             </div>
-
-            <script>
-                document.addEventListener("DOMContentLoaded", function () {
-                    fetch("databases/fetch_old_students_req_info.php")
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.status === "success") {
-                                document.getElementById("oldStudentsRequirements").innerHTML = data.info;
-                            } else {
-                                document.getElementById("oldStudentsRequirements").innerHTML = "<p>Error loading data: " + data.message + "</p>";
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Error fetching old students' requirements:", error);
-                            document.getElementById("oldStudentsRequirements").innerHTML = "<p>Failed to load information.</p>";
-                        });
-                });
-            </script>
 
         </div>
     </div>
@@ -668,5 +601,44 @@
             });
         }
     </script>
+
+    <!-- Load the requirements for transferee/new students dynamically -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("databases/fetch_transferee_req_info.php")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        document.getElementById("transfereeRequirements").innerHTML = data.info;
+                    } else {
+                        document.getElementById("transfereeRequirements").innerHTML = "<p>Error loading data: " + data.message + "</p>";
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching transferee requirements:", error);
+                    document.getElementById("transfereeRequirements").innerHTML = "<p>Failed to load information.</p>";
+                });
+        });
+    </script>
+
+    <!-- Load the requirements for old students dynamically -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("databases/fetch_old_students_req_info.php")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        document.getElementById("oldStudentsRequirements").innerHTML = data.info;
+                    } else {
+                        document.getElementById("oldStudentsRequirements").innerHTML = "<p>Error loading data: " + data.message + "</p>";
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching old students' requirements:", error);
+                    document.getElementById("oldStudentsRequirements").innerHTML = "<p>Failed to load information.</p>";
+                });
+        });
+    </script>
+
 </body>
 </html>

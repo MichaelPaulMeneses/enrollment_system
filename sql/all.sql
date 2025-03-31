@@ -404,6 +404,7 @@ INSERT INTO school_year (school_year, is_active) VALUES
 
 -- Insert data into grade_levels table
 INSERT INTO grade_levels (grade_name, department) VALUES
+    ('N/A', 'N/A'),
     ('Prekindergarten', 'Early Education'),
     ('Kindergarten', 'Early Education'),
     ('Grade 1', 'Elementary'),
