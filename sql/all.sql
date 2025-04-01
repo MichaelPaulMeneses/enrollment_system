@@ -1,14 +1,21 @@
 -- Drop existing tables if they exist
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS students;
+DROP TABLE IF EXISTS grade_level_subjects;
+
 DROP TABLE IF EXISTS nationalities;
 DROP TABLE IF EXISTS religions;
 DROP TABLE IF EXISTS school_year;
+
+DROP TABLE IF EXISTS curriculums;
 DROP TABLE IF EXISTS grade_levels;
+DROP TABLE IF EXISTS subjects;
+
 DROP TABLE IF EXISTS refregion;
 DROP TABLE IF EXISTS refprovince;
 DROP TABLE IF EXISTS refcitymun;
 DROP TABLE IF EXISTS refbrgy;
-DROP TABLE IF EXISTS students;
+
 DROP TABLE IF EXISTS school_logo;
 DROP TABLE IF EXISTS homepage_carousel;
 DROP TABLE IF EXISTS homepage_mission;
@@ -27,34 +34,67 @@ CREATE TABLE users (
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     user_type ENUM('admin', 'sub-admin', 'cashier') NOT NULL
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create the nationalities table
 CREATE TABLE nationalities (
     nationality_id int(11) AUTO_INCREMENT PRIMARY KEY,
     nationality_name VARCHAR(100) NOT NULL
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create the religions table
-CREATE TABLE `religions` (
-    `religion_id` int(11) AUTO_INCREMENT PRIMARY KEY,
-    `religion_name` VARCHAR(100) NOT NULL
-);
+CREATE TABLE religions (
+    religion_id int(11) AUTO_INCREMENT PRIMARY KEY,
+    religion_name VARCHAR(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create the school_year table
-CREATE TABLE `school_year` (
-    `school_year_id` int(11) AUTO_INCREMENT PRIMARY KEY,
-    `school_year` VARCHAR(20) UNIQUE NOT NULL,
-    `is_active` TINYINT(1) DEFAULT 0,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+CREATE TABLE school_year (
+    school_year_id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    school_year VARCHAR(20) UNIQUE NOT NULL,
+    is_active TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- Create the curriculums table with a reference to school_year
+CREATE TABLE curriculums (
+    curriculum_id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    curriculum_name VARCHAR(255) NOT NULL,
+    school_year_id INT(11) NOT NULL,
+    FOREIGN KEY (school_year_id) REFERENCES school_year(school_year_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Create the subjects table
+CREATE TABLE subjects (
+    subject_id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    subject_code VARCHAR(50) NOT NULL,
+    subject_name VARCHAR(255) NOT NULL,
+	curriculum_id INT(11) NOT NULL,
+    FOREIGN KEY (curriculum_id) REFERENCES curriculums(curriculum_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 -- Create the grade_levels table
 CREATE TABLE grade_levels (
-    grade_level_id int(11) AUTO_INCREMENT PRIMARY KEY,
+    grade_level_id INT(11) AUTO_INCREMENT PRIMARY KEY,
     grade_name VARCHAR(255) NOT NULL,
     department ENUM('Early Education', 'Elementary', 'Junior High School', 'Senior High School') NOT NULL
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- Create the grade_level_subjects table with curriculum reference
+CREATE TABLE grade_level_subjects (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    grade_level_id INT(11) NOT NULL,
+    subject_id INT(11) NOT NULL,
+    curriculum_id INT(11) NOT NULL,
+    FOREIGN KEY (grade_level_id) REFERENCES grade_levels(grade_level_id) ON DELETE CASCADE,
+    FOREIGN KEY (subject_id) REFERENCES subjects(subject_id) ON DELETE CASCADE,
+    FOREIGN KEY (curriculum_id) REFERENCES curriculums(curriculum_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 
 -- Create refregion table
 CREATE TABLE refregion (
@@ -148,7 +188,6 @@ CREATE TABLE students (
     FOREIGN KEY (prev_grade_lvl) REFERENCES grade_levels(grade_level_id) ON DELETE CASCADE,
     FOREIGN KEY (school_year_id) REFERENCES school_year(school_year_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 
 CREATE TABLE school_logo (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -398,9 +437,16 @@ INSERT INTO nationalities (nationality_id, nationality_name) VALUES
 
 -- Insert sample data into school_year
 INSERT INTO school_year (school_year, is_active) VALUES 
-    ('2023-2024', 1),
+    ('2023-2024', 0),
     ('2024-2025', 0),
-    ('2025-2026', 0);
+    ('2025-2026', 1);
+
+-- Insert data into the curriculums table
+INSERT INTO curriculums (curriculum_name, school_year_id) VALUES
+('K-12', 1),
+('MATATAG', 1),  
+('Alternative Learning System', 2); 
+
 
 -- Insert data into grade_levels table
 INSERT INTO grade_levels (grade_name, department) VALUES

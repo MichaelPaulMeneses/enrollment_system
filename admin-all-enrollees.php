@@ -154,6 +154,16 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="admin-grade-section.php">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>Grade-Section
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-curriculum.php">
+                            <i class="fas fa-book-open me-2"></i>Curriculum
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="admin-homepage-editor.php">
                             <i class="fas fa-edit me-2"></i>Home Page Editor
                         </a>
@@ -195,7 +205,10 @@
                         </thead>
                         <tbody>
                             <tr class="text-center">
-                                <td colspan="4">No data available</td>
+                                <td colspan="4">
+                                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                                    <p>No applications for review at this time</p>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

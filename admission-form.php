@@ -54,6 +54,24 @@
             margin-bottom: 20px;
         }
     </style>
+
+    <!-- Fetch the logo from the database and display it in the navbar -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("databases/fetch_logo.php")
+                .then(response => response.json())
+                .then(data => {
+                    let schoolLogo = document.getElementById("schoolLogo");
+                    if (data.status === "success" && data.image) {
+                        schoolLogo.src = data.image; // Load logo from database
+                    } else {
+                        console.error("Error:", data.message);
+                        schoolLogo.src = "assets/homepage_images/logo/placeholder.png"; // Default placeholder
+                    }
+                })
+                .catch(error => console.error("Error fetching logo:", error));
+        });
+    </script>
 </head>
 <body>
     <!-- Privacy Notice Modal -->
@@ -108,7 +126,7 @@
                         <div class="text-center">
                             <div class="d-flex align-items-center justify-content-between">
                                 <h4 class="m-0">St. John the Baptist Parochial School Admission Form</h4>
-                                <img src="images/logo/st-johns-logo.png" alt="School Logo" class="rounded-circle" width="80" height="80">
+                                <img id="schoolLogo" src="assets/homepage_images/logo/placeholder.png" alt="School Logo" class="logo-image rounded-circle" width="80" height="80">
                             </div>
                         </div>
                     </div>
@@ -637,7 +655,7 @@
             });
 
             // Load Active School Years
-            fetchData("databases/school_years.php", function (data) {
+            fetchData("databases/active_school_years.php", function (data) {
                 console.log("Active School Years Loaded:", data);
                 const schoolYearSelect = document.getElementById("schoolYear");
                 schoolYearSelect.innerHTML = '<option value="" disabled selected>Select School Year</option>';
@@ -868,6 +886,7 @@
 
                     }
                 }
+                
                 // **Email Already Exist Validator**
                 async function checkEmailExists(email, schoolYear, gradeLevel, academicSemester) {
                     try {

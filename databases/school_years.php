@@ -1,14 +1,22 @@
 <?php
 include 'db_connection.php'; // Include database connection
 
-$sql = "SELECT * FROM school_year WHERE is_active = 1"; // Latest school year first
+$sql = "SELECT * FROM school_year ORDER BY school_year DESC"; // Order by latest first
 $result = $conn->query($sql);
 
 $school_years = array();
 while ($row = $result->fetch_assoc()) {
-    $school_years[] = $row;
+    $school_years[] = [
+        'school_year_id' => $row['school_year_id'], // Fetch school_year_id
+        'school_year' => $row['school_year']       // Fetch school_year
+    ];
 }
 
-echo json_encode($school_years); // Return JSON response
+// Return JSON response
+echo json_encode([
+    "status" => "success",
+    "schoolYears" => $school_years
+]);
+
 $conn->close();
 ?>

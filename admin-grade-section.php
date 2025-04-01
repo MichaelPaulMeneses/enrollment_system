@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SJBPS Admin - Grade and Sections</title>
+    <link rel="icon" type="image/png" href="images/logo/st-johns-logo.png">
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -67,6 +69,8 @@
             cursor: pointer;
         }
         .grade-card:hover {
+            background-color: #3498db;
+            color: #f0f0f0;
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
@@ -175,7 +179,12 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" href="admin-grade-section.php">
-                            <i class="fas fa-users me-2"></i>Grade-Section
+                            <i class="fas fa-chalkboard-teacher me-2"></i>Grade-Section
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-curriculum.php">
+                            <i class="fas fa-book-open me-2"></i>Curriculum
                         </a>
                     </li>
                     <li class="nav-item">
@@ -199,12 +208,30 @@
                         <div class="me-3">
                             <label for="schoolYearSelect" class="form-label mb-0 me-2">School Year:</label>
                             <select id="schoolYearSelect" class="form-select school-year-select">
-                                <option value="2024-2025">2024-2025</option>
-                                <option value="2023-2024">2023-2024</option>
-                                <option value="2022-2023">2022-2023</option>
+                                <!-- Options will be populated dynamically -->
                             </select>
                         </div>
                     </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            fetch('databases/school_years.php')
+                                .then(response => response.json())
+                                .then(data => {
+                                    const schoolYearSelect = document.getElementById('schoolYearSelect');
+                                    if (data.status === 'success' && Array.isArray(data.schoolYears)) {
+                                        data.schoolYears.forEach(year => {
+                                            const option = document.createElement('option');
+                                            option.value = year;
+                                            option.textContent = year;
+                                            schoolYearSelect.appendChild(option);
+                                        });
+                                    } else {
+                                        console.error('Error fetching school years:', data.message);
+                                    }
+                                })
+                                .catch(error => console.error('Error:', error));
+                        });
+                    </script>
                 </div>
 
                 <!-- Warning message -->

@@ -78,6 +78,9 @@ $adminLastName = $_SESSION['last_name'];
         .main-content {
             padding: 20px;
         }
+        .search-container {
+            margin-bottom: 20px;
+        }
         .table {
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             border-radius: 8px;
@@ -100,8 +103,8 @@ $adminLastName = $_SESSION['last_name'];
         }
     </style>
 
-        <!-- Fetch the name of the User -->
-        <script>
+    <!-- Fetch the name of the User -->
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             const adminFirstName = "<?php echo htmlspecialchars($adminFirstName); ?>";
             const adminLastName = "<?php echo htmlspecialchars($adminLastName); ?>";
@@ -182,6 +185,16 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="admin-grade-section.php">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>Grade-Section
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-curriculum.php">
+                            <i class="fas fa-book-open me-2"></i>Curriculum
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="admin-homepage-editor.php">
                             <i class="fas fa-edit me-2"></i>Home Page Editor
                         </a>
@@ -194,8 +207,8 @@ $adminLastName = $_SESSION['last_name'];
                 </ul>
             </div>
         
-<!-- Main Content -->
-<div class="col-md-9 col-lg-10 main-content">
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="mb-0">Applications for Review</h4>
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
@@ -238,7 +251,7 @@ $adminLastName = $_SESSION['last_name'];
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </>
         </div>
     </div>
 

@@ -410,41 +410,51 @@ $adminLastName = $_SESSION['last_name'];
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 d-md-block sidebar">
+            <div class="col-md-3 col-lg-2 d-md-block sidebar pt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
                         <a class="nav-link" href="admin-dashboard.php">
-                            <i class="fas fa-tachometer-alt"></i>Dashboard
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" href="admin-application-for-review.php">
-                            <i class="fas fa-file-alt"></i>Applications for Review
+                            <i class="fas fa-file-alt me-2"></i>Applications for Review
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="admin-approved-application.php">
-                            <i class="fas fa-check-circle"></i>Approved Applications
+                            <i class="fas fa-check-circle me-2"></i>Approved Applications
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">
-                            <i class="fas fa-money-check-alt"></i>Payment Transactions
+                            <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="admin-all-enrollees.php">
-                            <i class="fas fa-users"></i>All Enrollees
+                            <i class="fas fa-users me-2"></i>All Enrollees
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-grade-section.php">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>Grade-Section
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-curriculum.php">
+                            <i class="fas fa-book-open me-2"></i>Curriculum
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="admin-homepage-editor.php">
-                            <i class="fas fa-edit"></i>Home Page Editor
+                            <i class="fas fa-edit me-2"></i>Home Page Editor
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">
-                            <i class="fas fa-user-cog"></i>Users
+                            <i class="fas fa-user-cog me-2"></i>Users
                         </a>
                     </li>
                 </ul>
@@ -738,68 +748,59 @@ $adminLastName = $_SESSION['last_name'];
                             </div>
                             
                             <!-- Document Thumbnails -->
-                            <div class="row mb-3">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label class="form-label">Birth Certificate <span class="text-danger">*</span></label>
-                                        <img src="path/to/birth_certificate_thumbnail.jpg" alt="Birth Certificate" class="img-thumbnail preview-thumbnail" 
-                                            data-bs-toggle="modal" data-bs-target="#birthCertModal" 
-                                            data-pdf="<?= htmlspecialchars($student['birth_certificate']) ?>">
+                            <div class="container mt-4">
+                                <h3>Uploaded Documents</h3>
+                                
+                                <div class="row mb-3">
+                                    <!-- Birth Certificate -->
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="form-label">Birth Certificate <span class="text-danger">*</span></label>
+                                            <img src="path/to/birth_certificate_thumbnail.jpg" 
+                                                alt="Birth Certificate" 
+                                                class="img-thumbnail preview-thumbnail" 
+                                                data-pdf="<?= htmlspecialchars($student['birth_certificate']) ?>" 
+                                                style="cursor: pointer;">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Report Card -->
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="form-label">Report Card <span class="text-danger">*</span></label>
+                                            <img src="path/to/report_card_thumbnail.jpg" 
+                                                alt="Report Card" 
+                                                class="img-thumbnail preview-thumbnail" 
+                                                data-pdf="<?= htmlspecialchars($student['report_card']) ?>" 
+                                                style="cursor: pointer;">
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label class="form-label">Report Card <span class="text-danger">*</span></label>
-                                        <img src="path/to/report_card_thumbnail.jpg" alt="Report Card" class="img-thumbnail preview-thumbnail" 
-                                            data-bs-toggle="modal" data-bs-target="#reportCardModal" 
-                                            data-pdf="<?= htmlspecialchars($student['report_card']) ?>">
-                                    </div>
+
+                                <!-- PDF Viewer -->
+                                <div class="mt-4">
+                                    <h4>Document Preview</h4>
+                                    <iframe id="pdfViewer" src="" width="100%" height="600px" style="border: none; display: none;"></iframe>
                                 </div>
                             </div>
 
-                            <!-- Birth Certificate Modal -->
-                            <div class="modal fade" id="birthCertModal" tabindex="-1" aria-labelledby="birthCertModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="birthCertModalLabel">Birth Certificate</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <iframe id="birthCertViewer" src="" width="100%" height="500px" style="border: none;"></iframe>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Report Card Modal -->
-                            <div class="modal fade" id="reportCardModal" tabindex="-1" aria-labelledby="reportCardModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="reportCardModalLabel">Report Card</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <iframe id="reportCardViewer" src="" width="100%" height="500px" style="border: none;"></iframe>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- JavaScript to Load Documents Dynamically -->
                             <script>
                                 document.addEventListener("DOMContentLoaded", function () {
+                                    let pdfViewer = document.getElementById('pdfViewer');
+                                    let defaultPdf = document.querySelector('.preview-thumbnail[data-pdf]'); // Get the first PDF (Birth Certificate)
+
+                                    // Set default PDF on page load
+                                    if (defaultPdf) {
+                                        pdfViewer.src = defaultPdf.getAttribute('data-pdf');
+                                        pdfViewer.style.display = 'block';
+                                    }
+
+                                    // Update PDF on thumbnail click
                                     document.querySelectorAll('.preview-thumbnail').forEach(img => {
                                         img.addEventListener('click', function () {
                                             let pdfUrl = this.getAttribute('data-pdf');
-                                            let targetModal = this.getAttribute('data-bs-target');
-                                            
-                                            if (targetModal === '#birthCertModal') {
-                                                document.getElementById('birthCertViewer').src = pdfUrl;
-                                            } else if (targetModal === '#reportCardModal') {
-                                                document.getElementById('reportCardViewer').src = pdfUrl;
-                                            }
+                                            pdfViewer.src = pdfUrl;
+                                            pdfViewer.style.display = 'block';
                                         });
                                     });
                                 });

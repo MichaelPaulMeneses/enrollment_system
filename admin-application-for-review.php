@@ -195,6 +195,16 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="admin-grade-section.php">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>Grade-Section
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-curriculum.php">
+                            <i class="fas fa-book-open me-2"></i>Curriculum
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="admin-homepage-editor.php">
                             <i class="fas fa-edit me-2"></i>Home Page Editor
                         </a>
@@ -245,7 +255,7 @@ $adminLastName = $_SESSION['last_name'];
                         <tbody>
                             <!-- JavaScript will populate this section -->
                             <tr>
-                                <td colspan="6" class="text-center py-5 empty-table-message">
+                                <td colspan="9" class="text-center py-5 empty-table-message">
                                     <i class="fas fa-inbox fa-3x mb-3"></i>
                                     <p>No applications for review at this time</p>
                                 </td>
@@ -401,7 +411,7 @@ $adminLastName = $_SESSION['last_name'];
                     if (data.length === 0) {
                         tbody.innerHTML = `
                             <tr>
-                                <td colspan="7" class="text-center py-5 empty-table-message">
+                                <td colspan="9" class="text-center py-5 empty-table-message">
                                     <i class="fas fa-inbox fa-3x mb-3"></i>
                                     <p>No applications for review at this time</p>
                                 </td>
