@@ -21,7 +21,7 @@ if ($school_year_id <= 0) {
 }
 
 // Prepare the query
-$query = $conn->prepare("SELECT * FROM curriculums WHERE school_year_id = ?");
+$query = $conn->prepare("SELECT * FROM curriculums WHERE school_year_id = ? ORDER BY curriculum_name ASC");
 $query->bind_param("i", $school_year_id);
 $query->execute();
 $result = $query->get_result();

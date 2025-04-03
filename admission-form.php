@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SJBPS Admission Form</title>
-    <link rel="icon" type="image/png" href="images/logo/st-johns-logo.png">
+    <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -55,8 +56,9 @@
         }
     </style>
 
-    <!-- Fetch the logo from the database and display it in the navbar -->
+    <!-- Fetch the logo and School Name -->
     <script>
+        //  Fetch the logo from the database and display it in the navbar
         document.addEventListener("DOMContentLoaded", function () {
             fetch("databases/fetch_logo.php")
                 .then(response => response.json())
@@ -70,6 +72,21 @@
                     }
                 })
                 .catch(error => console.error("Error fetching logo:", error));
+
+        //  Detch the School Name from the database and display it
+        fetch("databases/fetch_school_name.php")
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    document.getElementById("schoolName").textContent = data.school_name + " Admission Form";
+                } else {
+                    document.getElementById("schoolName").textContent = "Admission Form";
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching school name:", error);
+                document.getElementById("schoolName").textContent = "Admission Form";
+            });
         });
     </script>
 </head>
@@ -125,7 +142,7 @@
                     <div class="card-header bg-white py-4">
                         <div class="text-center">
                             <div class="d-flex align-items-center justify-content-between">
-                                <h4 class="m-0">St. John the Baptist Parochial School Admission Form</h4>
+                                <h4 id="schoolName" class="m-0">Loading...</h4>
                                 <img id="schoolLogo" src="assets/homepage_images/logo/placeholder.png" alt="School Logo" class="logo-image rounded-circle" width="80" height="80">
                             </div>
                         </div>
@@ -946,8 +963,10 @@
                         } else {
                             // Check if the selected date is a future date
                             const today = new Date();
-                            today.setHours(0, 0, 0, 0); // Reset time to start of the day for comparison
                             const selectedDate = new Date(appointmentDateValidator);
+
+                            today.setHours(0, 0, 0, 0);  // Reset time for accurate comparison
+                            selectedDate.setHours(0, 0, 0, 0); // Reset time for selected date
 
                             if (selectedDate <= today) {
                                 showError(dateError, "Please select a future date.");
@@ -1109,13 +1128,15 @@
                 });
             }
 
-            // **Real-time Validation for Appointment Date**
             document.getElementById("appointmentDate").addEventListener("input", function () {
                 const dateError = document.getElementById("dateError");
                 const selectedDate = new Date(this.value);
                 const today = new Date();
-                today.setHours(0, 0, 0, 0); // Reset time to start of the day for comparison
-                const day = selectedDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
+                today.setHours(0, 0, 0, 0);  // Reset time for accurate comparison
+                selectedDate.setHours(0, 0, 0, 0); // Reset time for selected date
+
+                const day = selectedDate.getDay(); // 0 = Sunday, ..., 6 = Saturday
 
                 if (selectedDate <= today) {
                     showError(dateError, "Please select a future date.");
@@ -1125,6 +1146,7 @@
                     removeError(dateError);
                 }
             });
+
 
             // **Real-time Validation for Date of Birth**
             document.getElementById("dateOfBirth").addEventListener("input", function () {
@@ -1153,7 +1175,6 @@
                     removeError(timeError);
                 }
             });
-
 
             // **Real-time Email Validation**
             document.getElementById("email").addEventListener("input", async function () {
@@ -1193,7 +1214,7 @@
     </script>
 
 
-<script>
+    <script>
         // Function to prevent typing of invalid characters
         function preventInvalidInput(event) {
             const key = event.key;

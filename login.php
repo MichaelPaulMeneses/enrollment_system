@@ -53,7 +53,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Enrollment System</title>
+    <title>SJBPS - LogIn </title>
+    <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
+
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -102,11 +104,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-align: center;
         }
     </style>
+
+        <!-- Fetch the logo from the database and display it in the navbar and form -->
+        <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("databases/fetch_logo.php")
+                .then(response => response.json())
+                .then(data => {
+                    let loginLogo = document.getElementById("loginLogo");
+
+                    if (data.status === "success" && data.image) {
+                        loginLogo.src = data.image; // Load logo from database
+                    } else {
+                        console.error("Error:", data.message);
+                        loginLogo.src = "assets/homepage_images/logo/placeholder.png"; // Default placeholder
+                    }
+                })
+                .catch(error => console.error("Error fetching logo:", error));
+        });
+    </script>
 </head>
 <body>
     <div class="login-container">
         <div class="p-3" style="text-align: center;">
-            <img src="images/logo/st-johns-logo.png" alt="St. John Logo" style="max-width: 150px;">
+            <img id="loginLogo" src="assets/homepage_images/logo/placeholder.png" alt="School Logo" class="logo-image me-2" style="max-width: 150px;">
+
         </div>
         <h2 class="title">Online Enrollment System</h2>
         

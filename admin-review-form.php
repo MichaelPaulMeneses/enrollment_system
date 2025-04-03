@@ -93,7 +93,8 @@ $adminLastName = $_SESSION['last_name'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin View - School Enrollment Form</title>
-    <link rel="icon" type="image/png" href="images/logo/st-johns-logo.png">
+    <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -378,6 +379,21 @@ $adminLastName = $_SESSION['last_name'];
                     }
                 })
                 .catch(error => console.error("Error fetching logo:", error));
+
+            //  Fetch the School Name from the database and display it
+            fetch("databases/fetch_school_name.php")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        document.getElementById("schoolName").textContent = data.school_name + " Admission Form";
+                    } else {
+                        document.getElementById("schoolName").textContent = "Admission Form";
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching school name:", error);
+                    document.getElementById("schoolName").textContent = "Admission Form";
+                });
         });
     </script>
 </head>
@@ -415,6 +431,11 @@ $adminLastName = $_SESSION['last_name'];
                     <li class="nav-item">
                         <a class="nav-link" href="admin-dashboard.php">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-appointments.php">
+                            <i class="fas fa-calendar-check me-2"></i>Appointments
                         </a>
                     </li>
                     <li class="nav-item">
@@ -464,7 +485,7 @@ $adminLastName = $_SESSION['last_name'];
             <div class="col-md-9 col-lg-10 ms-sm-auto px-md-4">
                 <div class="admin-card card">
                     <div class="card-header header-container">
-                        <h4 class="mb-0 text-white">St. John the Baptist Parochial School Admission Form</h4>
+                        <h4 id="schoolName" class="mb-0 text-white">Loading...</h4>
                         <img id="formLogo" src="assets/homepage_images/logo/placeholder.png" alt="School Logo" class="school-logo">
                         
                     </div>

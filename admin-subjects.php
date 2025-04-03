@@ -41,7 +41,7 @@ $adminLastName = $_SESSION['last_name'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SJBPS Admin - Subjects</title>
-    <link rel="icon" type="image/png" href="images/logo/st-johns-logo.png">
+    <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -191,6 +191,11 @@ $adminLastName = $_SESSION['last_name'];
                     <li class="nav-item">
                         <a class="nav-link" href="admin-dashboard.php">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-appointments.php">
+                            <i class="fas fa-calendar-check me-2"></i>Appointments
                         </a>
                     </li>
                     <li class="nav-item">
@@ -387,7 +392,7 @@ $adminLastName = $_SESSION['last_name'];
                     data.forEach((subject, index) => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td>${subject.subject_id}</td>
+                            <td>${index += 1}</td>
                             <td>${subject.subject_code}</td>
                             <td>${subject.subject_name}</td>
                             <td>${subject.curriculum_name}</td>

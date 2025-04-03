@@ -18,7 +18,8 @@ $adminLastName = $_SESSION['last_name'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - SJBPS Applications for Review</title>
-    <link rel="icon" type="image/png" href="images/logo/st-johns-logo.png">
+    <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
+    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -172,6 +173,11 @@ $adminLastName = $_SESSION['last_name'];
                     <li class="nav-item">
                         <a class="nav-link" href="admin-dashboard.php">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-appointments.php">
+                            <i class="fas fa-calendar-check me-2"></i>Appointments
                         </a>
                     </li>
                     <li class="nav-item">
@@ -418,13 +424,13 @@ $adminLastName = $_SESSION['last_name'];
                             </tr>
                         `;
                     } else {
-                        data.forEach(student => {
+                        data.forEach((student, index) => {
                             let row = document.createElement("tr");
                             row.classList.add("student-row");
                             row.setAttribute("data-id", student.student_id);
 
                             row.innerHTML = `
-                                <td>${student.student_id}</td>
+                                <td>${index += 1}</td>
                                 <td>${student.student_name}</td>
                                 <td>${student.type_of_student}</td>
                                 <td>${student.prev_grade_name}</td>

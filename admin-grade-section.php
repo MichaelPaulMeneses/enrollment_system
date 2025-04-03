@@ -1,10 +1,24 @@
+<?php
+session_start();
+
+// Redirect to login if the user is not authenticated
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+    header("Location: login.php");
+    exit();
+}
+
+// Retrieve admin details from session
+$adminFirstName = $_SESSION['first_name'];
+$adminLastName = $_SESSION['last_name'];
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SJBPS Admin - Grade and Sections</title>
-    <link rel="icon" type="image/png" href="images/logo/st-johns-logo.png">
+    <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -158,6 +172,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="admin-appointments.php">
+                            <i class="fas fa-calendar-check me-2"></i>Appointments
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="admin-application-for-review.php">
                             <i class="fas fa-file-alt me-2"></i>Applications for Review
                         </a>
@@ -203,164 +222,140 @@
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="mb-0">Grade and Sections</h4>
                     <div class="d-flex align-items-center">
-                        <div class="me-3">
-                            <label for="schoolYearSelect" class="form-label mb-0 me-2">School Year:</label>
-                            <select id="schoolYearSelect" class="form-select school-year-select">
-                                <!-- Options will be populated dynamically -->
-                            </select>
+                        <h4 class="mb-0">Grade Levels</h4>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="ms-auto">
+                            <div class="col">
+                                <!--<label for="schoolYearSelect" class="form-label mb-0 me-2">School Year:</label>
+                                <select id="schoolYearSelect" class="form-select school-year-select"> -->
+                                    <!-- Options will be populated dynamically -->
+                                </select>
+                            </div>
                         </div>
                     </div>
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            fetch('databases/school_years.php')
-                                .then(response => response.json())
-                                .then(data => {
-                                    const schoolYearSelect = document.getElementById('schoolYearSelect');
-                                    if (data.status === 'success' && Array.isArray(data.schoolYears)) {
-                                        data.schoolYears.forEach(year => {
-                                            const option = document.createElement('option');
-                                            option.value = year;
-                                            option.textContent = year;
-                                            schoolYearSelect.appendChild(option);
-                                        });
-                                    } else {
-                                        console.error('Error fetching school years:', data.message);
-                                    }
-                                })
-                                .catch(error => console.error('Error:', error));
-                        });
-                    </script>
+                </div>
+                <div class="d-flex justify-content-end align-items-center mb-4 gap-3">
+                    <!--
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCurriculumModal">
+                        Add Curriculum
+                    </button> -->
+                    <!-- Search Bar -->
+                    <div class="search-container">
+                        <div class="input-group" style="max-width: 300px;">
+                            <input type="text" id="searchCurriculum" class="form-control" placeholder="Search applications" aria-label="Search">
+                            <button class="btn btn-outline-secondary" type="button" id="clearBtn">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grade Levels Table -->
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Grade Levels</th>
+                                <th>Department</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gradeLevelsContainer">
+                            <!-- Dynamic Content will be inserted here -->
+                        </tbody>
+                    </table>
                 </div>
 
-                <!-- Warning message -->
-                <div class="warning-alert mb-4">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>Warning: Undefined school year</span>
-                </div>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        fetch("databases/all_grade_levels.php") // Ensure the correct file path
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error("Network response was not ok");
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                const gradeLevelsContainer = document.getElementById("gradeLevelsContainer");
+                                gradeLevelsContainer.innerHTML = ""; // Clear existing content
 
-                <!-- Grade Cards -->
-                <div class="row">
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card grade-card text-center">
-                            <div class="card-body py-4">
-                                <h5 class="card-title">Kinder</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card grade-card text-center">
-                            <div class="card-body py-4">
-                                <h5 class="card-title">Preschool</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card grade-card text-center">
-                            <div class="card-body py-4">
-                                <h5 class="card-title">Grade 1</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card grade-card text-center">
-                            <div class="card-body py-4">
-                                <h5 class="card-title">Grade 2</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card grade-card text-center">
-                            <div class="card-body py-4">
-                                <h5 class="card-title">Grade 3</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card grade-card text-center">
-                            <div class="card-body py-4">
-                                <h5 class="card-title">Grade 4</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card grade-card text-center">
-                            <div class="card-body py-4">
-                                <h5 class="card-title">Grade 5</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card grade-card text-center">
-                            <div class="card-body py-4">
-                                <h5 class="card-title">Grade 6</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card grade-card text-center">
-                            <div class="card-body py-4">
-                                <h5 class="card-title">Grade 7</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card grade-card text-center">
-                            <div class="card-body py-4">
-                                <h5 class="card-title">Grade 8</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card grade-card text-center">
-                            <div class="card-body py-4">
-                                <h5 class="card-title">Grade 9</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card grade-card text-center">
-                            <div class="card-body py-4">
-                                <h5 class="card-title">Grade 10</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card grade-card text-center">
-                            <div class="card-body py-4">
-                                <h5 class="card-title">Grade 11</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card grade-card text-center">
-                            <div class="card-body py-4">
-                                <h5 class="card-title">Grade 12</h5>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                data.forEach((grade, index) => {
+                                    const row = document.createElement("tr");
+                                    
+                                    console.log(grade.grade_level_id);
+                                    row.innerHTML = `
+                                        <td>${index + 1}</td>
+                                        <td>${grade.grade_name}</td>
+                                        <td>${grade.department}</td>
+                                        <td>
+                                            <form action="admin-sections.php" method="POST" style="display:inline;">
+                                                <input type="hidden" name="grade_level_id" value="${grade.grade_level_id}">
+                                                <button type="submit" class="btn btn-info btn-sm section-btn" >Sections</button>
+                                            </form>
+                                        </td>
+                                    `;
+
+                                    gradeLevelsContainer.appendChild(row);
+                                });
+
+                                // Add event listeners for the "Sections" buttons
+                                document.querySelectorAll(".section-btn").forEach(button => {
+                                    button.addEventListener("click", function () {
+                                        const gradeLevelId = this.getAttribute("data-id");
+                                        window.location.href = `admin-sections.php?grade_level_id=${gradeLevelId}`;
+                                    });
+                                });
+
+                            })
+                            .catch(error => console.error("Error fetching grade levels:", error));
+                    });
+                </script>
+
+                
             </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
     <script>
-        // Add click handlers for grade cards
+        // Search Bar Method
         document.addEventListener('DOMContentLoaded', function() {
-            const gradeCards = document.querySelectorAll('.grade-card');
-            
-            gradeCards.forEach(card => {
-                card.addEventListener('click', function() {
-                    const gradeTitle = this.querySelector('.card-title').textContent;
-                    const schoolYear = document.getElementById('schoolYearSelect').value;
-                    
-                    // Redirect to grade section page with parameters
-                    window.location.href = `admin-grade-section.php?grade=${encodeURIComponent(gradeTitle)}&year=${encodeURIComponent(schoolYear)}`;
+            const searchInput = document.getElementById('searchCurriculum'); // Search input
+            const clearBtn = document.getElementById('clearBtn'); // Clear button
+            const gradeLevelsContainer = document.getElementById('gradeLevelsContainer'); // Table container
+
+            // Filter table rows based on search input
+            searchInput.addEventListener('input', function() {
+                const searchTerm = searchInput.value.toLowerCase();
+
+                Array.from(gradeLevelsContainer.children).forEach(row => {
+                    const gradeLevelName = row.children[1].textContent.toLowerCase(); // Grade level name
+                    const department = row.children[2].textContent.toLowerCase(); // Department (if exists)
+
+                    if (gradeLevelName.includes(searchTerm) || department.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+
+            // Clear search input and reset table
+            clearBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                Array.from(gradeLevelsContainer.children).forEach(row => {
+                    row.style.display = '';
                 });
             });
         });
     </script>
+
+
+
+
 </body>
 </html>

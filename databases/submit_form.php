@@ -61,13 +61,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $birth_certificate = uploadFile('birthCertificate', $upload_dir, $first_name . '_' . $last_name . '_' . $safe_date_of_birth);
     $report_card = uploadFile('reportCard', $upload_dir, $first_name . '_' . $last_name .'_' . $safe_date_of_birth);
     $id_picture = uploadFile('idPicture', $upload_dir, $first_name . '_' . $last_name .'_' . $safe_date_of_birth);
-    
-
+        
     if ($type_of_student === 'old') {
         $appointment_date = null;
         $appointment_time = null;
+        $enrollment_status = 'Pending Review';
+    } else {
+        $enrollment_status = 'Pending Review';
+        $enrollment_status = 'For Appointment';
     }
-    
+
 
     $stmt = $conn->prepare("INSERT INTO students (
         last_name, first_name, middle_name, suffix, 
@@ -81,12 +84,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         school_year_id, type_of_student, grade_applying_for, 
         academic_track, academic_semester, 
         appointment_date, appointment_time, 
-        birth_certificate, report_card, id_picture
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        birth_certificate, report_card, id_picture, enrollment_status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     
 
     if ($stmt) {
-        $stmt->bind_param("ssssiiiisssssiiisssssssssssssisisssssss", $last_name, $first_name, $middle_name, $suffix, $region_id, $province_id, $municipality_id, $barangay_id, $street_address, $zip_code, $date_of_birth, $place_of_birth, $gender, $nationality_id, $religion_id, $prev_grade_lvl, $email, $contact, $school_last_attended, $school_address, $father_name, $father_occupation, $father_contact_number, $mother_name, $mother_occupation, $mother_contact_number, $guardian_name, $guardian_relationship, $guardian_contact_number, $school_year_id, $type_of_student, $grade_applying_for, $academic_track, $academic_semester, $appointment_date, $appointment_time, $birth_certificate, $report_card, $id_picture);
+        $stmt->bind_param("ssssiiiisssssiiisssssssssssssisissssssss", $last_name, $first_name, $middle_name, $suffix, $region_id, $province_id, $municipality_id, $barangay_id, $street_address, $zip_code, $date_of_birth, $place_of_birth, $gender, $nationality_id, $religion_id, $prev_grade_lvl, $email, $contact, $school_last_attended, $school_address, $father_name, $father_occupation, $father_contact_number, $mother_name, $mother_occupation, $mother_contact_number, $guardian_name, $guardian_relationship, $guardian_contact_number, $school_year_id, $type_of_student, $grade_applying_for, $academic_track, $academic_semester, $appointment_date, $appointment_time, $birth_certificate, $report_card, $id_picture, $enrollment_status);
 
         if ($stmt->execute()) {
             $response = ["success" => true, "message" => "Data added successfully"];

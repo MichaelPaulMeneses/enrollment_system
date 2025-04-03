@@ -82,6 +82,16 @@ CREATE TABLE grade_levels (
     department ENUM('Early Education', 'Elementary', 'Junior High School', 'Senior High School') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Create the sections table
+CREATE TABLE sections (
+    section_id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    section_name VARCHAR(50) NOT NULL,
+    grade_level_id INT(11) NOT NULL,
+    school_year_id INT(11) NOT NULL,
+    FOREIGN KEY (grade_level_id) REFERENCES grade_levels(grade_level_id) ON DELETE CASCADE,
+    FOREIGN KEY (school_year_id) REFERENCES school_year(school_year_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 -- Create the grade_level_subjects table with curriculum reference
 CREATE TABLE grade_level_subjects (
@@ -93,8 +103,6 @@ CREATE TABLE grade_level_subjects (
     FOREIGN KEY (subject_id) REFERENCES subjects(subject_id) ON DELETE CASCADE,
     FOREIGN KEY (curriculum_id) REFERENCES curriculums(curriculum_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
 
 -- Create refregion table
 CREATE TABLE refregion (
@@ -175,7 +183,7 @@ CREATE TABLE students (
     birth_certificate VARCHAR(255) NOT NULL,
     report_card VARCHAR(255) NOT NULL,
     id_picture VARCHAR(255) NOT NULL,
-    enrollment_status ENUM('Pending Review', 'For Payment', 'Fully Enrolled') NOT NULL DEFAULT 'Pending Review',
+    enrollment_status ENUM('For Appointment', 'Pending Review', 'For Payment', 'Fully Enrolled') NOT NULL DEFAULT 'Pending Review',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp for record creation
 
     -- Foreign Key Constraints
@@ -189,9 +197,15 @@ CREATE TABLE students (
     FOREIGN KEY (school_year_id) REFERENCES school_year(school_year_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
 CREATE TABLE school_logo (
     id INT AUTO_INCREMENT PRIMARY KEY,
     image_path VARCHAR(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE school_names (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    school_name VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE homepage_carousel (
@@ -228,6 +242,8 @@ CREATE TABLE homepage_old_students (
     id INT AUTO_INCREMENT PRIMARY KEY,
     old_desc  TEXT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO school_names (school_name) VALUES ('Testing Name');
 
 INSERT INTO homepage_mission (content) VALUES ('This is a test mission statement.');
 
@@ -444,8 +460,8 @@ INSERT INTO school_year (school_year, is_active) VALUES
 -- Insert data into the curriculums table
 INSERT INTO curriculums (curriculum_name, school_year_id) VALUES
 ('K-12', 1),
-('MATATAG', 1),  
-('Alternative Learning System', 2); 
+('MATATAG', 2),  
+('Alternative Learning System', 3); 
 
 
 -- Insert data into grade_levels table
@@ -578,7 +594,6 @@ INSERT INTO `refprovince` VALUES ('65', '126500000', 'SULTAN KUDARAT', '12', '12
 INSERT INTO `refprovince` VALUES ('66', '128000000', 'SARANGANI', '12', '1280');
 INSERT INTO `refprovince` VALUES ('67', '129800000', 'COTABATO CITY', '12', '1298');
 INSERT INTO `refprovince` VALUES ('68', '133900000', 'NCR, CITY OF MANILA, FIRST DISTRICT', '13', '1339');
-INSERT INTO `refprovince` VALUES ('69', '133900000', 'CITY OF MANILA', '13', '1339');
 INSERT INTO `refprovince` VALUES ('70', '137400000', 'NCR, SECOND DISTRICT', '13', '1374');
 INSERT INTO `refprovince` VALUES ('71', '137500000', 'NCR, THIRD DISTRICT', '13', '1375');
 INSERT INTO `refprovince` VALUES ('72', '137600000', 'NCR, FOURTH DISTRICT', '13', '1376');

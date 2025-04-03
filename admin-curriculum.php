@@ -18,7 +18,7 @@ $adminLastName = $_SESSION['last_name'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SJBPS Admin - Curriculum</title>
-    <link rel="icon" type="image/png" href="images/logo/st-johns-logo.png">
+    <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -172,6 +172,11 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="admin-appointments.php">
+                            <i class="fas fa-calendar-check me-2"></i>Appointments
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="admin-application-for-review.php">
                             <i class="fas fa-file-alt me-2"></i>Applications for Review
                         </a>
@@ -218,7 +223,7 @@ $adminLastName = $_SESSION['last_name'];
             <div class="col-md-9 col-lg-10 main-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div class="d-flex align-items-center">
-                        <h4 class="mb-0">Grade and Sections</h4>
+                        <h4 class="mb-0">Curriculum</h4>
                     </div>
                     <div class="d-flex align-items-center">
                         <div class="ms-auto">
@@ -267,7 +272,7 @@ $adminLastName = $_SESSION['last_name'];
                                         </select>
                                     </div>
                                     <div class="d-flex justify-content-end">
-                                        <button type="submit" class="btn btn-primary me-2">Update</button>
+                                        <button type="submit" class="btn btn-primary me-2">Add</button>
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                     </div>
                                 </form>
@@ -327,9 +332,6 @@ $adminLastName = $_SESSION['last_name'];
                     </div>
                 </div>
 
-                <script>
-                </script>
-
                 <!-- Curriculum Table -->
                 <div class="table-responsive">
                     <table class="table table-bordered">
@@ -342,6 +344,8 @@ $adminLastName = $_SESSION['last_name'];
                         </thead>
                         <tbody id="curriculumContainer">
                             <!-- Dynamic Content will be inserted here -->
+
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -381,19 +385,19 @@ $adminLastName = $_SESSION['last_name'];
                 fetch(`databases/fetch_curriculums.php?school_year_id=${schoolYearId}`)
                     .then(response => response.json())
                     .then(data => {
-                        curriculumContainer.innerHTML = '';
+                        curriculumContainer.innerHTML = ``;
                         if (data.status === "success" && Array.isArray(data.curriculums)) {
                             data.curriculums.forEach((curriculum, index) => {
                                 const row = document.createElement("tr");
                                 // Inside the fetchCurriculums function
                                 console.log(curriculum.curriculum_id)
                                 row.innerHTML = `
-                                    <td>${curriculum.curriculum_id}</td>
+                                    <td>${index += 1}</td>
                                     <td>${curriculum.curriculum_name}</td>
                                     <td>
                                         <form action="admin-subjects.php" method="POST" style="display:inline;">
                                             <input type="hidden" name="curriculum_id" value="${curriculum.curriculum_id}">
-                                            <button type="submit" class="btn btn-success btn-sm">Subjects</button>
+                                            <button type="submit" class="btn btn-info btn-sm" >Subjects</button>
                                         </form>
                                         <button class="btn btn-warning btn-sm edit-btn" 
                                             data-id="${curriculum.curriculum_id}" 
@@ -477,8 +481,6 @@ $adminLastName = $_SESSION['last_name'];
                                 }
                             });
 
-                        } else {
-                            curriculumContainer.innerHTML = `<tr><td colspan="3" class="text-muted text-center">No curriculums available.</td></tr>`;
                         }
                     })
                     .catch(error => console.error("Error fetching curriculums:", error));
@@ -560,9 +562,9 @@ $adminLastName = $_SESSION['last_name'];
                     })
                     .catch(error => console.error("Error:", error));
             });
-
-
         });
+
+        
     </script>
 
 

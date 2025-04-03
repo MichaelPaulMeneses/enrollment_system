@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>St. John The Baptist Parochial School</title>
-    <link rel="icon" type="image/png" href="images/logo/st-johns-logo.png">
+    <title>SJBPS - Homepage</title>
+    <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -302,6 +303,32 @@
                     }
                 })
                 .catch(error => console.error("Error fetching logo:", error));
+
+            //  Fetch the School Name from the database and display it
+            fetch("databases/fetch_school_name.php")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        document.getElementById("schoolName").textContent = data.school_name;
+                        document.getElementById("schoolNameAction").textContent = data.school_name;
+                        document.getElementById("schoolNameFooter").textContent = data.school_name;
+                        document.getElementById("schoolNameRigthsReserves").textContent = data.school_name;
+
+
+                    } else {
+                        document.getElementById("schoolName").textContent = "No Name";
+                        document.getElementById("schoolNameAction").textContent = "No Name";
+                        document.getElementById("schoolNameFooter").textContent = "No Name";
+                        document.getElementById("schoolNameRigthsReserves").textContent = "No Name";
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching school name:", error);
+                    document.getElementById("schoolName").textContent = "No Name";
+                    document.getElementById("schoolNameAction").textContent = "No Name";
+                    document.getElementById("schoolNameFooter").textContent = "No Name";
+                    document.getElementById("schoolNameRigthsReserves").textContent = "No Name";
+                });
         });
 
     </script>
@@ -313,7 +340,8 @@
             <div class="header-content d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
                     <img id="navLogo" src="assets/homepage_images/logo/placeholder.png" alt="School Logo" width="75" class="me-2 rounded-circle">
-                    <span class="logo-text d-md-inline logo-container">ST. JOHN THE BAPTIST PAROCHIAL SCHOOL</span>
+                    <span id="schoolName" class="logo-text d-md-inline logo-container">Loading...</span>
+
                 </div>
                 
                 <!-- Desktop Navigation -->
@@ -356,7 +384,7 @@
     <!-- Call to Action -->
     <div class="container call-to-action">
         <h2>Shape Your Future with Quality Catholic Education</h2>
-        <p class="mb-4">St. John The Baptist Parochial School offers a comprehensive learning experience that combines academic excellence, Christian values, and 21st century skills.</p>
+        <p class="mb-4"><span id="schoolNameAction">Loading...</span> offers a comprehensive learning experience that combines academic excellence, Christian values, and 21st century skills.</p>
         <a href="admission-form.php" class="enroll-btn"><i class="fas fa-graduation-cap me-2"></i>Start Your Journey Today</a>
     </div>
 
@@ -470,7 +498,7 @@
                 <div class="col-md-6 mb-3 mb-md-0">
                     <div class="d-flex align-items-center justify-content-center justify-content-md-start mb-3">
                         <img id="footerLogo" src="assets/homepage_images/logo/placeholder.png" alt="School Logo" width="75" class="me-2 rounded-circle">
-                        <span class="logo-text">ST. JOHN THE BAPTIST PAROCHIAL SCHOOL</span>
+                        <span id="schoolNameFooter" class="logo-text">Loading...</span>
                     </div>
                     <div class="footer-text text-center text-md-start">
                         <p><i class="fas fa-map-marker-alt me-2"></i><a href="https://www.google.com/maps?q=Sumulong+Street+San+Isidro+Taytay+Rizal" target="_blank" style="color: white; text-decoration: none;">Sumulong Street, Brgy. San Isidro, Taytay, Rizal Philippines</a></p>
@@ -492,7 +520,7 @@
                         </div>
                     </div>
                     <div class="social-media-icons mt-4">
-                        <p>© 2025 St. John The Baptist Parochial School. All rights reserved.</p>
+                        <p>© 2025 <span id="schoolNameRigthsReserves">Loading</span>. All rights reserved.</p>
                     </div>
                 </div>
             </div>

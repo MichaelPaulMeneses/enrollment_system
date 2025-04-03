@@ -1,9 +1,25 @@
+<?php
+session_start();
+
+// Redirect to login if the user is not authenticated
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+    header("Location: login.php");
+    exit();
+}
+
+// Retrieve admin details from session
+$adminFirstName = $_SESSION['first_name'];
+$adminLastName = $_SESSION['last_name'];
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SJBPS Admin - All Enrollees</title>
+    <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -16,6 +32,13 @@
         body {
             background-color: #f4f6f9;
             font-family: 'Arial', sans-serif;
+        }
+        .logo-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
         }
         .navbar {
             background-color: var(--primary-blue);
@@ -83,21 +106,37 @@
         });
     </script>
 
-    <!-- Fetch the logo from the database and display it in the navbar -->
+    <!-- Fetch the logo and School Name -->
     <script>
+        //  Fetch the logo from the database and display it in the navbar
         document.addEventListener("DOMContentLoaded", function () {
             fetch("databases/fetch_logo.php")
                 .then(response => response.json())
                 .then(data => {
-                    let navLogo = document.getElementById("navLogo");
+                    let schoolLogo = document.getElementById("schoolLogo");
                     if (data.status === "success" && data.image) {
-                        navLogo.src = data.image; // Load logo from database
+                        schoolLogo.src = data.image; // Load logo from database
                     } else {
                         console.error("Error:", data.message);
-                        navLogo.src = "assets/homepage_images/logo/placeholder.png"; // Default placeholder
+                        schoolLogo.src = "assets/homepage_images/logo/placeholder.png"; // Default placeholder
                     }
                 })
                 .catch(error => console.error("Error fetching logo:", error));
+
+        //  Detch the School Name from the database and display it
+        fetch("databases/fetch_school_name.php")
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    document.getElementById("schoolName").textContent = data.school_name + " Admission Form";
+                } else {
+                    document.getElementById("schoolName").textContent = "Admission Form";
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching school name:", error);
+                document.getElementById("schoolName").textContent = "Admission Form";
+            });
         });
     </script>
 </head>
@@ -131,6 +170,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="admin-dashboard.php">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-appointments.php">
+                            <i class="fas fa-calendar-check me-2"></i>Appointments
                         </a>
                     </li>
                     <li class="nav-item">

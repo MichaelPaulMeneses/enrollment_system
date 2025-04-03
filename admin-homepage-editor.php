@@ -18,7 +18,7 @@ $adminLastName = $_SESSION['last_name'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - SJBPS Homepage Editor</title>
-    <link rel="icon" type="image/png" href="images/logo/st-johns-logo.png">
+    <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -197,6 +197,11 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="admin-appointments.php">
+                            <i class="fas fa-calendar-check me-2"></i>Appointments
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="admin-application-for-review.php">
                             <i class="fas fa-file-alt me-2"></i>Applications for Review
                         </a>
@@ -248,7 +253,7 @@ $adminLastName = $_SESSION['last_name'];
                             Main Page
                         </h4>
                     </div>
-                    <div class="col-md-6 col-lg-6 mb-4">
+                    <div class="col-md-6 col-lg-4 mb-4">
                         <div class="card-container">
                             <div class="card-title">Logo</div>
                             <div class="metric-card red" data-bs-toggle="modal" data-bs-target="#editLogoModal">
@@ -257,8 +262,18 @@ $adminLastName = $_SESSION['last_name'];
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card-container">
+                            <div class="card-title">School Name</div>
+                            <div class="metric-card gray" data-bs-toggle="modal" data-bs-target="#editSchoolNameModal">
+                                <div class="metric-value">Edit</div>
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
                     
-                    <div class="col-md-6 col-lg-6 mb-4">
+                    <div class="col-md-6 col-lg-4 mb-4">
                         <div class="card-container">
                             <div class="card-title">Carousel</div>
                             <div class="metric-card orange" data-bs-toggle="modal" data-bs-target="#editCarouselModal">
@@ -428,6 +443,30 @@ $adminLastName = $_SESSION['last_name'];
         </div>
     </div>
 
+    <!-- Modal for Editing School Name -->
+    <div class="modal fade" id="editSchoolNameModal" tabindex="-1" aria-labelledby="editSchoolNameModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editSchoolNameModalLabel">Edit School Name</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="schoolNameForm">
+                    <div class="modal-body">
+                        <!-- Input field for editing school name -->
+                        <div class="mb-3">
+                            <label for="schoolNameInput" class="form-label">School Name</label>
+                            <input type="text" class="form-control" id="schoolNameInput" name="schoolName" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal for Editing Mission -->
     <div class="modal fade" id="editMissionModal" tabindex="-1" aria-labelledby="editMissionModalLabel" aria-hidden="true">
@@ -624,60 +663,7 @@ $adminLastName = $_SESSION['last_name'];
         </div>
     </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const oldStudentsModal = document.getElementById("editOldStudentsModal");
-            const oldStudentsText = document.getElementById("oldStudentsText");
-            const oldStudentsForm = document.getElementById("oldStudentsForm");
-
-            // Fetch and display current information when the modal opens
-            oldStudentsModal.addEventListener("show.bs.modal", function () {
-                fetch("databases/fetch_old_students_req_info.php")
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === "success") {
-                            oldStudentsText.value = data.info;
-                        } else {
-                            console.error("Error:", data.message);
-                            alert("Error fetching information: " + data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error("Error fetching information:", error);
-                        alert("Failed to load information. Check your connection.");
-                    });
-            });
-
-            // Handle form submission for updating information
-            oldStudentsForm.addEventListener("submit", function (e) {
-                e.preventDefault();
-                const formData = new FormData(oldStudentsForm);
-
-                fetch("databases/edit_old_students_req_info.php", {
-                    method: "POST",
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.message);
-                    if (data.status === "success") {
-                        // Close the modal after successful update
-                        const modalInstance = bootstrap.Modal.getOrCreateInstance(oldStudentsModal);
-                        modalInstance.hide();
-
-                        // Refresh the admin-homepage-editor.php page
-                        setTimeout(() => {
-                            window.location.href = "admin-homepage-editor.php";
-                        }, 500);
-                    }
-                })
-                .catch(error => {
-                    console.error("Error updating information:", error);
-                    alert("Failed to update information.");
-                });
-            });
-        });
-    </script>
+    
 
 
     
@@ -731,6 +717,8 @@ $adminLastName = $_SESSION['last_name'];
                         document.querySelectorAll("#logoForm input[type='file']").forEach(input => {
                             input.value = "";
 
+                        alert("Logo uploaded successfully!");
+
                         // Refresh the admin-homepage-editor.php page
                         setTimeout(() => {
                             window.location.href = "admin-homepage-editor.php";
@@ -744,6 +732,63 @@ $adminLastName = $_SESSION['last_name'];
             });
         });
     </script>
+
+
+    <!-- Script to handle School Name edit -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const schoolNameModal = document.getElementById("editSchoolNameModal");
+            const schoolNameInput = document.getElementById("schoolNameInput");
+            const schoolNameForm = document.getElementById("schoolNameForm");
+
+            // Fetch and display current school name when the modal opens
+            schoolNameModal.addEventListener("show.bs.modal", function () {
+                fetch("databases/fetch_school_name.php")
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            schoolNameInput.value = data.school_name;
+                        } else {
+                            console.error("Error:", data.message);
+                            alert("Error fetching school name: " + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching school name:", error);
+                        alert("Failed to load school name. Check your connection.");
+                    });
+            });
+
+            // Handle form submission for updating school name
+            schoolNameForm.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const formData = new FormData(schoolNameForm);
+
+                fetch("databases/edit_school_name.php", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.status === "success") {
+                        // Close the modal after successful update
+                        const modalInstance = bootstrap.Modal.getOrCreateInstance(schoolNameModal);
+                        modalInstance.hide();
+
+                        // Refresh the admin-homepage-editor.php page
+                        setTimeout(() => {
+                            window.location.href = "admin-homepage-editor.php";
+                        }, 500);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error updating school name:", error);
+                    alert("Failed to update school name.");
+                });
+            });
+        });
+    </script>   
 
     <!-- Script to handle carousel image upload and edit -->
     <script>
@@ -770,6 +815,8 @@ $adminLastName = $_SESSION['last_name'];
                         document.querySelectorAll("#carouselForm input[type='file']").forEach(input => {
                             input.value = "";
                         });
+
+                        alert("Carousel Images uploaded successfully!");
 
                         // Refresh the admin-homepage-editor.php page
                         setTimeout(() => {
@@ -1079,5 +1126,63 @@ $adminLastName = $_SESSION['last_name'];
             });
         });
     </script>
+
+    <!-- Script to handle old students information editing -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const oldStudentsModal = document.getElementById("editOldStudentsModal");
+            const oldStudentsText = document.getElementById("oldStudentsText");
+            const oldStudentsForm = document.getElementById("oldStudentsForm");
+
+            // Fetch and display current information when the modal opens
+            oldStudentsModal.addEventListener("show.bs.modal", function () {
+                fetch("databases/fetch_old_students_req_info.php")
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            oldStudentsText.value = data.info;
+                        } else {
+                            console.error("Error:", data.message);
+                            alert("Error fetching information: " + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching information:", error);
+                        alert("Failed to load information. Check your connection.");
+                    });
+            });
+
+            // Handle form submission for updating information
+            oldStudentsForm.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const formData = new FormData(oldStudentsForm);
+
+                fetch("databases/edit_old_students_req_info.php", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.status === "success") {
+                        // Close the modal after successful update
+                        const modalInstance = bootstrap.Modal.getOrCreateInstance(oldStudentsModal);
+                        modalInstance.hide();
+
+                        // Refresh the admin-homepage-editor.php page
+                        setTimeout(() => {
+                            window.location.href = "admin-homepage-editor.php";
+                        }, 500);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error updating information:", error);
+                    alert("Failed to update information.");
+                });
+            });
+        });
+    </script>
+
+
 </body>
 </html>
