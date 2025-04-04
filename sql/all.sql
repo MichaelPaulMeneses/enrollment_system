@@ -141,7 +141,7 @@ CREATE TABLE refbrgy (
     citymunCode VARCHAR(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Create the students table
+-- Create Students table
 CREATE TABLE students (
     student_id INT(11) AUTO_INCREMENT PRIMARY KEY,
     last_name VARCHAR(100) NOT NULL,
@@ -183,8 +183,11 @@ CREATE TABLE students (
     birth_certificate VARCHAR(255) NOT NULL,
     report_card VARCHAR(255) NOT NULL,
     id_picture VARCHAR(255) NOT NULL,
-    enrollment_status ENUM('For Appointment', 'Pending Review', 'For Payment', 'Fully Enrolled') NOT NULL DEFAULT 'Pending Review',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp for record creation
+    enrollment_status ENUM('For Appointment', 'Appointment Failed', 'Pending Review', 'Application Declined', 'For Payment', 'Paid', 'Fully Enrolled') NOT NULL DEFAULT 'Pending Review',
+    status_updated_by INT(11) UNSIGNED DEFAULT NULL,
+    status_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    status_remarks TEXT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     -- Foreign Key Constraints
     FOREIGN KEY (region_id) REFERENCES refregion(id) ON DELETE CASCADE,
@@ -194,8 +197,11 @@ CREATE TABLE students (
     FOREIGN KEY (nationality_id) REFERENCES nationalities(nationality_id) ON DELETE CASCADE,
     FOREIGN KEY (religion_id) REFERENCES religions(religion_id) ON DELETE CASCADE,
     FOREIGN KEY (prev_grade_lvl) REFERENCES grade_levels(grade_level_id) ON DELETE CASCADE,
-    FOREIGN KEY (school_year_id) REFERENCES school_year(school_year_id) ON DELETE CASCADE
+    FOREIGN KEY (school_year_id) REFERENCES school_year(school_year_id) ON DELETE CASCADE,
+    FOREIGN KEY (status_updated_by) REFERENCES users(user_id) ON DELETE SET NULL 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 
 
 CREATE TABLE school_logo (

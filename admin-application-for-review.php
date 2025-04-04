@@ -341,11 +341,8 @@ $adminLastName = $_SESSION['last_name'];
                     <div class="mb-3">
                         <label class="form-label">School Year</label>
                         <select id="schoolYearFilter" class="form-select">
-                            <option value="">All School Years</option>
-                            <option value="2023-2024">2023-2024</option>
-                            <option value="2024-2025">2024-2025</option>
-                            <option value="2025-2026">2025-2026</option>
-                            <!-- Add more school years as needed -->
+
+                            <!-- Populate this using fetch -->
                         </select>
                     </div>
                 </div>
@@ -354,6 +351,66 @@ $adminLastName = $_SESSION['last_name'];
                     <button type="button" id="applyFiltersBtn" class="btn btn-primary">Apply Filters</button>
                 </div>
             </div>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    fetchSchoolYears();
+                });
+
+                function fetchSchoolYears() {
+                    fetch("databases/school_years.php")
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === "success") {
+                                const schoolYearDropdown = document.getElementById("schoolYearFilter");
+                                schoolYearDropdown.innerHTML = '<option value="">All School Years</option>';
+
+                                data.schoolYears.forEach(year => {
+                                    const option = document.createElement("option");
+                                    option.value = year.school_year; // Use the readable school_year for matching
+                                    option.textContent = year.school_year;
+                                    schoolYearDropdown.appendChild(option);
+                                });
+                            } else {
+                                console.error("Failed to fetch school years.");
+                            }
+                        })
+                        .catch(error => console.error("Error fetching school years:", error));
+                }
+
+                document.getElementById("applyFiltersBtn").addEventListener("click", function() {
+                    filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
+                    $('#filterModal').modal('hide');  // Close the modal after applying filters
+                });
+
+                // Filter Method
+                function filterTable() {
+                    const selectedType = document.getElementById("enrollmentTypeFilter").value.toLowerCase();
+                    const selectedPrevGrade = document.getElementById("prevGradeFilter").value.toLowerCase();
+                    const selectedApplyingGrade = document.getElementById("gradeApplyingFilter").value.toLowerCase();
+                    const selectedSchoolYear = document.getElementById("schoolYearFilter").value.toLowerCase(); 
+
+                    const rows = document.querySelectorAll("tbody .student-row");
+
+                    rows.forEach(row => {
+                        // Extract values from table cells (adjust index if column order changes)
+                        const studentType = row.children[2].textContent.trim().toLowerCase();
+                        const prevGrade = row.children[3].textContent.trim().toLowerCase();
+                        const applyingGrade = row.children[4].textContent.trim().toLowerCase();
+                        const schoolYear = row.children[5].textContent.trim().toLowerCase();
+
+                        // Check if each column matches the selected filter, allowing empty filters to match any row
+                        const matchesType = !selectedType || studentType === selectedType;
+                        const matchesPrevGrade = !selectedPrevGrade || prevGrade === selectedPrevGrade;
+                        const matchesApplyingGrade = !selectedApplyingGrade || applyingGrade === selectedApplyingGrade;
+                        const matchesSchoolYear = !selectedSchoolYear || schoolYear === selectedSchoolYear;
+
+                        // Show row if all selected filters match, otherwise hide it
+                        row.style.display = (matchesType && matchesPrevGrade && matchesApplyingGrade && matchesSchoolYear) ? "" : "none";
+                    });
+                }
+            </script>
+
         </div>
     </div>
 
@@ -487,50 +544,6 @@ $adminLastName = $_SESSION['last_name'];
                 }
             });
         }
-
-        
-        document.getElementById("applyFiltersBtn").addEventListener("click", function() {
-            filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
-            $('#filterModal').modal('hide');  // Close the modal after applying filters
-        });
-
-        // Filter Method
-        function filterTable() {
-            const selectedType = document.getElementById("enrollmentTypeFilter").value.toLowerCase();
-            const selectedPrevGrade = document.getElementById("prevGradeFilter").value.toLowerCase();
-            const selectedApplyingGrade = document.getElementById("gradeApplyingFilter").value.toLowerCase();
-            const selectedSchoolYear = document.getElementById("schoolYearFilter").value.toLowerCase(); 
-
-            const rows = document.querySelectorAll("tbody .student-row");
-
-            rows.forEach(row => {
-                // Extract values from table cells (adjust index if column order changes)
-                const studentType = row.children[2].textContent.trim().toLowerCase();
-                const prevGrade = row.children[3].textContent.trim().toLowerCase();
-                const applyingGrade = row.children[4].textContent.trim().toLowerCase();
-                const schoolYear = row.children[5].textContent.trim().toLowerCase();
-
-                // Check if each column matches the selected filter, allowing empty filters to match any row
-                const matchesType = !selectedType || studentType === selectedType;
-                const matchesPrevGrade = !selectedPrevGrade || prevGrade === selectedPrevGrade;
-                const matchesApplyingGrade = !selectedApplyingGrade || applyingGrade === selectedApplyingGrade;
-                const matchesSchoolYear = !selectedSchoolYear || schoolYear === selectedSchoolYear;
-
-                // Show row if all selected filters match, otherwise hide it
-                row.style.display = (matchesType && matchesPrevGrade && matchesApplyingGrade && matchesSchoolYear) ? "" : "none";
-            });
-        }
-
-
-
-
-        
-
-
-        
-
-
-
 
     </script>
 </body>

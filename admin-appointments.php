@@ -8,6 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
 }
 
 // Retrieve admin details from session
+$adminUserId = $_SESSION['user_id'];
 $adminFirstName = $_SESSION['first_name'];
 $adminLastName = $_SESSION['last_name'];
 ?>
@@ -245,7 +246,7 @@ $adminLastName = $_SESSION['last_name'];
                 
                 <!-- Table -->
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover" id="applicationsTable">
+                    <table class="table table-bordered table-hover" id="appointmentsTable">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -334,22 +335,42 @@ $adminLastName = $_SESSION['last_name'];
                     <div class="mb-3">
                         <label class="form-label">Grade Applying For</label>
                         <select id="gradeFilter" class="form-select">
-                            <option value="">Select Grade</option>
+                        <option value="">Select Grade Levels</option>
+                            <option value="Prekindergarten">Prekindergarten</option>
+                            <option value="Kindergarten">Kindergarten</option>
                             <option value="Grade 1">Grade 1</option>
                             <option value="Grade 2">Grade 2</option>
                             <option value="Grade 3">Grade 3</option>
-                            <!-- Add more options as needed -->
+                            <option value="Grade 4">Grade 4</option>
+                            <option value="Grade 5">Grade 5</option>
+                            <option value="Grade 6">Grade 6</option>
+                            <option value="Grade 7">Grade 7</option>
+                            <option value="Grade 8">Grade 8</option>
+                            <option value="Grade 9">Grade 9</option>
+                            <option value="Grade 10">Grade 10</option>
+                            <option value="Grade 11">Grade 11</option>
+                            <option value="Grade 12">Grade 12</option>
                         </select>
                     </div>
-                    <!-- Appointment Date Filter -->
+                    <!-- Appointment Date Range Filter -->
                     <div class="mb-3">
-                        <label class="form-label">Appointment Date</label>
-                        <input type="date" id="appointmentDate" class="form-control">
+                        <label class="form-label">Appointment Date Range</label>
+                        <select id="appointmentDateRange" class="form-select">
+                            <option value="">Select Date Range</option>
+                            <option value="today">Today</option>
+                            <option value="next_week">Next Week</option>
+                            <option value="next_month">Next Month</option>
+                            <option value="next_6_months">Next 6 Months</option>
+                            <option value="next_year">Next Year</option>
+                        </select>
                     </div>
-                    <!-- Appointment Time Filter -->
+
+                    <!-- School Year Filter -->
                     <div class="mb-3">
-                        <label class="form-label">Appointment Time</label>
-                        <input type="time" id="appointmentTime" class="form-control">
+                        <label class="form-label">School Year</label>
+                        <select id="schoolYearFilter" class="form-select">
+
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -362,50 +383,87 @@ $adminLastName = $_SESSION['last_name'];
 
     
     <script>
-        // Function to filter the table based on selected filters
-        document.getElementById('applyFiltersBtn').addEventListener('click', function() {
-            // Get filter values
-            let gradeFilter = document.getElementById('gradeFilter').value;
-            let appointmentDate = document.getElementById('appointmentDate').value;
-            let appointmentTime = document.getElementById('appointmentTime').value;
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchSchoolYears();
+        });
 
-            // Get all table rows
-            let rows = document.querySelectorAll('#applicationsTable tbody tr');
+        function fetchSchoolYears() {
+            fetch("databases/school_years.php")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const schoolYearDropdown = document.getElementById("schoolYearFilter");
+                        schoolYearDropdown.innerHTML = '<option value="">All School Years</option>';
 
-            // Hide the "No Data" message
-            document.getElementById('noDataMessage').style.display = 'none';
-
-            // Loop through rows and hide those that don't match the filters
-            let visibleRows = 0;
-            rows.forEach(function(row) {
-                // Skip the empty "No Data" row
-                if (row.querySelector('td').colSpan) return;
-
-                let grade = row.cells[2].textContent.trim();
-                let date = row.cells[3].textContent.trim();
-                let time = row.cells[4].textContent.trim();
-
-                let matchesFilter = true;
-
-                if (gradeFilter && grade !== gradeFilter) matchesFilter = false;
-                if (appointmentDate && date !== appointmentDate) matchesFilter = false;
-                if (appointmentTime && time !== appointmentTime) matchesFilter = false;
-
-                // Show or hide the row based on the filter match
-                if (matchesFilter) {
-                    row.style.display = '';
-                    visibleRows++;
-                } else {
-                    row.style.display = 'none';
-                }
+                        data.schoolYears.forEach(year => {
+                            const option = document.createElement("option");
+                            option.value = year.school_year; // Use the readable school_year for matching
+                            option.textContent = year.school_year;
+                            schoolYearDropdown.appendChild(option);
+                        });
+                    } else {
+                        console.error("Failed to fetch school years.");
+                    }
+                })
+                .catch(error => console.error("Error fetching school years:", error));
+        }
+        // Filter Method by click
+        document.getElementById('applyFiltersBtn').addEventListener('click', function () {
+                filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
+                $('#filterModal').modal('hide'); 
             });
 
-            // Show the "No Data" message if no rows are visible
-            if (visibleRows === 0) {
-                document.getElementById('noDataMessage').style.display = '';
-            }
-        });
+        // Filter Method fucntion
+        function filterTable() {
+            const selectedApplyingGrade = document.getElementById("gradeFilter").value.toLowerCase();
+            const selectedSchoolYear = document.getElementById("schoolYearFilter").value.toLowerCase(); 
+            const selectedDateRange = document.getElementById("appointmentDateRange").value;
+
+            const rows = document.querySelectorAll("tbody .application-row");
+
+            const now = new Date();
+
+            rows.forEach(row => {
+                const applyingGrade = row.children[3].textContent.trim().toLowerCase();
+                const schoolYear = row.children[6].textContent.trim().toLowerCase();
+                const appointmentDateText = row.children[4].textContent.trim(); // adjust index if needed
+
+                const appointmentDate = new Date(appointmentDateText);
+
+                const matchesApplyingGrade = !selectedApplyingGrade || applyingGrade === selectedApplyingGrade;
+                const matchesSchoolYear = !selectedSchoolYear || schoolYear === selectedSchoolYear;
+
+                let matchesDateRange = true;
+
+                if (selectedDateRange) {
+                    const timeDiff = now - appointmentDate;
+                    const oneDay = 24 * 60 * 60 * 1000;
+
+                    switch (selectedDateRange) {
+                        case "today":
+                            matchesDateRange = appointmentDate.toDateString() === now.toDateString();
+                            break;
+                        case "next_week":
+                            matchesDateRange = timeDiff <= 7 * oneDay;
+                            break;
+                        case "next_month":
+                            matchesDateRange = timeDiff <= 30 * oneDay;
+                            break;
+                        case "next_6_months":
+                            matchesDateRange = timeDiff <= 183 * oneDay;
+                            break;
+                        case "next_year":
+                            matchesDateRange = timeDiff <= 365 * oneDay;
+                            break;
+                    }
+                }
+
+                const shouldShow = matchesApplyingGrade && matchesSchoolYear && matchesDateRange;
+                row.style.display = shouldShow ? "" : "none";
+            });
+        }
     </script>
+
 
     
 

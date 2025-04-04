@@ -83,6 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["student_id"])) {
 }
 
 // Retrieve admin details from session
+$adminUserId = $_SESSION['user_id'];
 $adminFirstName = $_SESSION['first_name'];
 $adminLastName = $_SESSION['last_name'];
 ?>
@@ -870,36 +871,44 @@ $adminLastName = $_SESSION['last_name'];
     </div>
 
     <script>
-        document.getElementById("confirmDeclineBtn").addEventListener("click", function () {
-            let declineReason = document.getElementById("declineReason").value;
+document.addEventListener("DOMContentLoaded", function () {
+    // Trigger when the decline button is clicked
+    document.getElementById("confirmDeclineBtn").addEventListener("click", function() {
+        let declineReason = document.getElementById("declineReason").value;
+        let studentId = <?= isset($student['student_id']) ? json_encode($student['student_id']) : 'null'; ?>;
+        let adminUserId = <?= isset($adminUserId) ? json_encode($adminUserId) : 'null'; ?>;
 
-            if (declineReason.trim() === "") {
-                alert("Please provide a reason for declining.");
-                return;
+        if (declineReason.trim() === "") {
+            alert("Please provide a reason for declining.");
+            return;
+        }
+
+        // Send the data using Fetch API
+        fetch('databases/decline_application.php', {
+            method: 'POST',
+            body: JSON.stringify({
+                student_id: studentId,
+                admin_user_id: adminUserId,
+                status_remarks: declineReason
+            }),
+            headers: { "Content-Type": "application/json" },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message); // Display success message
+            } else {
+                alert(data.message); // Display error message
             }
-
-            let applicationId = <?= json_encode($student['student_id']); ?>;
-
-            // Send the data using AJAX
-            fetch("process_decline.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-                body: `applicationId=${applicationId}&reason=${encodeURIComponent(declineReason)}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Application declined successfully.");
-                    // Optionally, reload page or update UI
-                    location.reload();
-                } else {
-                    alert("Error: " + data.message);
-                }
-            })
-            .catch(error => console.error("Error:", error));
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('There was an error processing the request.');
         });
+    });
+});
+
+
 
     </script>
 
@@ -966,58 +975,65 @@ $adminLastName = $_SESSION['last_name'];
 
     </script>
 
-    <!-- JavaScript for Approve Actions -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("finalConfirmBtn").addEventListener("click", function () {
-                let studentId = <?= json_encode($student['student_id']); ?>;
-                let email = <?= json_encode($student['email']); ?>;
-                let surname = <?= json_encode($student['last_name']); ?>;
-                let gender = <?= json_encode($student['gender']); ?>;
+                let studentId = <?= isset($student['student_id']) ? json_encode($student['student_id']) : 'null'; ?>;
+                let adminUserId = <?= isset($adminUserId) ? json_encode($adminUserId) : 'null'; ?>;
+                let email = <?= isset($student['email']) ? json_encode($student['email']) : 'null'; ?>;
+                let surname = <?= isset($student['last_name']) ? json_encode($student['last_name']) : 'null'; ?>;
+                let gender = <?= isset($student['gender']) ? json_encode($student['gender']) : 'null'; ?>;
 
-                // Step 1: Update Enrollment Status
-                fetch("databases/approve_application.php", {
-                    method: "POST",
-                    body: JSON.stringify({ student_id: studentId }),
-                    headers: { "Content-Type": "application/json" },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log("Enrollment approved! Status changed to 'For Payment'.");
-                        alert("Enrollment approved! Status changed to 'For Payment'.");
+                if (studentId && adminUserId) {
+                    // Step 1: Update Enrollment Status
+                    fetch("databases/approve_application.php", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            student_id: studentId,
+                            admin_user_id: adminUserId
+                        }),
+                        headers: { "Content-Type": "application/json" },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log("Enrollment approved! Status changed to 'For Payment'.");
 
-                        // Step 2: Send Email Notification
-                        return fetch("databases/approve_application_email.php", {
-                            method: "POST",
-                            body: JSON.stringify({
-                                email: email,
-                                surname: surname,
-                                gender: gender
-                            }),
-                            headers: { "Content-Type": "application/json" },
-                        });
-                    } else {
-                        throw new Error("Error: " + data.message);
-                    }
-                })
-                .then(response => response.json())
-                .then(emailData => {
-                    if (emailData.success) {
-                        console.log("Confirmation email sent successfully!");
-                        alert("Enrollment approved and email sent successfully!");
+                            // Step 2: Send Email Notification
+                            return fetch("databases/approve_application_email.php", {
+                                method: "POST",
+                                body: JSON.stringify({
+                                    email: email,
+                                    surname: surname,
+                                    gender: gender
+                                }),
+                                headers: { "Content-Type": "application/json" },
+                            });
+                        } else {
+                            throw new Error("Error: " + data.message);
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(emailData => {
+                        if (emailData.success) {
+                            console.log("Confirmation email sent successfully!");
+                            alert("Enrollment approved and email sent successfully!");
 
-                        setTimeout(function() {
-                            window.location.href = "admin-application-for-review.php"; // Redirect to approved applications page
-                        }, 500); // Add a 500ms delay before redirecting
+                            setTimeout(function() {
+                                window.location.href = "admin-application-for-review.php"; // Redirect to approved applications page
+                            }, 500); // Add a 500ms delay before redirecting
 
-                    } else {
-                        console.log("Failed to send email: " + emailData.message);
-                    }
-                })
-                .catch(error => console.error("Error:", error));
+                        } else {
+                            console.log("Failed to send email: " + emailData.message);
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+                } else {
+                    console.error("Missing studentId or adminUserId.");
+                }
             });
         });
     </script>
+</div>
 </body>
 </html>
