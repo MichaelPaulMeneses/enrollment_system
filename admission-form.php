@@ -19,7 +19,7 @@
         }
         .modal-body {
             text-align: center;
-            padding: 30px;
+            padding: 50px;
         }
         .circle-icon {
             width: 50px;
@@ -34,7 +34,7 @@
         /* Increase the card size */
         .enrollment-card {
             max-width: 95%;
-            margin: 0 auto;
+            margin: 10 auto;
         }
         /* Make form elements larger */
         .form-control, .form-select, .btn {
@@ -189,6 +189,15 @@
                                 <small id="duplicateError" class="text-danger"></small> <!-- Error Message -->
                             </div>
                             
+                            <div class= "row mb-4">
+                            <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label for="streetAddress" class="form-label">House Number, Street, Subdivision <span class="required">*</span></label>
+                                        <input type="text" class="form-control" id="streetAddress" name="streetAddress" required>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="row mb-4">
                                 <div class="col-md-4">
                                     <div class="form-group">
@@ -225,13 +234,6 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-md-8">
-                                    <div class="form-group">
-                                        <label for="streetAddress" class="form-label">House Number, Street, Subdivision <span class="required">*</span></label>
-                                        <input type="text" class="form-control" id="streetAddress" name="streetAddress" required>
-                                    </div>
-                                </div>
-                            </div>
                             
                             <div class="row mb-4">
                                 <div class="col-md-4">
