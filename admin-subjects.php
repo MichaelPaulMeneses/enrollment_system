@@ -194,11 +194,6 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-appointments.php">
-                            <i class="fas fa-calendar-check me-2"></i>Appointments
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="admin-application-for-review.php">
                             <i class="fas fa-file-alt me-2"></i>Applications for Review
                         </a>
@@ -209,7 +204,23 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="admin-declined-application.php">
+                            <i class="fas fa-times-circle me-2"></i>Declined Applications
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-interviews.php">
+                            <i class="fas fa-calendar-check me-2"></i>Interviews
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-declined-interviews.php">
+                            <i class="fas fa-times-circle me-2"></i>Declined Interviews
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-payment-transaction.php">
                             <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
                         </a>
                     </li>

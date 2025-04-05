@@ -65,10 +65,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($type_of_student === 'old') {
         $appointment_date = null;
         $appointment_time = null;
-        $enrollment_status = 'Pending Review';
+        $enrollment_status = 'Reviewing Application';
     } else {
-        $enrollment_status = 'Pending Review';
-        $enrollment_status = 'For Appointment';
+        $enrollment_status = 'Reviewing Application';
     }
 
 

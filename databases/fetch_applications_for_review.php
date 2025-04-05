@@ -13,7 +13,7 @@ $query = "SELECT
             LEFT JOIN grade_levels gl_prev ON s.prev_grade_lvl = gl_prev.grade_level_id 
             LEFT JOIN grade_levels gl_applying ON s.grade_applying_for = gl_applying.grade_level_id 
             LEFT JOIN school_year sy ON s.school_year_id = sy.school_year_id 
-            WHERE s.enrollment_status = 'Pending Review'
+            WHERE s.enrollment_status = 'Reviewing Application'
             ORDER BY s.created_at ASC, sy.school_year DESC";
 
 $result = $conn->query($query);

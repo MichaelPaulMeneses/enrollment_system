@@ -435,11 +435,6 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-appointments.php">
-                            <i class="fas fa-calendar-check me-2"></i>Appointments
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link active" href="admin-application-for-review.php">
                             <i class="fas fa-file-alt me-2"></i>Applications for Review
                         </a>
@@ -450,7 +445,23 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="admin-declined-application.php">
+                            <i class="fas fa-times-circle me-2"></i>Declined Applications
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-interviews.php">
+                            <i class="fas fa-calendar-check me-2"></i>Interviews
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-declined-interviews.php">
+                            <i class="fas fa-times-circle me-2"></i>Declined Interviews
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-payment-transaction.php">
                             <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
                         </a>
                     </li>
@@ -870,48 +881,6 @@ $adminLastName = $_SESSION['last_name'];
         </div>
     </div>
 
-    <script>
-document.addEventListener("DOMContentLoaded", function () {
-    // Trigger when the decline button is clicked
-    document.getElementById("confirmDeclineBtn").addEventListener("click", function() {
-        let declineReason = document.getElementById("declineReason").value;
-        let studentId = <?= isset($student['student_id']) ? json_encode($student['student_id']) : 'null'; ?>;
-        let adminUserId = <?= isset($adminUserId) ? json_encode($adminUserId) : 'null'; ?>;
-
-        if (declineReason.trim() === "") {
-            alert("Please provide a reason for declining.");
-            return;
-        }
-
-        // Send the data using Fetch API
-        fetch('databases/decline_application.php', {
-            method: 'POST',
-            body: JSON.stringify({
-                student_id: studentId,
-                admin_user_id: adminUserId,
-                status_remarks: declineReason
-            }),
-            headers: { "Content-Type": "application/json" },
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message); // Display success message
-            } else {
-                alert(data.message); // Display error message
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('There was an error processing the request.');
-        });
-    });
-});
-
-
-
-    </script>
-
     <!-- Confirmation Modal -->
     <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -977,62 +946,96 @@ document.addEventListener("DOMContentLoaded", function () {
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+
+            // Trigger when the approve button is clicked
             document.getElementById("finalConfirmBtn").addEventListener("click", function () {
+                // Get the student and admin user data
                 let studentId = <?= isset($student['student_id']) ? json_encode($student['student_id']) : 'null'; ?>;
                 let adminUserId = <?= isset($adminUserId) ? json_encode($adminUserId) : 'null'; ?>;
-                let email = <?= isset($student['email']) ? json_encode($student['email']) : 'null'; ?>;
-                let surname = <?= isset($student['last_name']) ? json_encode($student['last_name']) : 'null'; ?>;
-                let gender = <?= isset($student['gender']) ? json_encode($student['gender']) : 'null'; ?>;
 
+                // Ensure both studentId and adminUserId are available
                 if (studentId && adminUserId) {
-                    // Step 1: Update Enrollment Status
-                    fetch("databases/approve_application.php", {
+
+                    alert("Sending request to approve application... Please Wait");
+
+                    // Send the POST request to the PHP script
+                    fetch("databases/approve_application_email.php", {
                         method: "POST",
                         body: JSON.stringify({
-                            student_id: studentId,
-                            admin_user_id: adminUserId
+                        student_id: studentId,
+                        admin_user_id: adminUserId
                         }),
-                        headers: { "Content-Type": "application/json" },
+                        headers: { "Content-Type": "application/json" }
                     })
-                    .then(response => response.json())
+                    .then(response => response.json())  // Parse the JSON response
                     .then(data => {
                         if (data.success) {
-                            console.log("Enrollment approved! Status changed to 'For Payment'.");
-
-                            // Step 2: Send Email Notification
-                            return fetch("databases/approve_application_email.php", {
-                                method: "POST",
-                                body: JSON.stringify({
-                                    email: email,
-                                    surname: surname,
-                                    gender: gender
-                                }),
-                                headers: { "Content-Type": "application/json" },
-                            });
-                        } else {
-                            throw new Error("Error: " + data.message);
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(emailData => {
-                        if (emailData.success) {
-                            console.log("Confirmation email sent successfully!");
+                            // Success case: Show message and redirect
                             alert("Enrollment approved and email sent successfully!");
-
                             setTimeout(function() {
-                                window.location.href = "admin-application-for-review.php"; // Redirect to approved applications page
-                            }, 500); // Add a 500ms delay before redirecting
-
+                                window.location.href = "admin-application-for-review.php";  // Redirect after success
+                            }, 500);
                         } else {
-                            console.log("Failed to send email: " + emailData.message);
+                            // Error case: Show error message from response
+                            alert("Error: " + data.message);
                         }
                     })
-                    .catch(error => console.error("Error:", error));
+                    .catch(error => {
+                        // Catch any fetch errors (network issues, etc.)
+                        console.error("Request failed", error);
+                        alert("An error occurred while processing the request.");
+                    });
                 } else {
+                    // Missing studentId or adminUserId
                     console.error("Missing studentId or adminUserId.");
+                    alert("Required data missing. Please ensure all fields are filled.");
                 }
             });
+
+            // Trigger when the decline button is clicked
+            document.getElementById("confirmDeclineBtn").addEventListener("click", function() {
+                let declineReason = document.getElementById("declineReason").value;
+                let studentId = <?= isset($student['student_id']) ? json_encode($student['student_id']) : 'null'; ?>;
+                let adminUserId = <?= isset($adminUserId) ? json_encode($adminUserId) : 'null'; ?>;
+
+                if (declineReason.trim() === "") {
+                    alert("Please provide a reason for declining.");
+                    return;
+                }
+
+                alert("Sending request to decline application... Please Wait");
+
+                // Send the data using Fetch API
+                fetch('databases/decline_application_email.php', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        student_id: studentId,
+                        admin_user_id: adminUserId,
+                        status_remarks: declineReason
+                    }),
+                    headers: { "Content-Type": "application/json" },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message); // Display success message
+                        
+                        setTimeout(function() {
+                            window.location.href = "admin-application-for-review.php";  // Redirect after success
+                        }, 500);
+                        
+                    } else {
+                        alert(data.message); // Display error message
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('There was an error processing the request.');
+                });
+            });
         });
+
+
     </script>
 </div>
 </body>

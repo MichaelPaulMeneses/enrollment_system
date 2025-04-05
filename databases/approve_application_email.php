@@ -11,52 +11,100 @@ header("Content-Type: application/json");
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-if (isset($data['email'], $data['surname'], $data['gender'])) {
-    $userEmail = filter_var($data['email'], FILTER_SANITIZE_EMAIL);
-    $surname = htmlspecialchars($data['surname']);
-    $gender = trim($data['gender']);
-
-    if (!filter_var($userEmail, FILTER_VALIDATE_EMAIL)) {
-        echo json_encode(["success" => false, "message" => "Invalid email format."]);
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if (!isset($data['student_id'], $data['admin_user_id'])) {
+        echo json_encode(["success" => false, "message" => "Missing required parameters."]);
         exit;
     }
 
+    $student_id = intval($data['student_id']);
+    $admin_user_id = intval($data['admin_user_id']);
+
+    // Step 1: Fetch student details for email
+    $fetchSql = "SELECT email, last_name, gender, type_of_student, appointment_date, appointment_time FROM students WHERE student_id = ?";
+    $fetchStmt = $conn->prepare($fetchSql);
+    $fetchStmt->bind_param("i", $student_id);
+    $fetchStmt->execute();
+    $result = $fetchStmt->get_result();
+
+    if (!$row = $result->fetch_assoc()) {
+        echo json_encode(["success" => false, "message" => "Student details not found for email notification."]);
+        exit;
+    }
+
+    $userEmail = filter_var($row['email'], FILTER_SANITIZE_EMAIL);
+    $surname = htmlspecialchars($row['last_name']);
+    $gender = trim($row['gender']);
+    $type_of_student = htmlspecialchars($row['type_of_student']);
+    $appointment_date = htmlspecialchars($row['appointment_date']);
+    $appointment_time = htmlspecialchars($row['appointment_time']);
+    $fetchStmt->close();
+
+    // Step 2: Update Enrollment Status
+    if ($type_of_student == 'Old') {
+        $enrollment_status = 'For Payment';
+    } else if ($type_of_student == 'New/Transferee') {
+        $enrollment_status = 'For Interview';
+    }
+
+    $updateSql = "UPDATE students SET enrollment_status = ?, status_updated_by = ?, status_updated_at = NOW() WHERE student_id = ?";
+    
+    $stmt = $conn->prepare($updateSql);
+    $stmt->bind_param("sii", $enrollment_status, $admin_user_id, $student_id);
+
+    if (!$stmt->execute()) {
+        echo json_encode(["success" => false, "message" => "Database error while updating enrollment status."]);
+        exit;
+    }
+    $stmt->close();
+
+    // Step 3: Send Email Notification
     $salutation = ($gender == 'Male') ? 'Mr.' : (($gender == 'Female') ? 'Ms.' : '');
-
+    
     $mail = new PHPMailer(true);
-
     try {
-        // SMTP Configuration
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
         $mail->Username = 'sasatoru510@gmail.com';
-        $mail->Password = 'iuddupmiyesabbvi'; 
+        $mail->Password = 'iuddupmiyesabbvi'; // Store securely!
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
-
-        // Sender and Recipient
         $mail->setFrom('sasatoru510@gmail.com', 'SJBPS Admin');
         $mail->addAddress($userEmail);
-
-        // Email Content
         $mail->isHTML(true);
-        $mail->Subject = 'Enrollment Approved - Proceed to Payment';
-        $mail->Body    = "<p>Dear $salutation $surname,</p>
-                            <p>Your enrollment at Saint John the Baptist Parochial School has been approved!</p>
-                            <p>Please proceed with the payment process to finalize your registration.</p>
-                            <p>For payment instructions, visit our website or contact our Admissions Office:</p>
-                            <p><a href='mailto:registrar.sjbps@gmail.com'>registrar.sjbps@gmail.com</a> | (02) 8296 5896 | 0920 122 5764</p>";
+        $mail->Subject = "Enrollment Approved - Status: $enrollment_status";
+
+        // Email body
+        $message = "<p>Dear $salutation $surname,</p>
+                    <p>Your enrollment at Saint John the Baptist Parochial School has been approved!</p>";
+
+        if ($enrollment_status == 'For Payment') {
+            $message .= "<p>Please proceed with the payment process to finalize your registration.</p>";
+        } else if ($enrollment_status == 'For Interview') {
+
+            $message .= "<p>You may proceed with the interview process. Please check your appointment details below:</p>
+                        <p><strong>Appointment Date:</strong> $appointment_date</p>
+                        <p><strong>Appointment Time:</strong> $appointment_time</p>";
+        }
+
+        $message .= "<p>For other instructions, visit or contact our Admissions Office:</p>
+                    <p><a href='mailto:registrar.sjbps@gmail.com'>registrar.sjbps@gmail.com</a> | (02) 8296 5896 | 0920 122 5764</p>";
+
+        $mail->Body = $message;
 
         if ($mail->send()) {
-            echo json_encode(["success" => true, "message" => "Email sent successfully."]);
+            echo json_encode(["success" => true, "message" => "Enrollment approved and email sent successfully."]);
         } else {
             echo json_encode(["success" => false, "message" => "Failed to send email."]);
         }
     } catch (Exception $e) {
-        echo json_encode(["success" => false, "message" => "Mailer Error: {$mail->ErrorInfo}"]);
+        echo json_encode(["success" => false, "message" => "Mailer Error: " . $mail->ErrorInfo]);
     }
+
 } else {
-    echo json_encode(["success" => false, "message" => "Missing email details."]);
+    echo json_encode(["success" => false, "message" => "Invalid request method."]);
 }
+
+$conn->close();
 ?>

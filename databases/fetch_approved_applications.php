@@ -10,7 +10,7 @@ $query = "SELECT
             FROM students s 
             LEFT JOIN grade_levels gl_applying ON s.grade_applying_for = gl_applying.grade_level_id 
             LEFT JOIN school_year sy ON s.school_year_id = sy.school_year_id 
-            WHERE s.enrollment_status = 'For Payment'
+            WHERE s.enrollment_status = 'For Payment' OR s.enrollment_status = 'For Interview'
             ORDER BY s.created_at ASC, sy.school_year DESC";
 
 $result = $conn->query($query);

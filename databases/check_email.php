@@ -22,7 +22,7 @@ $school_year_id = (int)$data['schoolYear'];
 $grade_level = (int)$data['gradeLevel'];
 
 // Validate academicSemester: Required for Grade 11 (13) and Grade 12 (14)
-if (($grade_level == 13 || $grade_level == 14) && (!isset($data['academicSemester']) || $data['academicSemester'] === "")) {
+if (($grade_level == 14 || $grade_level == 15) && (!isset($data['academicSemester']) || $data['academicSemester'] === "")) {
     echo json_encode(["error" => "Academic Semester is required for Grade 11 and 12"]);
     exit;
 }
@@ -36,8 +36,8 @@ error_log("Checking Email: $email, School Year: $school_year_id, Grade Level: $g
 // Base query: Check email for the same school year
 $query = "SELECT * FROM students WHERE email = '$email' AND school_year_id = $school_year_id";
 
-// If Grade 11 (13) or 12 (14), ensure academicSemester is also checked
-if ($grade_level == 13 || $grade_level == 14) {
+// If Grade 11 (14) or 12 (15), ensure academicSemester is also checked
+if ($grade_level == 14 || $grade_level == 15) {
     $query .= " AND academic_semester = $academic_semester";
 }
 

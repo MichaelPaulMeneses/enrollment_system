@@ -93,7 +93,7 @@ CREATE TABLE sections (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
--- Create the grade_level_subjects table with curriculum reference
+-- Create the grade_level_subjects table
 CREATE TABLE grade_level_subjects (
     id INT(11) AUTO_INCREMENT PRIMARY KEY,
     grade_level_id INT(11) NOT NULL,
@@ -183,7 +183,7 @@ CREATE TABLE students (
     birth_certificate VARCHAR(255) NOT NULL,
     report_card VARCHAR(255) NOT NULL,
     id_picture VARCHAR(255) NOT NULL,
-    enrollment_status ENUM('For Appointment', 'Appointment Failed', 'Pending Review', 'Application Declined', 'For Payment', 'Paid', 'Fully Enrolled') NOT NULL DEFAULT 'Pending Review',
+    enrollment_status ENUM('Reviewing Application', 'Application Declined', 'For Interview', 'Interview Failed',  'For Payment', 'For Assignment', 'Fully Enrolled') NOT NULL DEFAULT 'Reviewing Application',     
     status_updated_by INT(11) UNSIGNED DEFAULT NULL,
     status_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     status_remarks TEXT DEFAULT NULL,

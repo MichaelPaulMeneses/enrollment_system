@@ -166,11 +166,6 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-appointments.php">
-                            <i class="fas fa-calendar-check me-2"></i>Appointments
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="admin-application-for-review.php">
                             <i class="fas fa-file-alt me-2"></i>Applications for Review
                         </a>
@@ -181,7 +176,23 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="admin-declined-application.php">
+                            <i class="fas fa-times-circle me-2"></i>Declined Applications
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-interviews.php">
+                            <i class="fas fa-calendar-check me-2"></i>Interviews
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-declined-interviews.php">
+                            <i class="fas fa-times-circle me-2"></i>Declined Interviews
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-payment-transaction.php">
                             <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
                         </a>
                     </li>
@@ -243,7 +254,6 @@ $adminLastName = $_SESSION['last_name'];
                                 <th>Applying For</th>
                                 <th>School Year</th>
                                 <th>Enrollment Status</th>
-                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -345,28 +355,31 @@ $adminLastName = $_SESSION['last_name'];
 
             });
             
-            // Search Method
-            // Get search input element
             const searchInput = document.getElementById("searchInput");
             const clearBtn = document.getElementById("clearBtn");
+            const tableBody = document.querySelector("tbody");
+            
+            searchInput.addEventListener("input", function () {
+                const searchValue = this.value.toLowerCase().trim();
+                let visibleRows = 0;
 
-            // Attach event listener to the search input
-            searchInput.addEventListener("keyup", function () {
-                searchTable(this.value.toLowerCase());
+                document.querySelectorAll("tbody tr").forEach(row => {
+                    const rowText = row.innerText.toLowerCase();
+                    if (rowText.includes(searchValue)) {
+                        row.style.display = "";
+                        visibleRows++;
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+
             });
 
-            // Clear search input when the clear button is clicked
             clearBtn.addEventListener("click", function () {
                 searchInput.value = "";
-                searchTable(""); // Reset the table view
+                document.querySelectorAll("tbody tr").forEach(row => row.style.display = "");
             });
 
-            document.querySelector("tbody").addEventListener("click", function (event) {
-                if (event.target.classList.contains("review-btn")) {
-                    let studentId = event.target.getAttribute("data-id");
-                    fetchStudentDetails(studentId);
-                }
-            });
         });
 
         // Fetch enrollments from the database
@@ -398,12 +411,6 @@ $adminLastName = $_SESSION['last_name'];
                                 <td>${student.grade_applying_name}</td>
                                 <td>${student.school_year}</td>
                                 <td>${student.enrollment_status}</td>
-                                <td>
-                                    <form action="admin-view-form.php" method="POST" style="display:inline;">
-                                        <input type="hidden" name="student_id" value="${student.student_id}">
-                                        <button type="submit" class="btn btn-primary btn-sm">Review</button>
-                                    </form>
-                                </td>
                             `;
                             tbody.appendChild(row);
                         });

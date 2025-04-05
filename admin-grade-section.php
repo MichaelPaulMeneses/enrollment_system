@@ -172,11 +172,6 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-appointments.php">
-                            <i class="fas fa-calendar-check me-2"></i>Appointments
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="admin-application-for-review.php">
                             <i class="fas fa-file-alt me-2"></i>Applications for Review
                         </a>
@@ -187,7 +182,23 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="admin-declined-application.php">
+                            <i class="fas fa-times-circle me-2"></i>Declined Applications
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-interviews.php">
+                            <i class="fas fa-calendar-check me-2"></i>Interviews
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-declined-interviews.php">
+                            <i class="fas fa-times-circle me-2"></i>Declined Interviews
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-payment-transaction.php">
                             <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
                         </a>
                     </li>
@@ -268,52 +279,6 @@ $adminLastName = $_SESSION['last_name'];
                         </tbody>
                     </table>
                 </div>
-
-                <script>
-                    document.addEventListener("DOMContentLoaded", function () {
-                        fetch("databases/all_grade_levels.php") // Ensure the correct file path
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error("Network response was not ok");
-                                }
-                                return response.json();
-                            })
-                            .then(data => {
-                                const gradeLevelsContainer = document.getElementById("gradeLevelsContainer");
-                                gradeLevelsContainer.innerHTML = ""; // Clear existing content
-
-                                data.forEach((grade, index) => {
-                                    const row = document.createElement("tr");
-                                    
-                                    console.log(grade.grade_level_id);
-                                    row.innerHTML = `
-                                        <td>${index + 1}</td>
-                                        <td>${grade.grade_name}</td>
-                                        <td>${grade.department}</td>
-                                        <td>
-                                            <form action="admin-sections.php" method="POST" style="display:inline;">
-                                                <input type="hidden" name="grade_level_id" value="${grade.grade_level_id}">
-                                                <button type="submit" class="btn btn-info btn-sm section-btn" >Sections</button>
-                                            </form>
-                                        </td>
-                                    `;
-
-                                    gradeLevelsContainer.appendChild(row);
-                                });
-
-                                // Add event listeners for the "Sections" buttons
-                                document.querySelectorAll(".section-btn").forEach(button => {
-                                    button.addEventListener("click", function () {
-                                        const gradeLevelId = this.getAttribute("data-id");
-                                        window.location.href = `admin-sections.php?grade_level_id=${gradeLevelId}`;
-                                    });
-                                });
-
-                            })
-                            .catch(error => console.error("Error fetching grade levels:", error));
-                    });
-                </script>
-
                 
             </div>
         </div>
@@ -321,6 +286,51 @@ $adminLastName = $_SESSION['last_name'];
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("databases/all_grade_levels.php") // Ensure the correct file path
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const gradeLevelsContainer = document.getElementById("gradeLevelsContainer");
+                    gradeLevelsContainer.innerHTML = ""; // Clear existing content
+
+                    data.forEach((grade, index) => {
+                        const row = document.createElement("tr");
+                        
+                        console.log(grade.grade_level_id);
+                        row.innerHTML = `
+                            <td>${index + 1}</td>
+                            <td>${grade.grade_name}</td>
+                            <td>${grade.department}</td>
+                            <td>
+                                <form action="admin-sections.php" method="POST" style="display:inline;">
+                                    <input type="hidden" name="grade_level_id" value="${grade.grade_level_id}">
+                                    <button type="submit" class="btn btn-info btn-sm section-btn" >Sections</button>
+                                </form>
+                            </td>
+                        `;
+
+                        gradeLevelsContainer.appendChild(row);
+                    });
+
+                    // Add event listeners for the "Sections" buttons
+                    document.querySelectorAll(".section-btn").forEach(button => {
+                        button.addEventListener("click", function () {
+                            const gradeLevelId = this.getAttribute("data-id");
+                            window.location.href = `admin-sections.php?grade_level_id=${gradeLevelId}`;
+                        });
+                    });
+
+                })
+                .catch(error => console.error("Error fetching grade levels:", error));
+        });
+    </script>
+
     <script>
         // Search Bar Method
         document.addEventListener('DOMContentLoaded', function() {

@@ -176,11 +176,6 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-appointments.php">
-                            <i class="fas fa-calendar-check me-2"></i>Appointments
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link active" href="admin-application-for-review.php">
                             <i class="fas fa-file-alt me-2"></i>Applications for Review
                         </a>
@@ -191,7 +186,23 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="admin-declined-application.php">
+                            <i class="fas fa-times-circle me-2"></i>Declined Applications
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-interviews.php">
+                            <i class="fas fa-calendar-check me-2"></i>Interviews
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-declined-interviews.php">
+                            <i class="fas fa-times-circle me-2"></i>Declined Interviews
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-payment-transaction.php">
                             <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
                         </a>
                     </li>
@@ -352,65 +363,6 @@ $adminLastName = $_SESSION['last_name'];
                 </div>
             </div>
 
-            <script>
-                document.addEventListener("DOMContentLoaded", function () {
-                    fetchSchoolYears();
-                });
-
-                function fetchSchoolYears() {
-                    fetch("databases/school_years.php")
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.status === "success") {
-                                const schoolYearDropdown = document.getElementById("schoolYearFilter");
-                                schoolYearDropdown.innerHTML = '<option value="">All School Years</option>';
-
-                                data.schoolYears.forEach(year => {
-                                    const option = document.createElement("option");
-                                    option.value = year.school_year; // Use the readable school_year for matching
-                                    option.textContent = year.school_year;
-                                    schoolYearDropdown.appendChild(option);
-                                });
-                            } else {
-                                console.error("Failed to fetch school years.");
-                            }
-                        })
-                        .catch(error => console.error("Error fetching school years:", error));
-                }
-
-                document.getElementById("applyFiltersBtn").addEventListener("click", function() {
-                    filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
-                    $('#filterModal').modal('hide');  // Close the modal after applying filters
-                });
-
-                // Filter Method
-                function filterTable() {
-                    const selectedType = document.getElementById("enrollmentTypeFilter").value.toLowerCase();
-                    const selectedPrevGrade = document.getElementById("prevGradeFilter").value.toLowerCase();
-                    const selectedApplyingGrade = document.getElementById("gradeApplyingFilter").value.toLowerCase();
-                    const selectedSchoolYear = document.getElementById("schoolYearFilter").value.toLowerCase(); 
-
-                    const rows = document.querySelectorAll("tbody .student-row");
-
-                    rows.forEach(row => {
-                        // Extract values from table cells (adjust index if column order changes)
-                        const studentType = row.children[2].textContent.trim().toLowerCase();
-                        const prevGrade = row.children[3].textContent.trim().toLowerCase();
-                        const applyingGrade = row.children[4].textContent.trim().toLowerCase();
-                        const schoolYear = row.children[5].textContent.trim().toLowerCase();
-
-                        // Check if each column matches the selected filter, allowing empty filters to match any row
-                        const matchesType = !selectedType || studentType === selectedType;
-                        const matchesPrevGrade = !selectedPrevGrade || prevGrade === selectedPrevGrade;
-                        const matchesApplyingGrade = !selectedApplyingGrade || applyingGrade === selectedApplyingGrade;
-                        const matchesSchoolYear = !selectedSchoolYear || schoolYear === selectedSchoolYear;
-
-                        // Show row if all selected filters match, otherwise hide it
-                        row.style.display = (matchesType && matchesPrevGrade && matchesApplyingGrade && matchesSchoolYear) ? "" : "none";
-                    });
-                }
-            </script>
-
         </div>
     </div>
 
@@ -419,6 +371,65 @@ $adminLastName = $_SESSION['last_name'];
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchSchoolYears();
+        });
+
+        function fetchSchoolYears() {
+            fetch("databases/school_years.php")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const schoolYearDropdown = document.getElementById("schoolYearFilter");
+                        schoolYearDropdown.innerHTML = '<option value="">All School Years</option>';
+
+                        data.schoolYears.forEach(year => {
+                            const option = document.createElement("option");
+                            option.value = year.school_year; // Use the readable school_year for matching
+                            option.textContent = year.school_year;
+                            schoolYearDropdown.appendChild(option);
+                        });
+                    } else {
+                        console.error("Failed to fetch school years.");
+                    }
+                })
+                .catch(error => console.error("Error fetching school years:", error));
+        }
+
+        document.getElementById("applyFiltersBtn").addEventListener("click", function() {
+            filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
+            $('#filterModal').modal('hide');  // Close the modal after applying filters
+        });
+
+        // Filter Method
+        function filterTable() {
+            const selectedType = document.getElementById("enrollmentTypeFilter").value.toLowerCase();
+            const selectedPrevGrade = document.getElementById("prevGradeFilter").value.toLowerCase();
+            const selectedApplyingGrade = document.getElementById("gradeApplyingFilter").value.toLowerCase();
+            const selectedSchoolYear = document.getElementById("schoolYearFilter").value.toLowerCase(); 
+
+            const rows = document.querySelectorAll("tbody .student-row");
+
+            rows.forEach(row => {
+                // Extract values from table cells (adjust index if column order changes)
+                const studentType = row.children[2].textContent.trim().toLowerCase();
+                const prevGrade = row.children[3].textContent.trim().toLowerCase();
+                const applyingGrade = row.children[4].textContent.trim().toLowerCase();
+                const schoolYear = row.children[5].textContent.trim().toLowerCase();
+
+                // Check if each column matches the selected filter, allowing empty filters to match any row
+                const matchesType = !selectedType || studentType === selectedType;
+                const matchesPrevGrade = !selectedPrevGrade || prevGrade === selectedPrevGrade;
+                const matchesApplyingGrade = !selectedApplyingGrade || applyingGrade === selectedApplyingGrade;
+                const matchesSchoolYear = !selectedSchoolYear || schoolYear === selectedSchoolYear;
+
+                // Show row if all selected filters match, otherwise hide it
+                row.style.display = (matchesType && matchesPrevGrade && matchesApplyingGrade && matchesSchoolYear) ? "" : "none";
+            });
+        }
+    </script>
 
     <!-- Advance Filter Method -->
     <script>
@@ -535,9 +546,10 @@ $adminLastName = $_SESSION['last_name'];
                 const prevGrade = row.children[3].textContent.toLowerCase(); // Prev Grade column
                 const applyingGrade = row.children[4].textContent.toLowerCase(); // Applying Grade column
                 const schoolYear = row.children[5].textContent.toLowerCase(); // School Year column
+                const enrollmentStatus = row.children[6].textContent.toLowerCase(); // School Year column
 
                 // Check if any column contains the search query
-                if (studentName.includes(query) || studentType.includes(query) || prevGrade.includes(query) || applyingGrade.includes(query) || schoolYear.includes(query)) {
+                if (studentName.includes(query) || studentType.includes(query) || prevGrade.includes(query) || applyingGrade.includes(query) || schoolYear.includes(query) || enrollmentStatus.includes(query)) {
                     row.style.display = "";
                 } else {
                     row.style.display = "none";

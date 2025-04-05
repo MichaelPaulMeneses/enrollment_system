@@ -782,22 +782,23 @@
                 const middleName = document.getElementById("studentMiddleName")?.value?.trim() || "";
                 const lastName = document.getElementById("studentLastName")?.value?.trim() || "";
                 const birthDate = document.getElementById("dateOfBirth")?.value?.trim() || "";
-                const gradeApplyingFor = parseInt(document.getElementById("applyingFor")?.value?.trim()) || 0; // Convert to integer
+                const gradeApplyingFor = parseInt(document.getElementById("applyingFor")?.value?.trim()) || 0; 
+                const schoolYearId = parseInt(document.getElementById("schoolYear")?.value?.trim()) || 0; // Ensure it's schoolYearId
 
                 const duplicateError = document.getElementById("duplicateError");
 
-                if (!firstName || !middleName || !lastName || !birthDate || gradeApplyingFor === 0) {
+                if (!firstName || !middleName || !lastName || !birthDate || gradeApplyingFor === 0 || schoolYearId === 0) {
                     console.log("Please fill in all fields before submitting.");
                     return false;
                 }
 
-                console.log("Sending payload:", { firstName, middleName, lastName, birthDate, gradeApplyingFor });
+                console.log("Sending payload:", { firstName, middleName, lastName, birthDate, gradeApplyingFor, schoolYearId });
 
                 try {
                     const response = await fetch("databases/check_duplicate_student.php", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ firstName, middleName, lastName, birthDate, gradeApplyingFor })
+                        body: JSON.stringify({ firstName, middleName, lastName, birthDate, gradeApplyingFor, schoolYearId }) // Match PHP
                     });
 
                     if (!response.ok) {
@@ -810,8 +811,8 @@
                     console.log("Server Response:", data);
 
                     if (data.exists) {
-                        showError(duplicateError, "A student with the same name, birth date, and grade level is already registered.");
-                        alert("A student with the same name, birth date, and grade level is already registered.");
+                        showError(duplicateError, "A student with the same name, birth date, grade level, and school year is already registered.");
+                        alert("A student with the same name, birth date, grade level, and school year is already registered.");
                         return false;
                     }
 
@@ -823,6 +824,7 @@
                     return false;
                 }
             }
+
 
 
             // **Form Submission**
@@ -1000,7 +1002,7 @@
                 }
 
 
-                if (gradeApplyingFor == 13 || gradeApplyingFor == 14) {
+                if (gradeApplyingFor == 14 || gradeApplyingFor == 15) {
                     console.log("student is senior high school student");
                     let academicTrackRequiredFields = document.querySelectorAll(".academic-validator");
 
