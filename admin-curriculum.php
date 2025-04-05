@@ -203,6 +203,16 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="admin-transaction-history.php">
+                            <i class="fas fa-history me-2"></i>Transactions History
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-student_for_assignment.php">
+                            <i class="fas fa-tasks me-2"></i>For Assignment
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="admin-all-enrollees.php">
                             <i class="fas fa-users me-2"></i>All Enrollees
                         </a>
@@ -239,8 +249,8 @@ $adminLastName = $_SESSION['last_name'];
                     <div class="d-flex align-items-center">
                         <div class="ms-auto">
                             <div class="col">
-                                <!--<label for="schoolYearSelect" class="form-label mb-0 me-2">School Year:</label>-->
-                                <select id="schoolYearSelect" class="form-select school-year-select">
+                                <!--<label for="schoolYearSelect" class="form-label mb-0 me-2">School Year:</label>
+                                <select id="schoolYearSelect" class="form-select school-year-select"> -->
                                     <!-- Options will be populated dynamically -->
                                 </select>
                             </div>
@@ -276,12 +286,6 @@ $adminLastName = $_SESSION['last_name'];
                                         <label for="curriculumName" class="form-label">Curriculum Name</label>
                                         <input type="text" class="form-control" id="curriculumName" name="curriculumName" required>
                                     </div>
-                                    <div class="mb-3">
-                                        <label for="schoolYearModal" class="form-label">School Year</label>
-                                        <select class="form-select" id="schoolYearModal" name="schoolYearModal" required>
-                                            <!-- Dynamically populated -->
-                                        </select>
-                                    </div>
                                     <div class="d-flex justify-content-end">
                                         <button type="submit" class="btn btn-primary me-2">Add</button>
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -306,12 +310,6 @@ $adminLastName = $_SESSION['last_name'];
                                     <div class="mb-3">
                                         <label for="editCurriculumName" class="form-label">Curriculum Name</label>
                                         <input type="text" class="form-control" id="editCurriculumName" name="editCurriculumName" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editSchoolYearModal" class="form-label">School Year</label>
-                                        <select class="form-select" id="editSchoolYearModal" name="editSchoolYearModal" required>
-                                            <!-- Dynamically populated -->
-                                        </select>
                                     </div>
                                     <div class="d-flex justify-content-end">
                                         <button type="submit" class="btn btn-primary me-2">Update</button>
@@ -354,8 +352,12 @@ $adminLastName = $_SESSION['last_name'];
                             </tr>
                         </thead>
                         <tbody id="curriculumContainer">
-                            <!-- Dynamic Content will be inserted here -->
-
+                            <!-- Data will be inserted here by JavaScript -->
+                            <tr>
+                                <td colspan="6" class="text-center py-5 empty-table-message">
+                                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                                    <p>No curriculum at this time</p>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -368,9 +370,6 @@ $adminLastName = $_SESSION['last_name'];
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const schoolYearSelect = document.getElementById("schoolYearSelect");
-            const schoolYearModal = document.getElementById("schoolYearModal");
-            const editSchoolYearModal = document.getElementById("editSchoolYearModal");
             const curriculumContainer = document.getElementById("curriculumContainer"); // Assuming there's a container for curriculums
 
             // Search Bar Method
@@ -390,140 +389,110 @@ $adminLastName = $_SESSION['last_name'];
             });
 
             // Function to fetch curriculums based on school year
-            function fetchCurriculums(schoolYearId) {
-                if (!schoolYearId) return;
-
-                fetch(`databases/fetch_curriculums.php?school_year_id=${schoolYearId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        curriculumContainer.innerHTML = ``;
-                        if (data.status === "success" && Array.isArray(data.curriculums)) {
-                            data.curriculums.forEach((curriculum, index) => {
-                                const row = document.createElement("tr");
-                                // Inside the fetchCurriculums function
-                                console.log(curriculum.curriculum_id)
-                                row.innerHTML = `
-                                    <td>${index += 1}</td>
-                                    <td>${curriculum.curriculum_name}</td>
-                                    <td>
-                                        <form action="admin-subjects.php" method="POST" style="display:inline;">
-                                            <input type="hidden" name="curriculum_id" value="${curriculum.curriculum_id}">
-                                            <button type="submit" class="btn btn-info btn-sm" >Subjects</button>
-                                        </form>
-                                        <button class="btn btn-warning btn-sm edit-btn" 
-                                            data-id="${curriculum.curriculum_id}" 
-                                            data-name="${curriculum.curriculum_name}" 
-                                            data-year="${curriculum.school_year_id}">
-                                            Edit
-                                        </button>
-                                        <button class="btn btn-danger btn-sm delete-btn" 
-                                            data-id="${curriculum.curriculum_id}" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#deleteCurriculumModal">
-                                            Delete
-                                        </button>
-                                    </td>
-                                `;
-
-                                curriculumContainer.appendChild(row);
-                            });
-
-                            // Attach event listener to the "Edit" buttons
-                            document.querySelectorAll(".edit-btn").forEach(button => {
-                                button.addEventListener("click", function () {
-                                    const curriculumId = this.getAttribute("data-id");
-                                    const curriculumName = this.getAttribute("data-name");
-                                    const schoolYearId = this.getAttribute("data-year");
-
-                                    if (!curriculumId) {
-                                        console.error("Error: curriculumId is missing");
-                                        return;
-                                    }
-
-                                    // Populate the edit modal
-                                    document.getElementById("editCurriculumId").value = curriculumId;
-                                    document.getElementById("editCurriculumName").value = curriculumName;
-                                    document.getElementById("editSchoolYearModal").value = schoolYearId;
-
-                                    // Show the modal
-                                    const editModal = new bootstrap.Modal(document.getElementById("editCurriculumModal"));
-                                    editModal.show();
-                                });
-                            });
-
-                            const deleteModal = new bootstrap.Modal(document.getElementById("deleteCurriculumModal")); // Initialize modal
-                            const deleteCurriculumIdInput = document.getElementById("deleteCurriculumId");
-                            const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
-
-                            // Attach event listener to the "Delete" buttons
-                            document.querySelectorAll(".delete-btn").forEach(button => {
-                                button.addEventListener("click", function () {
-                                    const curriculumId = this.getAttribute("data-id");
-
-                                    console.log("Curriculum ID to delete:", curriculumId);
-                                    if (!curriculumId) {
-                                    console.error("Error: curriculumId is missing");
-                                    return;
-                                    }
-
-                                    deleteCurriculumIdInput.value = curriculumId;
-                                    deleteModal.show(); // Show the modal
-                                });
-                            });
-
-                            // Handle delete confirmation
-                            confirmDeleteBtn.addEventListener("click", function () {
-                                const curriculumId = deleteCurriculumIdInput.value;
-
-                                if (curriculumId) {
-                                    fetch(`databases/delete_curriculum.php?curriculum_id=${curriculumId}`, {
-                                        method: "GET"
-                                    })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        if (data.status === "success") {
-                                            alert("Curriculum deleted successfully!");
-                                            location.reload(); // Reload the page to refresh the list
-                                        } else {
-                                            alert("Error: " + data.message);
-                                        }
-                                    })
-                                    .catch(error => console.error("Error:", error));
-                                }
-                            });
-
-                        }
-                    })
-                    .catch(error => console.error("Error fetching curriculums:", error));
-            }
-
-            // Fetch school years and populate the dropdowns
-            fetch("databases/school_years.php")
+            fetch(`databases/fetch_curriculums.php`)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.status === "success" && Array.isArray(data.schoolYears)) {
-                        data.schoolYears.forEach(year => {
-                            const option = document.createElement("option");
-                            option.value = year.school_year_id;
-                            option.textContent = year.school_year;
-                            schoolYearSelect.appendChild(option);
-                            schoolYearModal.appendChild(option.cloneNode(true));
-                            editSchoolYearModal.appendChild(option.cloneNode(true));
+                    curriculumContainer.innerHTML = `
+                            <tr>
+                                <td colspan="6" class="text-center py-5 empty-table-message">
+                                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                                    <p>No curriculum at this time</p>
+                                </td>
+                            </tr>`;
+
+                    if (data.status === "success" && Array.isArray(data.curriculums)) {
+                        data.curriculums.forEach((curriculum, index) => {
+                            const row = document.createElement("tr");
+
+                            row.innerHTML = `
+                                <td>${index + 1}</td>
+                                <td>${curriculum.curriculum_name}</td>
+                                <td>
+                                    <form action="admin-subjects.php" method="POST" style="display:inline;">
+                                        <input type="hidden" name="curriculum_id" value="${curriculum.curriculum_id}">
+                                        <button type="submit" class="btn btn-info btn-sm">Subjects</button>
+                                    </form>
+                                    <button 
+                                        class="btn btn-warning btn-sm edit-btn"
+                                        data-id="${curriculum.curriculum_id}" 
+                                        data-name="${curriculum.curriculum_name}">
+                                        Edit
+                                    </button>
+                                    <button 
+                                        class="btn btn-danger btn-sm delete-btn"
+                                        data-id="${curriculum.curriculum_id}"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteCurriculumModal">
+                                        Delete
+                                    </button>
+                                </td>
+                            `;
+
+                            curriculumContainer.appendChild(row);
                         });
 
-                        if (schoolYearSelect.value) {
-                            fetchCurriculums(schoolYearSelect.value);
-                        }
-                    } else {
-                        console.error("Error fetching school years:", data.message);
+                        // Edit button event
+                        document.querySelectorAll(".edit-btn").forEach(button => {
+                            button.addEventListener("click", function () {
+                                const curriculumId = this.getAttribute("data-id");
+                                const curriculumName = this.getAttribute("data-name");
+
+                                if (!curriculumId) {
+                                    console.error("Error: curriculumId is missing");
+                                    return;
+                                }
+
+                                document.getElementById("editCurriculumId").value = curriculumId;
+                                document.getElementById("editCurriculumName").value = curriculumName;
+
+                                const editModal = new bootstrap.Modal(document.getElementById("editCurriculumModal"));
+                                editModal.show();
+                            });
+                        });
+
+                        const deleteModal = new bootstrap.Modal(document.getElementById("deleteCurriculumModal"));
+                        const deleteCurriculumIdInput = document.getElementById("deleteCurriculumId");
+                        const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+
+                        // Delete button event
+                        document.querySelectorAll(".delete-btn").forEach(button => {
+                            button.addEventListener("click", function () {
+                                const curriculumId = this.getAttribute("data-id");
+
+                                if (!curriculumId) {
+                                    console.error("Error: curriculumId is missing");
+                                    return;
+                                }
+
+                                deleteCurriculumIdInput.value = curriculumId;
+                                deleteModal.show();
+                            });
+                        });
+
+                        // Confirm deletion
+                        confirmDeleteBtn.addEventListener("click", function () {
+                            const curriculumId = deleteCurriculumIdInput.value;
+
+                            if (curriculumId) {
+                                fetch(`databases/delete_curriculum.php?curriculum_id=${curriculumId}`, {
+                                    method: "GET"
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.status === "success") {
+                                        alert("Curriculum deleted successfully!");
+                                        location.reload();
+                                    } else {
+                                        alert("Error: " + data.message);
+                                    }
+                                })
+                                .catch(error => console.error("Error:", error));
+                            }
+                        });
                     }
                 })
-                .catch(error => console.error("Error:", error));
+                .catch(error => console.error("Error fetching curriculums:", error));
 
-            // Fetch curriculums when school year is changed
-            schoolYearSelect.addEventListener("change", function () {
-                fetchCurriculums(schoolYearSelect.value);
-            });
 
             // Handle curriculum addition
             document.getElementById("addCurriculumForm").addEventListener("submit", function (event) {

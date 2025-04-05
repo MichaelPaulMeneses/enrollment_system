@@ -197,6 +197,16 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="admin-transaction-history.php">
+                            <i class="fas fa-history me-2"></i>Transactions History
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-student_for_assignment.php">
+                            <i class="fas fa-tasks me-2"></i>For Assignment
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="admin-all-enrollees.php">
                             <i class="fas fa-users me-2"></i>All Enrollees
                         </a>
@@ -254,17 +264,11 @@ $adminLastName = $_SESSION['last_name'];
                                 <th>Applying For</th>
                                 <th>School Year</th>
                                 <th>Enrollment Status</th>
-                                <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="declinedApplicationsTable">
                             <!-- JavaScript will populate this section -->
-                            <tr>
-                                <td colspan="6" class="text-center py-5 empty-table-message">
-                                    <i class="fas fa-inbox fa-3x mb-3"></i>
-                                    <p>No applications for review at this time</p>
-                                </td>
-                            </tr>
+
                         </tbody>
                     </table>
                 </div>
@@ -281,15 +285,6 @@ $adminLastName = $_SESSION['last_name'];
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Enrollment Type Filter -->
-                    <div class="mb-3">
-                        <label class="form-label">Enrollment Type</label>
-                        <select id="enrollmentTypeFilter" class="form-select">
-                            <option value="">All Types</option>
-                            <option value="old">Old Student</option>
-                            <option value="new/transferee">New/Transferee Student</option>
-                        </select>
-                    </div>
                     
                     <!-- Grade Applying For Filter -->
                     <div class="mb-3">
@@ -317,11 +312,7 @@ $adminLastName = $_SESSION['last_name'];
                     <div class="mb-3">
                         <label class="form-label">School Year</label>
                         <select id="schoolYearFilter" class="form-select">
-                            <option value="">All School Years</option>
-                            <option value="2023-2024">2023-2024</option>
-                            <option value="2024-2025">2024-2025</option>
-                            <option value="2025-2026">2025-2026</option>
-                            <!-- Add more school years as needed -->
+
                         </select>
                     </div>
                 </div>
@@ -340,23 +331,12 @@ $adminLastName = $_SESSION['last_name'];
     <!-- Advance Filter Method -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            // Fetch enrollments when the page loads
             fetchEnrollments();
-
-            // Get filter elements
-            const gradeApplyingFilter = document.getElementById("gradeApplyingFilter");
-            const applyFiltersBtn = document.getElementById("applyFiltersBtn");
-
-            // Apply filters when the button is clicked
-            applyFiltersBtn.addEventListener("click", () => {
-                filterTable();
-                // Close modal after applying filters
-                let filterModalEl = document.getElementById("filterModal");
-                let filterModal = bootstrap.Modal.getInstance(filterModalEl);
-                filterModal.hide();
-
-            });
+            // Fetch school years for the filter dropdown
+            fetchSchoolYears();
             
-            // Search Method
+            // Search Functionality            
             const searchInput = document.getElementById("searchInput");
             const clearBtn = document.getElementById("clearBtn");
             const tableBody = document.querySelector("tbody");
@@ -388,15 +368,15 @@ $adminLastName = $_SESSION['last_name'];
             fetch("databases/fetch_declined_applications.php")
                 .then(response => response.json())
                 .then(data => {
-                    let tbody = document.querySelector("tbody");
-                    tbody.innerHTML = ""; // Clear existing rows
+                    let declinedApplicationsTable = document.querySelector("#declinedApplicationsTable");
+                    declinedApplicationsTable.innerHTML = ""; // Clear existing rows
 
                     if (data.length === 0) {
-                        tbody.innerHTML = `
+                        declinedApplicationsTable.innerHTML = `
                             <tr>
-                                <td colspan="7" class="text-center py-5 empty-table-message">
+                                <td colspan="6" class="text-center py-5 empty-table-message">
                                     <i class="fas fa-inbox fa-3x mb-3"></i>
-                                    <p>No applications for review at this time</p>
+                                    <p>No declined application at this time</p>
                                 </td>
                             </tr>
                         `;
@@ -406,46 +386,43 @@ $adminLastName = $_SESSION['last_name'];
                             row.classList.add("student-row");
                             row.setAttribute("data-id", student.student_id);
 
-                            row.innerHTML = `
-                                <td>${index += 1}</td>
+                            row.innerHTML += `
+                                <td>${index + 1}</td>
                                 <td>${student.student_name}</td>
                                 <td>${student.grade_applying_name}</td>
                                 <td>${student.school_year}</td>
                                 <td>${student.enrollment_status}</td>
-                                <td>
-                                    <form action="admin-view-form.php" method="POST" style="display:inline;">
-                                        <input type="hidden" name="student_id" value="${student.student_id}">
-                                        <button type="submit" class="btn btn-primary btn-sm">Review</button>
-                                    </form>
-                                </td>
                             `;
-                            tbody.appendChild(row);
+                            declinedApplicationsTable.appendChild(row);
                         });
-
                     }
                 })
                 .catch(error => console.error("Error fetching data:", error));
         }
 
-        // Search Method
-        function searchTable(query) {
-            const rows = document.querySelectorAll("tbody .student-row");
+        // Fetch school years for the filter dropdown Modal
+        function fetchSchoolYears() {
+            fetch("databases/school_years.php")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const schoolYearDropdown = document.getElementById("schoolYearFilter");
+                        schoolYearDropdown.innerHTML = '<option value="">All School Years</option>';
 
-            rows.forEach(row => {
-                const studentName = row.children[1].textContent.toLowerCase(); // Name column
-                const applyingGrade = row.children[2].textContent.toLowerCase(); // Applying Grade column
-                const schoolYear = row.children[3].textContent.toLowerCase(); // School Year column
-
-                // Check if any column contains the search query
-                if (studentName.includes(query) || studentType.includes(query) || prevGrade.includes(query) || applyingGrade.includes(query) || schoolYear.includes(query)) {
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none";
-                }
-            });
+                        data.schoolYears.forEach(year => {
+                            const option = document.createElement("option");
+                            option.value = year.school_year; // Use the readable school_year for matching
+                            option.textContent = year.school_year;
+                            schoolYearDropdown.appendChild(option);
+                        });
+                    } else {
+                        console.error("Failed to fetch school years.");
+                    }
+                })
+                .catch(error => console.error("Error fetching school years:", error));
         }
 
-        
+        // Advane Filter Method
         document.getElementById("applyFiltersBtn").addEventListener("click", function() {
             filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
             $('#filterModal').modal('hide');  // Close the modal after applying filters
@@ -453,25 +430,22 @@ $adminLastName = $_SESSION['last_name'];
 
         // Filter Method
         function filterTable() {
-            let enrollmentType = document.getElementById("enrollmentTypeFilter").value.toLowerCase();
             let gradeApplying = document.getElementById("gradeApplyingFilter").value.toLowerCase();
             let schoolYear = document.getElementById("schoolYearFilter").value.toLowerCase();
 
             document.querySelectorAll("tbody tr").forEach(row => {
-                let typeMatch = enrollmentType === "" || row.innerHTML.toLowerCase().includes(enrollmentType);
-                let gradeMatch = gradeApplying === "" || row.innerHTML.toLowerCase().includes(gradeApplying);
-                let yearMatch = schoolYear === "" || row.innerHTML.toLowerCase().includes(schoolYear);
+                let gradeMatch = gradeApplying === "" || row.cells[2].textContent.toLowerCase() === gradeApplying;
+                let yearMatch = schoolYear === "" || row.cells[3].textContent.toLowerCase() === schoolYear;
 
-                row.style.display = typeMatch && gradeMatch && yearMatch ? "" : "none";
+                if (gradeMatch && yearMatch) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
             });
         }
+        
 
-        function searchTable(query) {
-            document.querySelectorAll("tbody tr").forEach(row => {
-                let text = row.textContent.toLowerCase();
-                row.style.display = text.includes(query) ? "" : "none";
-            });
-        }
 
 
 

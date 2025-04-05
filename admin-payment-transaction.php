@@ -8,6 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
 }
 
 // Retrieve admin details from session
+$userId = $_SESSION['user_id'];
 $adminFirstName = $_SESSION['first_name'];
 $adminLastName = $_SESSION['last_name'];
 ?>
@@ -197,6 +198,16 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="admin-transaction-history.php">
+                            <i class="fas fa-history me-2"></i>Transactions History
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-student_for_assignment.php">
+                            <i class="fas fa-tasks me-2"></i>For Assignment
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="admin-all-enrollees.php">
                             <i class="fas fa-users me-2"></i>All Enrollees
                         </a>
@@ -227,7 +238,7 @@ $adminLastName = $_SESSION['last_name'];
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="mb-0">Approved Applications</h4>
+                    <h4 class="mb-0">Payment Transactions</h4>
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
                         <i class="fas fa-filter me-2"></i>Advanced Filters
                     </button>
@@ -257,14 +268,9 @@ $adminLastName = $_SESSION['last_name'];
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="paymentTrasactionContent">
                             <!-- JavaScript will populate this section -->
-                            <tr>
-                                <td colspan="6" class="text-center py-5 empty-table-message">
-                                    <i class="fas fa-inbox fa-3x mb-3"></i>
-                                    <p>No applications for review at this time</p>
-                                </td>
-                            </tr>
+
                         </tbody>
                     </table>
                 </div>
@@ -281,16 +287,7 @@ $adminLastName = $_SESSION['last_name'];
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Enrollment Type Filter -->
-                    <div class="mb-3">
-                        <label class="form-label">Enrollment Type</label>
-                        <select id="enrollmentTypeFilter" class="form-select">
-                            <option value="">All Types</option>
-                            <option value="old">Old Student</option>
-                            <option value="new/transferee">New/Transferee Student</option>
-                        </select>
-                    </div>
-                    
+
                     <!-- Grade Applying For Filter -->
                     <div class="mb-3">
                         <label class="form-label">Grade Applying For</label>
@@ -317,11 +314,7 @@ $adminLastName = $_SESSION['last_name'];
                     <div class="mb-3">
                         <label class="form-label">School Year</label>
                         <select id="schoolYearFilter" class="form-select">
-                            <option value="">All School Years</option>
-                            <option value="2023-2024">2023-2024</option>
-                            <option value="2024-2025">2024-2025</option>
-                            <option value="2025-2026">2025-2026</option>
-                            <!-- Add more school years as needed -->
+
                         </select>
                     </div>
                 </div>
@@ -333,28 +326,191 @@ $adminLastName = $_SESSION['last_name'];
         </div>
     </div>
 
+    <!-- Create Transaction Modal -->
+    <div class="modal fade" id="createTransactionModal" tabindex="-1" aria-labelledby="createTransactionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="createTransactionForm" action="databases/create_transaction.php" method="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createTransactionModalLabel">Create Payment Transaction</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="transactionStudentId" name="student_id">
+                        
+                        <div class="mb-3">
+                            <label for="transactionStudentName" class="form-label">Student Name</label>
+                            <input type="text" id="transactionStudentName" class="form-control" name="student_name" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="transactionGradeApplying" class="form-label">Grade Applying For</label>
+                            <input type="text" id="transactionGradeApplying" class="form-control" name="grade_applying" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="transactionSchoolYear" class="form-label">School Year</label>
+                            <input type="text" id="transactionSchoolYear" class="form-control" name="school_year" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="transactionAmount" class="form-label">Amount</label>
+                            <input type="number" id="transactionAmount" class="form-control" name="amount" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="transactionRemarks" class="form-label">Remarks</label>
+                            <textarea id="transactionRemarks" class="form-control" name="remarks" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Transaction</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchStudentInfo(studentId, userId) {
+            console.log(studentId);
+            console.log(userId);
+
+            const response = await fetch("databases/fetch_student_data.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ student_id: studentId, user_id: userId })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                
+                if (data.error) {
+                    console.error("Error:", data.error);
+                    alert("Failed to fetch student info.");
+                    return;
+                }
+                
+                console.log(data.student_id);
+                console.log(data.student_name);
+                console.log(data.grade_applying);
+                console.log(data.school_year);
+
+                document.getElementById("transactionStudentId").value = data.student_id;
+                document.getElementById("transactionStudentName").value = data.student_name;
+                document.getElementById("transactionGradeApplying").value = data.grade_applying;
+                document.getElementById("transactionSchoolYear").value = data.school_year;
+
+                if (!document.getElementById("transactionUserId")) {
+                    const hiddenInput = document.createElement("input");
+                    hiddenInput.type = "hidden";
+                    hiddenInput.name = "user_id";
+                    hiddenInput.id = "transactionUserId";
+                    document.getElementById("createTransactionForm").appendChild(hiddenInput);
+                }
+                document.getElementById("transactionUserId").value = userId;
+
+                const modal = new bootstrap.Modal(document.getElementById('createTransactionModal'));
+                modal.show();
+            } else {
+                console.error("HTTP Error:", response.status);
+                alert("Failed to fetch student info.");
+            }
+        }
+
+        document.getElementById("createTransactionForm").addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            // Get the student and admin user data
+            const studentId = document.getElementById("transactionStudentId").value;
+            const adminUserId = document.getElementById("transactionUserId").value;
+            const amountPaid = document.getElementById("transactionAmount").value;
+            const statusRemarks = document.getElementById("transactionRemarks").value;
+
+            // Ensure both studentId and adminUserId are available
+            if (studentId && adminUserId) {
+
+                console.log("Student ID:", studentId);
+                console.log("Admin User ID:", adminUserId);
+
+                alert("Sending request to create transactions... Please Wait");
+
+                // Send the POST request to the PHP script
+                fetch("databases/approve_payment_email.php", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        student_id: studentId,
+                        admin_user_id: adminUserId,
+                        amount_paid: amountPaid,
+                        status_remarks: statusRemarks
+                    }),
+                    headers: { "Content-Type": "application/json" }
+                })
+                .then(response => response.json())  // Directly return the JSON response
+                .then(data => {
+                    if (data.success) {
+                        // Success case: Show message and redirect
+                        alert("Payment approved and email sent successfully!");
+                        setTimeout(function() {
+                            window.location.href = "admin-payment-transaction.php";  // Redirect after success
+                        }, 500);
+                    } else {
+                        // Error case: Show error message from response
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    // Catch any fetch errors (network issues, etc.)
+                    console.error("Request failed", error);
+                    alert("An error occurred while processing the request.");
+                });
+            } else {
+                // Missing studentId or adminUserId
+                console.error("Missing studentId or adminUserId.");
+                alert("Required data missing. Please ensure all fields are filled.");
+            }
+        });
+
+    </script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const createTransactionButtons = document.querySelectorAll(".btn-primary.btn-sm");
+            const createTransactionModal = new bootstrap.Modal(document.getElementById("createTransactionModal"));
+            const transactionStudentId = document.getElementById("transactionStudentId");
+            const transactionStudentName = document.getElementById("transactionStudentName");
+            const transactionGradeApplying = document.getElementById("transactionGradeApplying");
+            const transactionSchoolYear = document.getElementById("transactionSchoolYear");
+
+            createTransactionButtons.forEach(button => {
+                button.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    const row = this.closest("tr");
+                    transactionStudentId.value = row.getAttribute("data-id");
+                    transactionStudentName.value = row.children[1].textContent.trim();
+                    transactionGradeApplying.value = row.children[2].textContent.trim();
+                    transactionSchoolYear.value = row.children[3].textContent.trim();
+                    createTransactionModal.show();
+                });
+            });
+        });
+
+    </script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 
-    <!-- Advance Filter Method -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            
+            // Fetch enrollments for the table
             fetchEnrollments();
 
-            // Get filter elements
-            const gradeApplyingFilter = document.getElementById("gradeApplyingFilter");
-            const applyFiltersBtn = document.getElementById("applyFiltersBtn");
-
-            // Apply filters when the button is clicked
-            applyFiltersBtn.addEventListener("click", () => {
-                filterTable();
-                // Close modal after applying filters
-                let filterModalEl = document.getElementById("filterModal");
-                let filterModal = bootstrap.Modal.getInstance(filterModalEl);
-                filterModal.hide();
-
-            });
+            // Fetch school years for the filter dropdown
+            fetchSchoolYears();
             
             // Search Method
             // Filter subjects based on search input
@@ -388,11 +544,11 @@ $adminLastName = $_SESSION['last_name'];
             fetch("databases/fetch_for_payment_applications.php")
                 .then(response => response.json())
                 .then(data => {
-                    let tbody = document.querySelector("tbody");
-                    tbody.innerHTML = ""; // Clear existing rows
+                    let paymentTrasactionContent = document.querySelector("#paymentTrasactionContent");
+                    paymentTrasactionContent.innerHTML = ""; // Clear existing rows
 
                     if (data.length === 0) {
-                        tbody.innerHTML = `
+                        paymentTrasactionContent.innerHTML = `
                             <tr>
                                 <td colspan="7" class="text-center py-5 empty-table-message">
                                     <i class="fas fa-inbox fa-3x mb-3"></i>
@@ -406,20 +562,23 @@ $adminLastName = $_SESSION['last_name'];
                             row.classList.add("student-row");
                             row.setAttribute("data-id", student.student_id);
 
-                            row.innerHTML = `
-                                <td>${index += 1}</td>
+                            row.innerHTML += `
+                                <td>${index + 1}</td>
                                 <td>${student.student_name}</td>
                                 <td>${student.grade_applying_name}</td>
                                 <td>${student.school_year}</td>
                                 <td>${student.enrollment_status}</td>
                                 <td>
-                                    <form action="#" method="POST" style="display:inline;">
-                                        <input type="hidden" name="student_id" value="${student.student_id}">
-                                        <button type="submit" class="btn btn-primary btn-sm">Create Transaction</button>
-                                    </form>
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary btn-sm"
+                                        onclick="fetchStudentInfo(${student.student_id}, <?php echo $userId; ?>)">
+                                        Create Transaction
+                                    </button>
+
                                 </td>
                             `;
-                            tbody.appendChild(row);
+                            paymentTrasactionContent.appendChild(row);
                         });
 
                     }
@@ -427,10 +586,29 @@ $adminLastName = $_SESSION['last_name'];
                 .catch(error => console.error("Error fetching data:", error));
         }
 
+        // Fetch school years for the filter dropdown Modal
+        function fetchSchoolYears() {
+            fetch("databases/school_years.php")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const schoolYearDropdown = document.getElementById("schoolYearFilter");
+                        schoolYearDropdown.innerHTML = '<option value="">All School Years</option>';
 
+                        data.schoolYears.forEach(year => {
+                            const option = document.createElement("option");
+                            option.value = year.school_year; // Use the readable school_year for matching
+                            option.textContent = year.school_year;
+                            schoolYearDropdown.appendChild(option);
+                        });
+                    } else {
+                        console.error("Failed to fetch school years.");
+                    }
+                })
+                .catch(error => console.error("Error fetching school years:", error));
+        }
 
-
-        
+        // Advane Filter Method
         document.getElementById("applyFiltersBtn").addEventListener("click", function() {
             filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
             $('#filterModal').modal('hide');  // Close the modal after applying filters
@@ -438,36 +616,20 @@ $adminLastName = $_SESSION['last_name'];
 
         // Filter Method
         function filterTable() {
-            let enrollmentType = document.getElementById("enrollmentTypeFilter").value.toLowerCase();
             let gradeApplying = document.getElementById("gradeApplyingFilter").value.toLowerCase();
             let schoolYear = document.getElementById("schoolYearFilter").value.toLowerCase();
 
             document.querySelectorAll("tbody tr").forEach(row => {
-                let typeMatch = enrollmentType === "" || row.innerHTML.toLowerCase().includes(enrollmentType);
-                let gradeMatch = gradeApplying === "" || row.innerHTML.toLowerCase().includes(gradeApplying);
-                let yearMatch = schoolYear === "" || row.innerHTML.toLowerCase().includes(schoolYear);
+                let gradeMatch = gradeApplying === "" || row.cells[2].textContent.toLowerCase() === gradeApplying;
+                let yearMatch = schoolYear === "" || row.cells[3].textContent.toLowerCase() === schoolYear;
 
-                row.style.display = typeMatch && gradeMatch && yearMatch ? "" : "none";
+                if (gradeMatch && yearMatch) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
             });
         }
-
-        function searchTable(query) {
-            document.querySelectorAll("tbody tr").forEach(row => {
-                let text = row.textContent.toLowerCase();
-                row.style.display = text.includes(query) ? "" : "none";
-            });
-        }
-
-
-
-
-
-        
-
-
-        
-
-
 
 
     </script>

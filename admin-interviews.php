@@ -208,6 +208,16 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="admin-transaction-history.php">
+                            <i class="fas fa-history me-2"></i>Transactions History
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-student_for_assignment.php">
+                            <i class="fas fa-tasks me-2"></i>For Assignment
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="admin-all-enrollees.php">
                             <i class="fas fa-users me-2"></i>All Enrollees
                         </a>
@@ -270,8 +280,9 @@ $adminLastName = $_SESSION['last_name'];
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="interviewsContainer">
+                        <tbody id="interviewTable">
                             <!-- Data will be inserted here by JavaScript -->
+
                         </tbody>
                     </table>
                 </div>
@@ -292,8 +303,8 @@ $adminLastName = $_SESSION['last_name'];
                     <!-- Grade Applying For Filter -->
                     <div class="mb-3">
                         <label class="form-label">Grade Applying For</label>
-                        <select id="gradeFilter" class="form-select">
-                        <option value="">Select Grade Levels</option>
+                        <select id="gradeApplyingFilter" class="form-select">
+                            <option value="">Select Grade Levels</option>
                             <option value="Prekindergarten">Prekindergarten</option>
                             <option value="Kindergarten">Kindergarten</option>
                             <option value="Grade 1">Grade 1</option>
@@ -310,12 +321,17 @@ $adminLastName = $_SESSION['last_name'];
                             <option value="Grade 12">Grade 12</option>
                         </select>
                     </div>
-                    <!-- interview Date Range Filter -->
+
+                    <!-- Interview Date Range Filter -->
                     <div class="mb-3">
-                        <label class="form-label">interview Date Range</label>
+                        <label class="form-label">Interview Date Range</label>
                         <select id="interviewDateRange" class="form-select">
                             <option value="">Select Date Range</option>
                             <option value="today">Today</option>
+                            <option value="1_week">1 Week</option>
+                            <option value="2_weeks">2 Weeks</option>
+                            <option value="3_weeks">3 Weeks</option>
+                            <option value="1_month">1 Month</option>
                         </select>
                     </div>
 
@@ -334,63 +350,17 @@ $adminLastName = $_SESSION['last_name'];
             </div>
         </div>
     </div>
-    
-
-    <script>
-        // Fetch interviews for review from the database
-        function fetchinterviews() {
-            fetch("databases/fetch_interview_data.php")  // Your PHP script
-                .then(response => response.json())  // Parse the JSON response
-                .then(data => {
-                    let tbody = document.querySelector("tbody");  // Select the tbody element
-                    tbody.innerHTML = "";  // Clear existing rows
-
-                    // If no data is returned (empty result)
-                    if (data.length === 0) {
-                        tbody.innerHTML = `
-                            <tr>
-                                <td colspan="8" class="text-center py-5 empty-table-message">
-                                    <i class="fas fa-inbox fa-3x mb-3"></i>
-                                    <p>No interviews for review at this time</p>
-                                </td>
-                            </tr>
-                        `;
-                    } else {
-                        // If there are interviews, populate the table
-                        data.forEach((interview, index) => {
-                            let row = document.createElement("tr");
-                            row.classList.add("interview-row");
-                            row.setAttribute("data-id", interview.student_id);
-
-                            row.innerHTML = `
-                                <td>${index + 1}</td>  <!-- Index for ID -->
-                                <td>${interview.student_name}</td>
-                                <td>${interview.type_of_student}</td>
-                                <td>${interview.grade_applying_for}</td>
-                                <td>${interview.appointment_date}</td>
-                                <td>${interview.appointment_time}</td>
-                                <td>${interview.school_year}</td>  <!-- Display school year -->
-                                <td>
-                                    <form action="admin-review-interview.php" method="POST" style="display:inline;">
-                                        <input type="hidden" name="student_id" value="${interview.student_id}">
-                                        <button type="submit" class="btn btn-primary btn-sm">Review</button>
-                                    </form>
-                                </td>
-                            `;
-                            tbody.appendChild(row);
-                        });
-                    }
-                })
-                .catch(error => console.error("Error fetching data:", error));  // Error handling
-        }
-        // Call the function to fetch data when the page loads
-        document.addEventListener("DOMContentLoaded", fetchinterviews);
-        
-    </script>
 
     
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {            
+            
+            // Fetch interviews when the page loads
+            fetchInterviews();
+            // Fetch school years for the filter dropdown
             fetchSchoolYears();
 
             // Filter subjects based on search input
@@ -419,6 +389,54 @@ $adminLastName = $_SESSION['last_name'];
             });
         });
 
+        // Fetch interviews for review from the database
+        function fetchInterviews() {
+            fetch("databases/fetch_interview_data.php")  // Your PHP script
+                .then(response => response.json())  // Parse the JSON response
+                .then(data => {
+                    let interviewTable = document.querySelector("#interviewTable");  // Select the tbody element
+                    interviewTable.innerHTML = "";  // Clear existing rows
+
+                    // If no data is returned (empty result)
+                    if (data.length === 0) {
+                        interviewTable.innerHTML = `
+                            <tr>
+                                <td colspan="8" class="text-center py-5 empty-table-message">
+                                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                                    <p>No interviews for review at this time</p>
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        // If there are interviews, populate the table
+                        data.forEach((interview, index) => {
+                            let row = document.createElement("tr");
+                            row.classList.add("interview-row");
+                            row.setAttribute("data-id", interview.student_id);
+
+                            row.innerHTML += `
+                                <td>${index + 1}</td> 
+                                <td>${interview.student_name}</td>
+                                <td>${interview.type_of_student}</td>
+                                <td>${interview.grade_applying_for}</td>
+                                <td>${interview.appointment_date}</td>
+                                <td>${interview.appointment_time}</td>
+                                <td>${interview.school_year}</td> 
+                                <td>
+                                    <form action="admin-review-interview.php" method="POST" style="display:inline;">
+                                        <input type="hidden" name="student_id" value="${interview.student_id}">
+                                        <button type="submit" class="btn btn-primary btn-sm">Review</button>
+                                    </form>
+                                </td>
+                            `;
+                            interviewTable.appendChild(row);
+                        });
+                    }
+                })
+                .catch(error => console.error("Error fetching data:", error));  // Error handling
+        }
+
+        // Fetch school years for the filter dropdown Modal
         function fetchSchoolYears() {
             fetch("databases/school_years.php")
                 .then(response => response.json())
@@ -439,56 +457,84 @@ $adminLastName = $_SESSION['last_name'];
                 })
                 .catch(error => console.error("Error fetching school years:", error));
         }
-        // Filter Method by click
-        document.getElementById('applyFiltersBtn').addEventListener('click', function () {
-                filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
-                $('#filterModal').modal('hide'); 
-            });
 
-        // Filter Method fucntion
+        // Date range calculation function
+        function getDateRange(range) {
+            const today = new Date();
+
+            let startDate = new Date(today);
+            let endDate = new Date(today);
+
+            switch (range) {
+                case "today":
+                    endDate.setDate(today.getDate());   // Set endDate to today
+                    console.log("Today:", today.getDate());
+                    break;
+                case "1_week":
+                    endDate.setDate(today.getDate() + 7); // Add 7 days to today for a 1-week range
+                    console.log("1_week:", today.getDate() + 7);
+                    break;
+                case "2_weeks":
+                    endDate.setDate(today.getDate() + 14); // Add 14 days to today for a 2-week range
+                    console.log("2_weeks:", today.getDate() + 14);
+                    break;
+                case "3_weeks":
+                    endDate.setDate(today.getDate() + 21); // Add 21 days to today for a 3-week range
+                    console.log("3_weeks:", today.getDate() + 21);
+                    break;
+                case "1_month":
+                    endDate.setMonth(today.getMonth() + 1); // Add 1 month to today for a 1-month range
+                    console.log("1_month:", today.getMonth() + 1);
+                    break;
+                default:
+                    return { startDate: null, endDate: null };
+            }
+            return { startDate, endDate };
+        }
+
+
+        // Apply Filters on Click
+        document.getElementById("applyFiltersBtn").addEventListener("click", function () {
+            filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
+            $('#filterModal').modal('hide');  // Close the modal after applying filters
+        });
+
+        // Filter Method
         function filterTable() {
-            const selectedApplyingGrade = document.getElementById("gradeFilter").value.toLowerCase();
-            const selectedSchoolYear = document.getElementById("schoolYearFilter").value.toLowerCase(); 
-            const selectedDateRange = document.getElementById("interviewDateRange").value;
+            let gradeApplying = document.getElementById("gradeApplyingFilter").value.toLowerCase();
+            let schoolYear = document.getElementById("schoolYearFilter").value.toLowerCase();
+            let dateRange = document.getElementById("interviewDateRange").value;
+            let { startDate, endDate } = getDateRange(dateRange);
 
-            const rows = document.querySelectorAll("tbody .interview-row");
+            document.querySelectorAll("tbody tr").forEach(row => {
+                let gradeMatch = gradeApplying === "" || row.cells[3].textContent.toLowerCase() === gradeApplying;
+                let yearMatch = schoolYear === "" || row.cells[6].textContent.toLowerCase() === schoolYear;
 
-            const now = new Date();
+                // Parse the interview date from the table cell
+                let interviewDateText = row.cells[4].textContent.trim(); // assuming interview date is in cell 5
+                let interviewDate = new Date(interviewDateText);
 
-            rows.forEach(row => {
-                const applyingGrade = row.children[3].textContent.trim().toLowerCase();
-                const schoolYear = row.children[6].textContent.trim().toLowerCase();
-                const interviewDateText = row.children[4].textContent.trim(); // adjust index if needed
+                // Check if interviewDate is within the selected range
+                let dateMatch = true;
+                if (startDate && endDate) {
+                    // Remove time part for a fair comparison
+                    interviewDate.setHours(0, 0, 0, 0);
+                    startDate.setHours(0, 0, 0, 0);
+                    endDate.setHours(23, 59, 59, 999);
 
-                const interviewDate = new Date(interviewDateText);
-
-                const matchesApplyingGrade = !selectedApplyingGrade || applyingGrade === selectedApplyingGrade;
-                const matchesSchoolYear = !selectedSchoolYear || schoolYear === selectedSchoolYear;
-
-                let matchesDateRange = true;
-
-                if (selectedDateRange) {
-                    const timeDiff = now - interviewDate;
-                    const oneDay = 24 * 60 * 60 * 1000;
-
-                    switch (selectedDateRange) {
-                        case "today":
-                            matchesDateRange = interviewDate.toDateString() === now.toDateString();
-                            break;
-                    }
+                    dateMatch = interviewDate >= startDate && interviewDate <= endDate;
                 }
 
-                const shouldShow = matchesApplyingGrade && matchesSchoolYear && matchesDateRange;
-                row.style.display = shouldShow ? "" : "none";
+                if (gradeMatch && yearMatch && dateMatch) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
             });
         }
+
     </script>
 
-
-    
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

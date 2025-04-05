@@ -12,17 +12,8 @@ if (!$conn) {
     exit();
 }
 
-// Get and validate school year ID
-$school_year_id = isset($_GET['school_year_id']) ? intval($_GET['school_year_id']) : 0;
-
-if ($school_year_id <= 0) {
-    echo json_encode(["status" => "error", "message" => "Invalid school year ID"]);
-    exit();
-}
-
 // Prepare the query
-$query = $conn->prepare("SELECT * FROM curriculums WHERE school_year_id = ? ORDER BY curriculum_name ASC");
-$query->bind_param("i", $school_year_id);
+$query = $conn->prepare("SELECT * FROM curriculums ORDER BY curriculum_name ASC");
 $query->execute();
 $result = $query->get_result();
 

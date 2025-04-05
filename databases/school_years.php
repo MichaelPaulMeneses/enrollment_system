@@ -1,7 +1,7 @@
 <?php
 include 'db_connection.php'; // Include database connection
 
-$sql = "SELECT * FROM school_year ORDER BY school_year DESC"; // Order by latest first
+$sql = "SELECT * FROM school_year ORDER BY is_active DESC, school_year DESC"; // Order by latest first
 $result = $conn->query($sql);
 
 $school_years = array();

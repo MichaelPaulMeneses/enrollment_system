@@ -56,13 +56,17 @@ CREATE TABLE school_year (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
 -- Create the curriculums table with a reference to school_year
 CREATE TABLE curriculums (
     curriculum_id INT(11) AUTO_INCREMENT PRIMARY KEY,
-    curriculum_name VARCHAR(255) NOT NULL,
-    school_year_id INT(11) NOT NULL,
-    FOREIGN KEY (school_year_id) REFERENCES school_year(school_year_id) ON DELETE CASCADE
+    curriculum_name VARCHAR(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Create the grade_levels table
+CREATE TABLE grade_levels (
+    grade_level_id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    grade_name VARCHAR(255) NOT NULL,
+    department ENUM('Early Education', 'Elementary', 'Junior High School', 'Senior High School') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create the subjects table
@@ -71,15 +75,9 @@ CREATE TABLE subjects (
     subject_code VARCHAR(50) NOT NULL,
     subject_name VARCHAR(255) NOT NULL,
 	curriculum_id INT(11) NOT NULL,
-    FOREIGN KEY (curriculum_id) REFERENCES curriculums(curriculum_id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
--- Create the grade_levels table
-CREATE TABLE grade_levels (
-    grade_level_id INT(11) AUTO_INCREMENT PRIMARY KEY,
-    grade_name VARCHAR(255) NOT NULL,
-    department ENUM('Early Education', 'Elementary', 'Junior High School', 'Senior High School') NOT NULL
+    grade_level_id INT(11) NOT NULL,
+    FOREIGN KEY (curriculum_id) REFERENCES curriculums(curriculum_id) ON DELETE CASCADE,
+    FOREIGN KEY (grade_level_id) REFERENCES grade_levels(grade_level_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create the sections table
@@ -201,6 +199,16 @@ CREATE TABLE students (
     FOREIGN KEY (status_updated_by) REFERENCES users(user_id) ON DELETE SET NULL 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+CREATE TABLE payment_history (
+    payment_id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    payment_amount DECIMAL(10, 2) NOT NULL,
+    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    payment_facilitated_by INT(11) UNSIGNED DEFAULT NULL,
+    FOREIGN KEY (student_id) REFERENCES students(student_id),
+    FOREIGN KEY (payment_facilitated_by) REFERENCES users(user_id) ON DELETE SET NULL 
+);
 
 
 

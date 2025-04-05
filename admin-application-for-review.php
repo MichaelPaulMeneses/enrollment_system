@@ -207,6 +207,16 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="admin-transaction-history.php">
+                            <i class="fas fa-history me-2"></i>Transactions History
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-student_for_assignment.php">
+                            <i class="fas fa-tasks me-2"></i>For Assignment
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="admin-all-enrollees.php">
                             <i class="fas fa-users me-2"></i>All Enrollees
                         </a>
@@ -270,7 +280,7 @@ $adminLastName = $_SESSION['last_name'];
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- JavaScript will populate this section -->
+                            <!-- Data will be inserted here by JavaScript -->
                             <tr>
                                 <td colspan="9" class="text-center py-5 empty-table-message">
                                     <i class="fas fa-inbox fa-3x mb-3"></i>

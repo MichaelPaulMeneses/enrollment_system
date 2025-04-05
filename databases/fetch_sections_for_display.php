@@ -13,7 +13,7 @@ $grade_level_id = intval($_GET['grade_level_id']);
 $school_year_id = intval($_GET['school_year_id']);
 
 try {
-    // ✅ Both values are required
+    // Both values are required
     $stmt = $conn->prepare("SELECT s.section_id, s.section_name, g.grade_name, sy.school_year 
                             FROM sections s
                             JOIN grade_levels g ON s.grade_level_id = g.grade_level_id

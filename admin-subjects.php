@@ -225,6 +225,16 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="admin-transaction-history.php">
+                            <i class="fas fa-history me-2"></i>Transactions History
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-student_for_assignment.php">
+                            <i class="fas fa-tasks me-2"></i>For Assignment
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="admin-all-enrollees.php">
                             <i class="fas fa-users me-2"></i>All Enrollees
                         </a>
@@ -258,18 +268,19 @@ $adminLastName = $_SESSION['last_name'];
                     <div class="d-flex align-items-center">
                         <h4 class="mb-0">Subjects for <?php echo htmlspecialchars($subject['curriculum_name']); ?></h4>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center  gap-3">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubjectsModal">
-                            Add Subjects
-                        </button>
-                        <!-- Search Bar -->
-                        <div class="search-container">
-                            <div class="input-group" style="max-width: 300px;">
-                                <input type="text" id="searchSubject" class="form-control" placeholder="Search subjects" aria-label="Search">
-                                <button class="btn btn-outline-secondary" type="button" id="clearBtn">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
+                </div>
+                <div class="d-flex justify-content-end align-items-center mb-4 gap-3">
+                    <!-- Add Subjects Button -->  
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubjectsModal">
+                        Add Subjects
+                    </button>
+                    <!-- Search Bar -->
+                    <div class="search-container">
+                        <div class="input-group" style="max-width: 300px;">
+                            <input type="text" id="searchSubject" class="form-control" placeholder="Search subjects" aria-label="Search">
+                            <button class="btn btn-outline-secondary" type="button" id="clearBtn">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -291,6 +302,13 @@ $adminLastName = $_SESSION['last_name'];
                                     <div class="mb-3">
                                         <label for="subjectName" class="form-label">Subject Name</label>
                                         <input type="text" class="form-control" id="subjectName" name="subjectName" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="gradeLevelId" class="form-label">Grade Level</label>
+                                        <select class="form-select" id="gradeLevelId" name="gradeLevelId" required>
+                                            <option value="" disabled selected>Select Grade Level</option>
+
+                                        </select>
                                     </div>
                                     <input type="hidden" name="curriculumId" value="<?php echo $curriculum_id; ?>">
                                 </div>
@@ -322,6 +340,13 @@ $adminLastName = $_SESSION['last_name'];
                                         <label for="editSubjectName" class="form-label">Subject Name</label>
                                         <input type="text" class="form-control" id="editSubjectName" name="editSubjectName" required>
                                     </div>
+                                    <div class="mb-3">
+                                        <label for="editGradeLevelId" class="form-label">Grade Level</label>
+                                        <select class="form-select" id="editGradeLevelId" name="editGradeLevelId" required>
+                                            <option value="" disabled selected>Select Grade Level</option>
+                                            <!-- Dynamically populate options here -->
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -331,6 +356,7 @@ $adminLastName = $_SESSION['last_name'];
                         </div>
                     </div>
                 </div>
+
 
                 <!-- Delete Subject Modal -->
                 <div class="modal fade" id="deleteSubjectModal" tabindex="-1" aria-labelledby="deleteSubjectModalLabel" aria-hidden="true">
@@ -365,6 +391,7 @@ $adminLastName = $_SESSION['last_name'];
                                 <th>Subject Code</th>
                                 <th>Subject Name</th>
                                 <th>Curriculum</th>
+                                <th>Grade Level</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -387,6 +414,32 @@ $adminLastName = $_SESSION['last_name'];
             const subjectsContainer = document.getElementById('subjectsContainer');
             const subjectId = document.getElementById('editSubjectId');
             
+            const gradeLevelSelect = document.getElementById("gradeLevelId");
+            const editGradeLevelSelect = document.getElementById("editGradeLevelId");
+
+            // Fetch grade levels and populate the grade level dropdown
+            fetch("databases/grade_levels.php")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error(data.error);
+                        return;
+                    }
+
+                    data.forEach(grade => {
+                        const option = document.createElement("option");
+
+                        if (grade.grade_level_id !== '1') { 
+                            option.value = grade.grade_level_id;
+                            option.textContent = grade.grade_name;
+                            gradeLevelSelect.appendChild(option);
+                            editGradeLevelSelect.appendChild(option.cloneNode(true)); // Clone option for edit modal
+                        }
+                    });
+                })
+                .catch(error => console.error("Error fetching grade levels:", error));
+
+
             // Fetch subjects based on curriculum_id
             fetch(`databases/fetch_subjects_for_display.php?curriculum_id=${curriculumId}`)
                 .then(response => response.json())
@@ -407,6 +460,7 @@ $adminLastName = $_SESSION['last_name'];
                             <td>${subject.subject_code}</td>
                             <td>${subject.subject_name}</td>
                             <td>${subject.curriculum_name}</td>
+                            <td>${subject.grade_name}</td>
                             <td>
                                 <button class="btn btn-warning btn-sm" onclick="editSubject(${subject.subject_id})">Edit</button>
                                 <button class="btn btn-danger btn-sm" onclick="deleteSubject(${subject.subject_id})">Delete</button>
@@ -419,28 +473,33 @@ $adminLastName = $_SESSION['last_name'];
         });
         
         // Handle Subject Addition
-        document.getElementById("addSubjectForm").addEventListener("submit", function(event) {
-            event.preventDefault(); 
+        document.getElementById('addSubjectForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // prevent page reload
 
-            const formData = new FormData(this); 
+            const formData = new FormData(this);
 
-            fetch("databases/insert_subject.php", {
-                method: "POST",
+            fetch('databases/insert_subject.php', {
+                method: 'POST',
                 body: formData
             })
-            .then(response => response.json()) 
+            .then(res => res.json())
             .then(data => {
-                if (data.status === "success") {
-                    alert("Subject added successfully!");
-                    location.reload();
+                if (data.status === 'success') {
+                    // reload subjects or show success message
+                    alert("Subject added successfully.");
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addSubjectsModal'));
+                    modal.hide();
+
+                    // Optionally reload subject list after 500ms
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
                 } else {
-                    alert("Error: " + data.message); 
+                    alert("Error: " + data.message);
                 }
             })
-            .catch(error => {
-                console.error("Error:", error);
-                alert("An error occurred while adding the subject.");
-            });
+            .catch(err => console.error("Fetch error:", err));
         });
 
 
@@ -450,9 +509,7 @@ $adminLastName = $_SESSION['last_name'];
 
             fetch(`databases/fetch_subjects.php?subject_id=${subjectId}`)
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Network response was not ok");
-                    }
+                    if (!response.ok) throw new Error("Network response was not ok");
                     return response.json();
                 })
                 .then(data => {
@@ -460,15 +517,17 @@ $adminLastName = $_SESSION['last_name'];
                         alert("Error: " + data.error);
                         return;
                     }
-                    
-                    console.log(data.subject_id);
-                    console.log(data.subject_code);
-                    console.log(data.subject_name);
+
+                    console.log("Subject ID:", data.subject_id);
+                    console.log("Subject Code:", data.subject_code);
+                    console.log("Subject Name:", data.subject_name);
+                    console.log("Grade Level ID:", data.grade_level_id);
 
                     // Populate modal fields
                     document.getElementById("editSubjectId").value = data.subject_id;
                     document.getElementById("editSubjectCode").value = data.subject_code;
                     document.getElementById("editSubjectName").value = data.subject_name;
+                    document.getElementById("editGradeLevelId").value = data.grade_level_id;
 
                     // Show modal
                     const editModal = new bootstrap.Modal(document.getElementById("editSubjectModal"));
@@ -486,7 +545,7 @@ $adminLastName = $_SESSION['last_name'];
             if (editSubjectForm) {
                 editSubjectForm.addEventListener("submit", async function (event) {
                     event.preventDefault(); // Prevent form submission
-                    
+
                     const formData = new FormData(this);
 
                     try {
@@ -498,8 +557,8 @@ $adminLastName = $_SESSION['last_name'];
                         const data = await response.json();
 
                         if (data.status === "success") {
-                            alert("Subject added successfully!");
-                                location.reload();
+                            alert("Subject updated successfully!");
+                            location.reload();
                         } else {
                             alert("Error: " + data.message);
                         }
@@ -510,6 +569,7 @@ $adminLastName = $_SESSION['last_name'];
                 });
             }
         });
+
 
 
         // Handle Subject Deletion

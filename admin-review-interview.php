@@ -466,6 +466,16 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="admin-transaction-history.php">
+                            <i class="fas fa-history me-2"></i>Transactions History
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-student_for_assignment.php">
+                            <i class="fas fa-tasks me-2"></i>For Assignment
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="admin-all-enrollees.php">
                             <i class="fas fa-users me-2"></i>All Enrollees
                         </a>
@@ -960,7 +970,7 @@ $adminLastName = $_SESSION['last_name'];
                     alert("Sending request to approve application... Please Wait");
 
                     // Send the POST request to the PHP script
-                    fetch("databases/approve_interview_email.php", {
+                    fetch("databases/payment_done_email.php", {
                         method: "POST",
                         body: JSON.stringify({
                         student_id: studentId,

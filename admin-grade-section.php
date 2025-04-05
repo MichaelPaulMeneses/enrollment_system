@@ -203,6 +203,16 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="admin-transaction-history.php">
+                            <i class="fas fa-history me-2"></i>Transactions History
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-student_for_assignment.php">
+                            <i class="fas fa-tasks me-2"></i>For Assignment
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="admin-all-enrollees.php">
                             <i class="fas fa-users me-2"></i>All Enrollees
                         </a>
@@ -255,7 +265,7 @@ $adminLastName = $_SESSION['last_name'];
                     <!-- Search Bar -->
                     <div class="search-container">
                         <div class="input-group" style="max-width: 300px;">
-                            <input type="text" id="searchCurriculum" class="form-control" placeholder="Search applications" aria-label="Search">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Search grade levels" aria-label="Search">
                             <button class="btn btn-outline-secondary" type="button" id="clearBtn">
                                 <i class="fas fa-times"></i>
                             </button>
@@ -288,22 +298,63 @@ $adminLastName = $_SESSION['last_name'];
     
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            fetch("databases/all_grade_levels.php") // Ensure the correct file path
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Network response was not ok");
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const gradeLevelsContainer = document.getElementById("gradeLevelsContainer");
-                    gradeLevelsContainer.innerHTML = ""; // Clear existing content
+            // Fetch grade levels from the database
+            gradeLevels();
 
+            // Search Functionality            
+            const searchInput = document.getElementById("searchInput"); // <-- Fixed ID
+            const clearBtn = document.getElementById("clearBtn");
+            const tableBody = document.querySelector("tbody");
+
+            searchInput.addEventListener("input", function () {
+                const searchValue = this.value.toLowerCase().trim();
+                let visibleRows = 0;
+
+                document.querySelectorAll("tbody tr").forEach(row => {
+                    const rowText = row.innerText.toLowerCase();
+                    if (rowText.includes(searchValue)) {
+                        row.style.display = "";
+                        visibleRows++;
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+
+            });
+
+            clearBtn.addEventListener("click", function () {
+                searchInput.value = "";
+                document.querySelectorAll("tbody tr").forEach(row => row.style.display = "");
+            });
+
+        });
+
+            
+        function gradeLevels() {
+            fetch("databases/all_grade_levels.php") // Ensure the correct file path
+            .then(response => response.json())
+            .then(data => {
+                let gradeLevelsContainer = document.querySelector("#gradeLevelsContainer");
+                gradeLevelsContainer.innerHTML = ""; // Clear existing content
+                
+                if (data.length === 0) {
+                    gradeLevelsContainer.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center py-5 empty-table-message">
+                                <i class="fas fa-inbox fa-3x mb-3"></i>
+                                <p>No applications for review at this time</p>
+                            </td>
+                        </tr>
+                    `;
+                } else {
                     data.forEach((grade, index) => {
-                        const row = document.createElement("tr");
+                        let row = document.createElement("tr");
+                        row.classList.add("student-row");
+                        row.setAttribute("data-id", grade.grade_level_id);
                         
                         console.log(grade.grade_level_id);
-                        row.innerHTML = `
+                        
+                        row.innerHTML += `
                             <td>${index + 1}</td>
                             <td>${grade.grade_name}</td>
                             <td>${grade.department}</td>
@@ -317,52 +368,23 @@ $adminLastName = $_SESSION['last_name'];
 
                         gradeLevelsContainer.appendChild(row);
                     });
+                }
 
-                    // Add event listeners for the "Sections" buttons
-                    document.querySelectorAll(".section-btn").forEach(button => {
-                        button.addEventListener("click", function () {
-                            const gradeLevelId = this.getAttribute("data-id");
-                            window.location.href = `admin-sections.php?grade_level_id=${gradeLevelId}`;
-                        });
+                // Add event listeners for the "Sections" buttons
+                document.querySelectorAll(".section-btn").forEach(button => {
+                    button.addEventListener("click", function () {
+                        const gradeLevelId = this.getAttribute("data-id");
+                        window.location.href = `admin-sections.php?grade_level_id=${gradeLevelId}`;
                     });
+                });
 
-                })
-                .catch(error => console.error("Error fetching grade levels:", error));
-        });
+            })
+            .catch(error => console.error("Error fetching grade levels:", error));
+        }
+
     </script>
 
-    <script>
-        // Search Bar Method
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchCurriculum'); // Search input
-            const clearBtn = document.getElementById('clearBtn'); // Clear button
-            const gradeLevelsContainer = document.getElementById('gradeLevelsContainer'); // Table container
 
-            // Filter table rows based on search input
-            searchInput.addEventListener('input', function() {
-                const searchTerm = searchInput.value.toLowerCase();
-
-                Array.from(gradeLevelsContainer.children).forEach(row => {
-                    const gradeLevelName = row.children[1].textContent.toLowerCase(); // Grade level name
-                    const department = row.children[2].textContent.toLowerCase(); // Department (if exists)
-
-                    if (gradeLevelName.includes(searchTerm) || department.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-
-            // Clear search input and reset table
-            clearBtn.addEventListener('click', function() {
-                searchInput.value = '';
-                Array.from(gradeLevelsContainer.children).forEach(row => {
-                    row.style.display = '';
-                });
-            });
-        });
-    </script>
 
 
 

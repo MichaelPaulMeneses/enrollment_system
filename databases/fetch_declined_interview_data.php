@@ -6,7 +6,7 @@ include('db_connection.php');
 $sql = "
     SELECT 
         s.student_id,
-        CONCAT(s.last_name, ', ', s.first_name, ' ', s.middle_name) AS student_name,
+        CONCAT(s.last_name, ', ', s.first_name, ' ', s.middle_name, ' ', COALESCE(s.suffix, '')) AS student_name,
         s.type_of_student,
         g.grade_name AS grade_applying_for,
         s.appointment_date,

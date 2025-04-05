@@ -4,7 +4,7 @@ include "db_connection.php"; // Database connection
 if (isset($_GET["subject_id"])) {
     $subject_id = $_GET["subject_id"];
 
-    $query = "SELECT subject_id, subject_code, subject_name FROM subjects WHERE subject_id = ?";
+    $query = "SELECT * FROM subjects WHERE subject_id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $subject_id);
     $stmt->execute();
