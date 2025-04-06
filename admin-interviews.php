@@ -213,7 +213,7 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-student_for_assignment.php">
+                        <a class="nav-link" href="admin-student-for-assignment.php">
                             <i class="fas fa-tasks me-2"></i>For Assignment
                         </a>
                     </li>
@@ -421,9 +421,9 @@ $adminLastName = $_SESSION['last_name'];
                                 <td>${interview.grade_applying_for}</td>
                                 <td>${interview.appointment_date}</td>
                                 <td>${interview.appointment_time}</td>
-                                <td>${interview.school_year}</td> 
+                                <td>${interview.school_year}</td>
                                 <td>
-                                    <form action="admin-review-interview.php" method="POST" style="display:inline;">
+                                    <form action="#" method="POST" style="display:inline;">
                                         <input type="hidden" name="student_id" value="${interview.student_id}">
                                         <button type="submit" class="btn btn-primary btn-sm">Review</button>
                                     </form>

@@ -92,14 +92,12 @@ CREATE TABLE sections (
 
 
 -- Create the grade_level_subjects table
-CREATE TABLE grade_level_subjects (
-    id INT(11) AUTO_INCREMENT PRIMARY KEY,
-    grade_level_id INT(11) NOT NULL,
-    subject_id INT(11) NOT NULL,
-    curriculum_id INT(11) NOT NULL,
-    FOREIGN KEY (grade_level_id) REFERENCES grade_levels(grade_level_id) ON DELETE CASCADE,
-    FOREIGN KEY (subject_id) REFERENCES subjects(subject_id) ON DELETE CASCADE,
-    FOREIGN KEY (curriculum_id) REFERENCES curriculums(curriculum_id) ON DELETE CASCADE
+CREATE TABLE assigned_students (
+    assigned_id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    student_id INT(11) NOT NULL,
+    section_id INT(11) NOT NULL,
+    FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
+    FOREIGN KEY (section_id) REFERENCES sections(section_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create refregion table

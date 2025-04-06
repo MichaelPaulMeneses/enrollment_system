@@ -208,7 +208,7 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-student_for_assignment.php">
+                        <a class="nav-link" href="admin-student-for-assignment.php">
                             <i class="fas fa-tasks me-2"></i>For Assignment
                         </a>
                     </li>
@@ -270,6 +270,22 @@ $adminLastName = $_SESSION['last_name'];
                             </button>
                         </div>
                     </div>
+                </div>
+
+                <!-- Curriculum Table -->
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Curriculum Name</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="curriculumContainer">
+                            <!-- Data will be inserted here by JavaScript -->
+                        </tbody>
+                    </table>
                 </div>
 
                 <!-- Add Curriculum Modal -->
@@ -341,211 +357,165 @@ $adminLastName = $_SESSION['last_name'];
                     </div>
                 </div>
 
-                <!-- Curriculum Table -->
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Curriculum Name</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="curriculumContainer">
-                            <!-- Data will be inserted here by JavaScript -->
-                            <tr>
-                                <td colspan="6" class="text-center py-5 empty-table-message">
-                                    <i class="fas fa-inbox fa-3x mb-3"></i>
-                                    <p>No curriculum at this time</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-
+    
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const curriculumContainer = document.getElementById("curriculumContainer"); // Assuming there's a container for curriculums
-
-            // Search Bar Method
+        document.addEventListener("DOMContentLoaded", () => {
+            const curriculumContainer = document.getElementById("curriculumContainer");
             const searchInput = document.getElementById("searchCurriculum");
+            const clearBtn = document.getElementById("clearBtn");
 
+            // Search Functionality
             searchInput.addEventListener("input", function () {
-                const searchTerm = searchInput.value.toLowerCase();
-
-                Array.from(curriculumContainer.children).forEach(row => {
-                    const curriculumName = row.querySelector("td:nth-child(2)").textContent.toLowerCase();
-                    if (curriculumName.includes(searchTerm)) {
-                        row.style.display = "";
-                    } else {
-                        row.style.display = "none";
-                    }
+                const searchValue = this.value.toLowerCase().trim();
+                document.querySelectorAll("tbody tr").forEach(row => {
+                    const rowText = row.innerText.toLowerCase();
+                    row.style.display = rowText.includes(searchValue) ? "" : "none";
                 });
             });
 
-            // Function to fetch curriculums based on school year
-            fetch(`databases/fetch_curriculums.php`)
-                .then(response => response.json())
-                .then(data => {
-                    curriculumContainer.innerHTML = `
-                            <tr>
-                                <td colspan="6" class="text-center py-5 empty-table-message">
-                                    <i class="fas fa-inbox fa-3x mb-3"></i>
-                                    <p>No curriculum at this time</p>
-                                </td>
-                            </tr>`;
+            clearBtn.addEventListener("click", () => {
+                searchInput.value = "";
+                document.querySelectorAll("tbody tr").forEach(row => row.style.display = "");
+            });
 
-                    if (data.status === "success" && Array.isArray(data.curriculums)) {
-                        data.curriculums.forEach((curriculum, index) => {
-                            const row = document.createElement("tr");
+            // INIT
+            fetchCurriculums();
+            attachFormHandlers();
+            attachDeleteHandler();
 
-                            row.innerHTML = `
-                                <td>${index + 1}</td>
-                                <td>${curriculum.curriculum_name}</td>
-                                <td>
-                                    <form action="admin-subjects.php" method="POST" style="display:inline;">
-                                        <input type="hidden" name="curriculum_id" value="${curriculum.curriculum_id}">
-                                        <button type="submit" class="btn btn-info btn-sm">Subjects</button>
-                                    </form>
-                                    <button 
-                                        class="btn btn-warning btn-sm edit-btn"
-                                        data-id="${curriculum.curriculum_id}" 
-                                        data-name="${curriculum.curriculum_name}">
-                                        Edit
-                                    </button>
-                                    <button 
-                                        class="btn btn-danger btn-sm delete-btn"
-                                        data-id="${curriculum.curriculum_id}"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#deleteCurriculumModal">
-                                        Delete
-                                    </button>
-                                </td>
+            // Fetch and display curriculums
+            function fetchCurriculums() {
+                fetch("databases/fetch_curriculums.php")
+                    .then(res => res.json())
+                    .then(data => {
+                        curriculumContainer.innerHTML = "";
+
+                        if (data.length === 0) {
+                            curriculumContainer.innerHTML = `
+                                <tr>
+                                    <td colspan="8" class="text-center py-5 empty-table-message">
+                                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                                        <p>No curriculums found.</p>
+                                    </td>
+                                </tr>
                             `;
-
-                            curriculumContainer.appendChild(row);
-                        });
-
-                        // Edit button event
-                        document.querySelectorAll(".edit-btn").forEach(button => {
-                            button.addEventListener("click", function () {
-                                const curriculumId = this.getAttribute("data-id");
-                                const curriculumName = this.getAttribute("data-name");
-
-                                if (!curriculumId) {
-                                    console.error("Error: curriculumId is missing");
-                                    return;
-                                }
-
-                                document.getElementById("editCurriculumId").value = curriculumId;
-                                document.getElementById("editCurriculumName").value = curriculumName;
-
-                                const editModal = new bootstrap.Modal(document.getElementById("editCurriculumModal"));
-                                editModal.show();
-                            });
-                        });
-
-                        const deleteModal = new bootstrap.Modal(document.getElementById("deleteCurriculumModal"));
-                        const deleteCurriculumIdInput = document.getElementById("deleteCurriculumId");
-                        const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
-
-                        // Delete button event
-                        document.querySelectorAll(".delete-btn").forEach(button => {
-                            button.addEventListener("click", function () {
-                                const curriculumId = this.getAttribute("data-id");
-
-                                if (!curriculumId) {
-                                    console.error("Error: curriculumId is missing");
-                                    return;
-                                }
-
-                                deleteCurriculumIdInput.value = curriculumId;
-                                deleteModal.show();
-                            });
-                        });
-
-                        // Confirm deletion
-                        confirmDeleteBtn.addEventListener("click", function () {
-                            const curriculumId = deleteCurriculumIdInput.value;
-
-                            if (curriculumId) {
-                                fetch(`databases/delete_curriculum.php?curriculum_id=${curriculumId}`, {
-                                    method: "GET"
-                                })
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.status === "success") {
-                                        alert("Curriculum deleted successfully!");
-                                        location.reload();
-                                    } else {
-                                        alert("Error: " + data.message);
-                                    }
-                                })
-                                .catch(error => console.error("Error:", error));
-                            }
-                        });
-                    }
-                })
-                .catch(error => console.error("Error fetching curriculums:", error));
-
-
-            // Handle curriculum addition
-            document.getElementById("addCurriculumForm").addEventListener("submit", function (event) {
-                event.preventDefault();
-
-                const formData = new FormData(this);
-
-                fetch("databases/insert_curriculum.php", {
-                    method: "POST",
-                    body: formData
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === "success") {
-                            alert("Curriculum added successfully!");
-                            location.reload();
                         } else {
-                            alert("Error: " + data.message);
+                            data.forEach((curriculum, index) => {
+                                const row = document.createElement("tr");
+                                row.classList.add("curriculum-row");
+                                row.setAttribute("data-id", curriculum.curriculum_id);
+
+                                row.innerHTML = `
+                                    <td>${index + 1}</td>
+                                    <td>${curriculum.curriculum_name}</td>
+                                    <td>
+                                        <form action="admin-subjects.php" method="POST" style="display:inline;">
+                                            <input type="hidden" name="curriculum_id" value="${curriculum.curriculum_id}">
+                                            <button type="submit" class="btn btn-info btn-sm">Subjects</button>
+                                        </form>
+                                        <button class="btn btn-warning btn-sm edit-btn"
+                                            data-id="${curriculum.curriculum_id}"
+                                            data-name="${curriculum.curriculum_name}">
+                                            Edit
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteCurriculum(${curriculum.curriculum_id})">
+                                            Delete
+                                        </button>
+
+                                    </td>
+                                `;
+                                curriculumContainer.appendChild(row);
+                            });
+
+                            attachEditListeners();
                         }
                     })
-                    .catch(error => console.error("Error:", error));
-            });
+                    .catch(error => console.error("Error fetching curriculums:", error));
+            }
 
-            // Handle curriculum editing
-            document.getElementById("editCurriculumForm").addEventListener("submit", function (event) {
-                event.preventDefault();
+            // Edit modal handler
+            function attachEditListeners() {
+                document.querySelectorAll(".edit-btn").forEach(button => {
+                    button.addEventListener("click", () => {
+                        document.getElementById("editCurriculumId").value = button.dataset.id;
+                        document.getElementById("editCurriculumName").value = button.dataset.name;
 
-                const formData = new FormData(this);
+                        const editModal = new bootstrap.Modal(document.getElementById("editCurriculumModal"));
+                        editModal.show();
+                    });
+                });
+            }
 
-                console.log("FormData contents:");
-                for (let [key, value] of formData.entries()) {
-                    console.log(`${key}: ${value}`);
-                }
+            // Add & Edit form handlers
+            function attachFormHandlers() {
+                document.getElementById("addCurriculumForm").addEventListener("submit", function (e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
 
-                fetch("databases/edit_curriculum.php", {
-                    method: "POST",
-                    body: formData
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === "success") {
-                            alert("Curriculum updated successfully!");
-                            location.reload();
-                        } else {
-                            alert("Error: " + data.message);
-                        }
+                    fetch("databases/insert_curriculum.php", {
+                        method: "POST",
+                        body: formData
                     })
-                    .catch(error => console.error("Error:", error));
-            });
+                    .then(res => res.json())
+                    .then(data => {
+                        alert(data.status === "success" ? "Curriculum added successfully!" : "Error: " + data.message);
+                        if (data.status === "success") location.reload();
+                    })
+                    .catch(err => console.error("Add curriculum error:", err));
+                });
+
+                document.getElementById("editCurriculumForm").addEventListener("submit", function (e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+
+                    fetch("databases/edit_curriculum.php", {
+                        method: "POST",
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        alert(data.status === "success" ? "Curriculum updated successfully!" : "Error: " + data.message);
+                        if (data.status === "success") location.reload();
+                    })
+                    .catch(err => console.error("Edit curriculum error:", err));
+                });
+            }
+
+            // Delete handler
+            function attachDeleteHandler() {
+                document.getElementById("confirmDeleteBtn").addEventListener("click", () => {
+                    const curriculumId = document.getElementById("deleteCurriculumId").value;
+                    const formData = new FormData();
+                    formData.append("curriculum_id", curriculumId);
+
+                    fetch("databases/delete_curriculum.php", {
+                        method: "POST",
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        alert(data.status === "success" ? "Curriculum deleted successfully!" : "Error: " + data.message);
+                        if (data.status === "success") location.reload();
+                    })
+                    .catch(err => console.error("Delete curriculum error:", err));
+                });
+            }
+
+            // Open delete modal
+            window.deleteCurriculum = (id) => {
+                document.getElementById("deleteCurriculumId").value = id;
+                new bootstrap.Modal(document.getElementById("deleteCurriculumModal")).show();
+            };
         });
-
-        
     </script>
+
+
+
 
 
 

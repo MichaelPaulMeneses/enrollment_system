@@ -230,7 +230,7 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-student_for_assignment.php">
+                        <a class="nav-link" href="admin-student-for-assignment.php">
                             <i class="fas fa-tasks me-2"></i>For Assignment
                         </a>
                     </li>
@@ -289,7 +289,7 @@ $adminLastName = $_SESSION['last_name'];
                 <div class="modal fade" id="addSubjectsModal" tabindex="-1" aria-labelledby="addSubjectsModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                            <form id="addSubjectForm" method="POST" action="databases/add_subject.php">
+                            <form id="addSubjectForm" method="POST">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="addSubjectsModalLabel">Add New Subject</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -406,252 +406,190 @@ $adminLastName = $_SESSION['last_name'];
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-
+    
     <script>
-        // Fetch and display subjects dynamically based on curriculum_id
-        document.addEventListener('DOMContentLoaded', function() {
-            const curriculumId = <?php echo $curriculum_id; ?>; // Pass the curriculum_id from PHP
-            const subjectsContainer = document.getElementById('subjectsContainer');
-            const subjectId = document.getElementById('editSubjectId');
-            
+        document.addEventListener("DOMContentLoaded", () => {
+            const curriculumId = <?php echo $curriculum_id; ?>;
             const gradeLevelSelect = document.getElementById("gradeLevelId");
             const editGradeLevelSelect = document.getElementById("editGradeLevelId");
 
-            // Fetch grade levels and populate the grade level dropdown
-            fetch("databases/grade_levels.php")
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        console.error(data.error);
-                        return;
-                    }
+            const subjectsContainer = document.getElementById("subjectsContainer");
+            const searchInput = document.getElementById("searchSubject");
+            const clearBtn = document.getElementById("clearBtn");
+            
+            // Search Functionality
+            searchInput.addEventListener("input", () => {
+                const searchValue = searchInput.value.toLowerCase().trim();
+                document.querySelectorAll("tbody tr").forEach(row => {
+                    const rowText = row.innerText.toLowerCase();
+                    row.style.display = rowText.includes(searchValue) ? "" : "none";
+                });
+            });
 
-                    data.forEach(grade => {
-                        const option = document.createElement("option");
+            clearBtn.addEventListener("click", () => {
+                searchInput.value = "";
+                document.querySelectorAll("tbody tr").forEach(row => row.style.display = "");
+            });
 
-                        if (grade.grade_level_id !== '1') { 
-                            option.value = grade.grade_level_id;
-                            option.textContent = grade.grade_name;
-                            gradeLevelSelect.appendChild(option);
-                            editGradeLevelSelect.appendChild(option.cloneNode(true)); // Clone option for edit modal
+            // INIT
+            fetchGradeLevels();
+            fetchSubjects();
+            attachFormHandlers();
+            attachDeleteHandler();
+
+            // Fetch and populate grade levels
+            function fetchGradeLevels() {
+                fetch("databases/grade_levels.php")
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.error) throw new Error(data.error);
+
+                        data.forEach(grade => {
+                            if (grade.grade_level_id !== '1') {
+                                const option = document.createElement("option");
+                                option.value = grade.grade_level_id;
+                                option.textContent = grade.grade_name;
+
+                                gradeLevelSelect.appendChild(option);
+                                editGradeLevelSelect.appendChild(option.cloneNode(true));
+                            }
+                        });
+                    })
+                    .catch(error => console.error("Error fetching grade levels:", error));
+            }
+
+            // Fetch and display subjects
+            function fetchSubjects() {
+                fetch(`databases/fetch_subjects_for_display.php?curriculum_id=${curriculumId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        subjectsContainer.innerHTML = "";
+
+                        if (data.length === 0) {
+                            subjectsContainer.innerHTML = `
+                                <tr>
+                                    <td colspan="8" class="text-center py-5 empty-table-message">
+                                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                                        <p>No subjects found.</p>
+                                    </td>
+                                </tr>
+                            `;
+                        } else {
+                            data.forEach((subject, index) => {
+                                const row = document.createElement("tr");
+                                row.innerHTML = `
+                                    <td>${index + 1}</td>
+                                    <td>${subject.subject_code}</td>
+                                    <td>${subject.subject_name}</td>
+                                    <td>${subject.curriculum_name}</td>
+                                    <td>${subject.grade_name}</td>
+                                    <td>
+                                        <button class="btn btn-warning btn-sm" onclick="editSubject(${subject.subject_id})">Edit</button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteSubject(${subject.subject_id})">Delete</button>
+                                    </td>
+                                `;
+                                subjectsContainer.appendChild(row);
+                            });
                         }
+                    })
+                    .catch(error => console.error("Error fetching subjects:", error));
+            }
+
+            // Add and Edit form submission
+            function attachFormHandlers() {
+                const addForm = document.getElementById("addSubjectForm");
+                const editForm = document.getElementById("editSubjectForm");
+
+                if (addForm) {
+                    addForm.addEventListener("submit", function (e) {
+                        e.preventDefault();
+                        const formData = new FormData(this);
+
+                        fetch("databases/insert_subject.php", {
+                            method: "POST",
+                            body: formData
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            alert(data.status === "success" ? "Subject added successfully!" : "Error: " + data.message);
+                            if (data.status === "success") {
+                                bootstrap.Modal.getInstance(document.getElementById("addSubjectsModal")).hide();
+                                setTimeout(() => location.reload(), 500);
+                            }
+                        })
+                        .catch(err => console.error("Add subject error:", err));
                     });
-                })
-                .catch(error => console.error("Error fetching grade levels:", error));
-
-
-            // Fetch subjects based on curriculum_id
-            fetch(`databases/fetch_subjects_for_display.php?curriculum_id=${curriculumId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        console.error(data.error);
-                        return;
-                    }
-
-                    // Clear existing table rows
-                    subjectsContainer.innerHTML = '';
-
-                    // Populate the table with subjects data
-                    data.forEach((subject, index) => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${index += 1}</td>
-                            <td>${subject.subject_code}</td>
-                            <td>${subject.subject_name}</td>
-                            <td>${subject.curriculum_name}</td>
-                            <td>${subject.grade_name}</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm" onclick="editSubject(${subject.subject_id})">Edit</button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteSubject(${subject.subject_id})">Delete</button>
-                            </td>
-                        `;
-                        subjectsContainer.appendChild(row);
-                    });
-                })
-                .catch(error => console.error('Error fetching subjects:', error));
-        });
-        
-        // Handle Subject Addition
-        document.getElementById('addSubjectForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // prevent page reload
-
-            const formData = new FormData(this);
-
-            fetch('databases/insert_subject.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    // reload subjects or show success message
-                    alert("Subject added successfully.");
-                    // Close modal
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('addSubjectsModal'));
-                    modal.hide();
-
-                    // Optionally reload subject list after 500ms
-                    setTimeout(() => {
-                        location.reload();
-                    }, 500);
-                } else {
-                    alert("Error: " + data.message);
                 }
-            })
-            .catch(err => console.error("Fetch error:", err));
-        });
 
+                if (editForm) {
+                    editForm.addEventListener("submit", function (e) {
+                        e.preventDefault();
+                        const formData = new FormData(this);
 
-        // Handle Subject Editing
-        function editSubject(subjectId) {
-            console.log("Editing subject with ID:", subjectId);
+                        fetch("databases/edit_subject.php", {
+                            method: "POST",
+                            body: formData
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            alert(data.status === "success" ? "Subject updated successfully!" : "Error: " + data.message);
+                            if (data.status === "success") location.reload();
+                        })
+                        .catch(err => console.error("Edit subject error:", err));
+                    });
+                }
+            }
 
+            // Expose to global scope
+            window.editSubject = (subjectId) => {
             fetch(`databases/fetch_subjects.php?subject_id=${subjectId}`)
-                .then(response => {
-                    if (!response.ok) throw new Error("Network response was not ok");
-                    return response.json();
-                })
+                .then(res => res.json())
                 .then(data => {
-                    if (data.error) {
-                        alert("Error: " + data.error);
-                        return;
-                    }
+                    if (data.error) throw new Error(data.error);
 
-                    console.log("Subject ID:", data.subject_id);
-                    console.log("Subject Code:", data.subject_code);
-                    console.log("Subject Name:", data.subject_name);
-                    console.log("Grade Level ID:", data.grade_level_id);
-
-                    // Populate modal fields
                     document.getElementById("editSubjectId").value = data.subject_id;
                     document.getElementById("editSubjectCode").value = data.subject_code;
                     document.getElementById("editSubjectName").value = data.subject_name;
                     document.getElementById("editGradeLevelId").value = data.grade_level_id;
 
-                    // Show modal
-                    const editModal = new bootstrap.Modal(document.getElementById("editSubjectModal"));
-                    editModal.show();
+                    new bootstrap.Modal(document.getElementById("editSubjectModal")).show();
                 })
-                .catch(error => {
-                    console.error("Error fetching subject:", error);
+                .catch(err => {
+                    console.error("Fetch subject error:", err);
                     alert("An error occurred while fetching subject details.");
                 });
-        }
+            };
 
-        document.addEventListener("DOMContentLoaded", function () {
-            const editSubjectForm = document.getElementById("editSubjectForm");
+            // Delete handler
+            function attachDeleteHandler() {
+                const deleteForm = document.getElementById("deleteSubjectForm");
 
-            if (editSubjectForm) {
-                editSubjectForm.addEventListener("submit", async function (event) {
-                    event.preventDefault(); // Prevent form submission
+                if (deleteForm) {
+                    deleteForm.addEventListener("submit", function (e) {
+                        e.preventDefault();
+                        const formData = new FormData(this);
 
-                    const formData = new FormData(this);
-
-                    try {
-                        const response = await fetch("databases/edit_subject.php", {
+                        fetch("databases/delete_subject.php", {
                             method: "POST",
                             body: formData
-                        });
-
-                        const data = await response.json();
-
-                        if (data.status === "success") {
-                            alert("Subject updated successfully!");
-                            location.reload();
-                        } else {
-                            alert("Error: " + data.message);
-                        }
-                    } catch (error) {
-                        console.error("Error:", error);
-                        alert("An error occurred while updating the subject.");
-                    }
-                });
-            }
-        });
-
-
-
-        // Handle Subject Deletion
-        function deleteSubject(subjectId) {
-            // Ensure modal exists before accessing it
-            const deleteModal = new bootstrap.Modal(document.getElementById("deleteSubjectModal"));
-            const deleteInput = document.getElementById("deleteSubjectId");
-
-            if (deleteInput) {
-                deleteInput.value = subjectId;
-                deleteModal.show();
-            } else {
-                console.error("Delete subject input field not found.");
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", function () {
-            const deleteSubjectForm = document.getElementById("deleteSubjectForm");
-
-            if (deleteSubjectForm) {
-                deleteSubjectForm.addEventListener("submit", function (event) {
-                    event.preventDefault();
-
-                    const formData = new FormData(this);
-
-                    fetch("databases/delete_subject.php", {
-                        method: "POST",
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === "success") {
-                            alert("Subject deleted successfully!");
-                            location.reload(); // Optionally reload the page to see updated data
-                        } else {
-                            alert("Error: " + (data.message || "Unknown error occurred"));
-                        }
-                    })
-                    .catch(error => {
-                        console.error("Error:", error);
-                        alert("An error occurred while deleting the subject.");
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            alert(data.status === "success" ? "Subject deleted successfully!" : "Error: " + data.message);
+                            if (data.status === "success") location.reload();
+                        })
+                        .catch(err => console.error("Delete subject error:", err));
                     });
-                });
-            } else {
-                console.error("Delete subject form not found.");
+                }
             }
+
+            window.deleteSubject = (subjectId) => {
+                document.getElementById("deleteSubjectId").value = subjectId;
+                new bootstrap.Modal(document.getElementById("deleteSubjectModal")).show();
+            };
         });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchSubject');
-            const clearBtn = document.getElementById('clearBtn');
-            const subjectsContainer = document.getElementById('subjectsContainer');
-
-            // Filter subjects based on search input
-            searchInput.addEventListener('input', function() {
-                const searchTerm = searchInput.value.toLowerCase();
-
-                Array.from(subjectsContainer.children).forEach(row => {
-                    const subjectName = row.children[2].textContent.toLowerCase();
-                    const subjectCode = row.children[1].textContent.toLowerCase();
-
-                    if (subjectName.includes(searchTerm) || subjectCode.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-
-            // Clear search input and reset table
-            clearBtn.addEventListener('click', function() {
-                searchInput.value = '';
-                Array.from(subjectsContainer.children).forEach(row => {
-                    row.style.display = '';
-                });
-            });
-        });
-
-
-
-
     </script>
+
     
 
 

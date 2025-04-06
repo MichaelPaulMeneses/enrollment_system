@@ -225,7 +225,7 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-student_for_assignment.php">
+                        <a class="nav-link" href="admin-student-for-assignment.php">
                             <i class="fas fa-tasks me-2"></i>For Assignment
                         </a>
                     </li>

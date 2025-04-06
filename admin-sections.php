@@ -233,7 +233,7 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-student_for_assignment.php">
+                        <a class="nav-link" href="admin-student-for-assignment.php">
                             <i class="fas fa-tasks me-2"></i>For Assignment
                         </a>
                     </li>
@@ -405,220 +405,214 @@ $adminLastName = $_SESSION['last_name'];
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const gradeLevelId = <?php echo $grade_level_id; ?>;
-        const sectionsContainer = document.getElementById('sectionsContainer');
-        const schoolYearSelect = document.getElementById("schoolYearSelect");
-        
-        const addSchoolYearId = document.getElementById("addSchoolYearId");
-        const editSchoolYearId = document.getElementById("editschoolYearId");
+        document.addEventListener('DOMContentLoaded', () => {
+            const gradeLevelId = <?php echo $grade_level_id; ?>;
+            const sectionsContainer = document.getElementById('sectionsContainer');
+            const schoolYearSelect = document.getElementById("schoolYearSelect");
+            
+            const addSchoolYearId = document.getElementById("addSchoolYearId");
+            const editSchoolYearId = document.getElementById("editschoolYearId");
 
-        // Search Functionality            
-        const searchInput = document.getElementById("searchSection");
-        const clearBtn = document.getElementById("clearBtn");
-        const tableBody = document.querySelector("tbody");
+            // Search Functionality            
+            const searchInput = document.getElementById("searchSection");
+            const clearBtn = document.getElementById("clearBtn");
+            const tableBody = document.querySelector("tbody");
 
-        searchInput.addEventListener("input", function () {
-            const searchValue = this.value.toLowerCase().trim();
-            let visibleRows = 0;
+            searchInput.addEventListener("input", function () {
+                const searchValue = this.value.toLowerCase().trim();
+                let visibleRows = 0;
 
-            document.querySelectorAll("tbody tr").forEach(row => {
-                const rowText = row.innerText.toLowerCase();
-                if (rowText.includes(searchValue)) {
-                    row.style.display = "";
-                    visibleRows++;
-                } else {
-                    row.style.display = "none";
-                }
+                document.querySelectorAll("tbody tr").forEach(row => {
+                    const rowText = row.innerText.toLowerCase();
+                    if (rowText.includes(searchValue)) {
+                        row.style.display = "";
+                        visibleRows++;
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+
             });
 
-        });
+            clearBtn.addEventListener("click", function () {
+                searchInput.value = "";
+                document.querySelectorAll("tbody tr").forEach(row => row.style.display = "");
+            });
 
-        clearBtn.addEventListener("click", function () {
-            searchInput.value = "";
-            document.querySelectorAll("tbody tr").forEach(row => row.style.display = "");
-        });
+            // INIT 
+            populateSchoolYears([schoolYearSelect, addSchoolYearId, editSchoolYearId]);
+            attachFormHandlers();
+            attachDeleteHandler();
 
-        // INIT 
-        populateSchoolYears([schoolYearSelect, addSchoolYearId, editSchoolYearId]);
-        attachFormHandlers();
-        attachDeleteHandler();
+            //  Fetch and populate school years into multiple selects 
+            function populateSchoolYears(selectElements) {
+                fetch("databases/school_years.php")
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status !== "success") {
+                            throw new Error(data.message || "Failed to fetch school years");
+                        }
 
-        //  Fetch and populate school years into multiple selects 
-        function populateSchoolYears(selectElements) {
-            fetch("databases/school_years.php")
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status !== "success") {
-                        throw new Error(data.message || "Failed to fetch school years");
-                    }
-
-                    selectElements.forEach(select => {
-                        if (select) select.innerHTML = ""; // Clear old options
-                    });
-
-                    data.schoolYears.forEach(year => {
                         selectElements.forEach(select => {
-                            if (select) {
-                                const option = document.createElement("option");
-                                option.value = year.school_year_id;
-                                option.textContent = year.school_year;
-                                select.appendChild(option);
-                            }
+                            if (select) select.innerHTML = ""; // Clear old options
                         });
-                    });
 
-                    if (schoolYearSelect.value) {
-                        fetchSections(gradeLevelId, schoolYearSelect.value);
-                    }
-                })
-                .catch(error => console.error("Error fetching school years:", error));
-        }
+                        data.schoolYears.forEach(year => {
+                            selectElements.forEach(select => {
+                                if (select) {
+                                    const option = document.createElement("option");
+                                    option.value = year.school_year_id;
+                                    option.textContent = year.school_year;
+                                    select.appendChild(option);
+                                }
+                            });
+                        });
+
+                        if (schoolYearSelect.value) {
+                            fetchSections(gradeLevelId, schoolYearSelect.value);
+                        }
+                    })
+                    .catch(error => console.error("Error fetching school years:", error));
+            }
 
 
-        //  Handle School Year Change 
-        schoolYearSelect.addEventListener("change", () => {
-            console.log(gradeLevelId, schoolYearSelect.value);
-            fetchSections(gradeLevelId, schoolYearSelect.value);
-        });
+            //  Handle School Year Change 
+            schoolYearSelect.addEventListener("change", () => {
+                console.log(gradeLevelId, schoolYearSelect.value);
+                fetchSections(gradeLevelId, schoolYearSelect.value);
+            });
 
-        // Fetch and Display Sections 
-        function fetchSections(gradeLevelId, schoolYearId) {
-            if (!schoolYearId) return;
+            // Fetch and Display Sections 
+            function fetchSections(gradeLevelId, schoolYearId) {
+                if (!schoolYearId) return;
 
-            fetch(`databases/fetch_sections_for_display.php?grade_level_id=${gradeLevelId}&school_year_id=${schoolYearId}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
+                fetch(`databases/fetch_sections_for_display.php?grade_level_id=${gradeLevelId}&school_year_id=${schoolYearId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
 
-                    sectionsContainer.innerHTML = '';
+                        sectionsContainer.innerHTML = '';
 
-                    if (data.length === 0) {
-                        sectionsContainer.innerHTML = `
-                            <tr>
-                                <td colspan="7" class="text-center py-5 empty-table-message">
-                                    <i class="fas fa-inbox fa-3x mb-3"></i>
-                                    <p>No applications for review at this time</p>
-                                </td>
-                            </tr>
-                        `;
-                    } else {
-                        data.forEach((section, index) => {
-                            let row = document.createElement("tr");
-                            row.classList.add("student-row");
-                            row.setAttribute("data-id", section.section_id);
-
-                            row.innerHTML += `
+                        if (data.length === 0) {
+                            sectionsContainer.innerHTML = `
                                 <tr>
-                                    <td>${index + 1}</td>
-                                    <td>${section.section_name}</td>
-                                    <td>${section.grade_name}</td>
-                                    <td>${section.school_year}</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editSectionModal"
-                                            data-id="${section.section_id}" data-name="${section.section_name}"
-                                            data-level="${section.grade_name}" data-year="${section.school_year}">
-                                            Edit
-                                        </button>
-                                        <button class="btn btn-warning btn-sm edit-btn"
-                                            data-id="${section.section_id}" data-name="${section.section_name}"
-                                            data-level="${section.grade_name}" data-year="${section.school_year}">
-                                            Edit
-                                        </button>
-                                        <button class="btn btn-danger btn-sm" onclick="deleteSection(${section.section_id})">
-                                            Delete
-                                        </button>
+                                    <td colspan="7" class="text-center py-5 empty-table-message">
+                                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                                        <p>No applications for review at this time</p>
                                     </td>
                                 </tr>
                             `;
-                            sectionsContainer.appendChild(row);
-                        });
+                        } else {
+                            data.forEach((section, index) => {
+                                let row = document.createElement("tr");
+                                row.classList.add("student-row");
+                                row.setAttribute("data-id", section.section_id);
 
-                        attachEditListeners();
-                    }   
-                })
-                .catch(error => console.error("Error fetching sections:", error));
-        }
+                                row.innerHTML += `
+                                    <tr>
+                                        <td>${index + 1}</td>
+                                        <td>${section.section_name}</td>
+                                        <td>${section.grade_name}</td>
+                                        <td>${section.school_year}</td>
+                                        <td>
+                                            <button class="btn btn-warning btn-sm edit-btn"
+                                                data-id="${section.section_id}" data-name="${section.section_name}"
+                                                data-level="${section.grade_name}" data-year="${section.school_year}">
+                                                Edit
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteSection(${section.section_id})">
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `;
+                                sectionsContainer.appendChild(row);
+                            });
 
+                            attachEditListeners();
+                        }   
+                    })
+                    .catch(error => console.error("Error fetching sections:", error));
+            }
 
-        //  Attach Edit Button Handlers 
-        function attachEditListeners() {
-            document.querySelectorAll(".edit-btn").forEach(button => {
-                button.addEventListener("click", () => {
-                    document.getElementById("editSectionId").value = button.dataset.id;
-                    document.getElementById("editSectionName").value = button.dataset.name;
+            //  Attach Edit Button Handlers 
+            function attachEditListeners() {
+                document.querySelectorAll(".edit-btn").forEach(button => {
+                    button.addEventListener("click", () => {
+                        document.getElementById("editSectionId").value = button.dataset.id;
+                        document.getElementById("editSectionName").value = button.dataset.name;
 
-                    const editModal = new bootstrap.Modal(document.getElementById("editSectionModal"));
-                    editModal.show();
+                        const editModal = new bootstrap.Modal(document.getElementById("editSectionModal"));
+                        editModal.show();
+                    });
                 });
-            });
-        }
+            }
 
-        //  Form Submission Handlers 
-        function attachFormHandlers() {
-            document.getElementById("addSectionForm").addEventListener("submit", function (e) {
-                e.preventDefault();
-                const formData = new FormData(this);
+            //  Form Submission Handlers 
+            function attachFormHandlers() {
+                document.getElementById("addSectionForm").addEventListener("submit", function (e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
 
-                fetch("databases/insert_sections.php", {
-                    method: "POST",
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    alert(data.status === "success" ? "Section added successfully!" : "Error: " + data.message);
-                    if (data.status === "success") location.reload();
-                })
-                .catch(err => console.error("Add section error:", err));
-            });
+                    fetch("databases/insert_sections.php", {
+                        method: "POST",
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        alert(data.status === "success" ? "Section added successfully!" : "Error: " + data.message);
+                        if (data.status === "success") location.reload();
+                    })
+                    .catch(err => console.error("Add section error:", err));
+                });
 
-            document.getElementById("editSectionForm").addEventListener("submit", function (e) {
-                e.preventDefault();
-                const formData = new FormData(this);
+                document.getElementById("editSectionForm").addEventListener("submit", function (e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
 
-                fetch("databases/edit_sections.php", {
-                    method: "POST",
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    alert(data.status === "success" ? "Section updated successfully!" : "Error: " + data.message);
-                    if (data.status === "success") location.reload();
-                })
-                .catch(err => console.error("Edit section error:", err));
-            });
-        }
+                    fetch("databases/edit_sections.php", {
+                        method: "POST",
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        alert(data.status === "success" ? "Section updated successfully!" : "Error: " + data.message);
+                        if (data.status === "success") location.reload();
+                    })
+                    .catch(err => console.error("Edit section error:", err));
+                });
+            }
 
-        //  Delete Section Modal + Handler
-        function attachDeleteHandler() {
-            document.getElementById("confirmDeleteSection").addEventListener("click", () => {
-                const sectionId = document.getElementById("deleteSectionId").value;
-                const formData = new FormData();
-                formData.append("section_id", sectionId);
+            //  Delete Section Modal + Handler
+            function attachDeleteHandler() {
+                document.getElementById("confirmDeleteSection").addEventListener("click", () => {
+                    const sectionId = document.getElementById("deleteSectionId").value;
+                    const formData = new FormData();
+                    formData.append("section_id", sectionId);
 
-                fetch("databases/delete_section.php", {
-                    method: "POST",
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    alert(data.status === "success" ? "Section deleted successfully!" : "Error: " + data.message);
-                    if (data.status === "success") location.reload();
-                })
-                .catch(err => console.error("Delete section error:", err));
-            });
-        }
+                    fetch("databases/delete_section.php", {
+                        method: "POST",
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        alert(data.status === "success" ? "Section deleted successfully!" : "Error: " + data.message);
+                        if (data.status === "success") location.reload();
+                    })
+                    .catch(err => console.error("Delete section error:", err));
+                });
+            }
 
-        //  Open Delete Modal 
-        window.deleteSection = (id) => {
-            document.getElementById("deleteSectionId").value = id;
-            new bootstrap.Modal(document.getElementById("deleteSectionModal")).show();
-        };
-    });
+            //  Open Delete Modal 
+            window.deleteSection = (id) => {
+                document.getElementById("deleteSectionId").value = id;
+                new bootstrap.Modal(document.getElementById("deleteSectionModal")).show();
+            };
+        });
 
-</script>
+    </script>
 
 
 

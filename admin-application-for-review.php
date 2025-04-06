@@ -212,7 +212,7 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-student_for_assignment.php">
+                        <a class="nav-link" href="admin-student-for-assignment.php">
                             <i class="fas fa-tasks me-2"></i>For Assignment
                         </a>
                     </li>
@@ -318,7 +318,6 @@ $adminLastName = $_SESSION['last_name'];
                         <label class="form-label">Previous Grade Level</label>
                         <select id="prevGradeFilter" class="form-select">
                             <option value="">All Grade Levels</option>
-                            <option value="N/A">N/A</option>
                             <option value="Prekindergarten">Prekindergarten</option>
                             <option value="Kindergarten">Kindergarten</option>
                             <option value="Grade 1">Grade 1</option>
@@ -381,106 +380,38 @@ $adminLastName = $_SESSION['last_name'];
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
-    
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            fetchSchoolYears();
-        });
-
-        function fetchSchoolYears() {
-            fetch("databases/school_years.php")
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        const schoolYearDropdown = document.getElementById("schoolYearFilter");
-                        schoolYearDropdown.innerHTML = '<option value="">All School Years</option>';
-
-                        data.schoolYears.forEach(year => {
-                            const option = document.createElement("option");
-                            option.value = year.school_year; // Use the readable school_year for matching
-                            option.textContent = year.school_year;
-                            schoolYearDropdown.appendChild(option);
-                        });
-                    } else {
-                        console.error("Failed to fetch school years.");
-                    }
-                })
-                .catch(error => console.error("Error fetching school years:", error));
-        }
-
-        document.getElementById("applyFiltersBtn").addEventListener("click", function() {
-            filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
-            $('#filterModal').modal('hide');  // Close the modal after applying filters
-        });
-
-        // Filter Method
-        function filterTable() {
-            const selectedType = document.getElementById("enrollmentTypeFilter").value.toLowerCase();
-            const selectedPrevGrade = document.getElementById("prevGradeFilter").value.toLowerCase();
-            const selectedApplyingGrade = document.getElementById("gradeApplyingFilter").value.toLowerCase();
-            const selectedSchoolYear = document.getElementById("schoolYearFilter").value.toLowerCase(); 
-
-            const rows = document.querySelectorAll("tbody .student-row");
-
-            rows.forEach(row => {
-                // Extract values from table cells (adjust index if column order changes)
-                const studentType = row.children[2].textContent.trim().toLowerCase();
-                const prevGrade = row.children[3].textContent.trim().toLowerCase();
-                const applyingGrade = row.children[4].textContent.trim().toLowerCase();
-                const schoolYear = row.children[5].textContent.trim().toLowerCase();
-
-                // Check if each column matches the selected filter, allowing empty filters to match any row
-                const matchesType = !selectedType || studentType === selectedType;
-                const matchesPrevGrade = !selectedPrevGrade || prevGrade === selectedPrevGrade;
-                const matchesApplyingGrade = !selectedApplyingGrade || applyingGrade === selectedApplyingGrade;
-                const matchesSchoolYear = !selectedSchoolYear || schoolYear === selectedSchoolYear;
-
-                // Show row if all selected filters match, otherwise hide it
-                row.style.display = (matchesType && matchesPrevGrade && matchesApplyingGrade && matchesSchoolYear) ? "" : "none";
-            });
-        }
-    </script>
 
     <!-- Advance Filter Method -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            
             fetchEnrollments();
 
-            // Get filter elements
-            const enrollmentTypeFilter = document.getElementById("enrollmentTypeFilter");
-            const prevGradeFilter = document.getElementById("prevGradeFilter");
-            const gradeApplyingFilter = document.getElementById("gradeApplyingFilter");
-            const applyFiltersBtn = document.getElementById("applyFiltersBtn");
-
-            // Apply filters when the button is clicked
-            applyFiltersBtn.addEventListener("click", () => {
-                filterTable();
-                // Close modal after applying filters
-                let filterModal = new bootstrap.Modal(document.getElementById("filterModal"));
-                filterModal.hide();
-            });
+            fetchSchoolYears();
             
-            // Search Method
-            // Get search input element
+            // Filter subjects based on search input
             const searchInput = document.getElementById("searchInput");
             const clearBtn = document.getElementById("clearBtn");
+            const tableBody = document.querySelector("tbody");
+            
+            searchInput.addEventListener("input", function () {
+                const searchValue = this.value.toLowerCase().trim();
+                let visibleRows = 0;
 
-            // Attach event listener to the search input
-            searchInput.addEventListener("keyup", function () {
-                searchTable(this.value.toLowerCase());
+                document.querySelectorAll("tbody tr").forEach(row => {
+                    const rowText = row.innerText.toLowerCase();
+                    if (rowText.includes(searchValue)) {
+                        row.style.display = "";
+                        visibleRows++;
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
             });
 
-            // Clear search input when the clear button is clicked
             clearBtn.addEventListener("click", function () {
                 searchInput.value = "";
-                searchTable(""); // Reset the table view
-            });
-
-            document.querySelector("tbody").addEventListener("click", function (event) {
-                if (event.target.classList.contains("review-btn")) {
-                    let studentId = event.target.getAttribute("data-id");
-                    fetchStudentDetails(studentId);
-                }
+                document.querySelectorAll("tbody tr").forEach(row => row.style.display = "");
             });
         });
 
@@ -545,27 +476,56 @@ $adminLastName = $_SESSION['last_name'];
             });
         });
 
+        function fetchSchoolYears() {
+            fetch("databases/school_years.php")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const schoolYearDropdown = document.getElementById("schoolYearFilter");
+                        schoolYearDropdown.innerHTML = '<option value="">All School Years</option>';
 
-        // Search Method
-        function searchTable(query) {
-            const rows = document.querySelectorAll("tbody .student-row");
+                        data.schoolYears.forEach(year => {
+                            const option = document.createElement("option");
+                            option.value = year.school_year; // Use the readable school_year for matching
+                            option.textContent = year.school_year;
+                            schoolYearDropdown.appendChild(option);
+                        });
+                    } else {
+                        console.error("Failed to fetch school years.");
+                    }
+                })
+                .catch(error => console.error("Error fetching school years:", error));
+        }
 
-            rows.forEach(row => {
-                const studentName = row.children[1].textContent.toLowerCase(); // Name column
-                const studentType = row.children[2].textContent.toLowerCase(); // Type column
-                const prevGrade = row.children[3].textContent.toLowerCase(); // Prev Grade column
-                const applyingGrade = row.children[4].textContent.toLowerCase(); // Applying Grade column
-                const schoolYear = row.children[5].textContent.toLowerCase(); // School Year column
-                const enrollmentStatus = row.children[6].textContent.toLowerCase(); // School Year column
+        document.getElementById("applyFiltersBtn").addEventListener("click", function() {
+            filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
+            $('#filterModal').modal('hide');  // Close the modal after applying filters
+        });
 
-                // Check if any column contains the search query
-                if (studentName.includes(query) || studentType.includes(query) || prevGrade.includes(query) || applyingGrade.includes(query) || schoolYear.includes(query) || enrollmentStatus.includes(query)) {
+        // Filter Method
+        function filterTable() {
+            let studentType = document.getElementById("enrollmentTypeFilter").value.toLowerCase();
+            let selectedPrevGrade = document.getElementById("prevGradeFilter").value.toLowerCase();
+            let selectedApplyingGrade = document.getElementById("gradeApplyingFilter").value.toLowerCase();
+            let selectedSchoolYear = document.getElementById("schoolYearFilter").value.toLowerCase(); 
+
+            document.querySelectorAll("tbody tr").forEach(row => {
+                // Compare row values with selected filters
+                let typeMatch = studentType === "" || row.children[2].textContent.toLowerCase() === studentType;
+                let prevMatch = selectedPrevGrade === "" || row.cells[3].textContent.toLowerCase() === selectedPrevGrade;
+                let gradeMatch = selectedApplyingGrade === "" || row.cells[4].textContent.toLowerCase() === selectedApplyingGrade;
+                let yearMatch = selectedSchoolYear === "" || row.cells[5].textContent.toLowerCase() === selectedSchoolYear;
+
+                // Show or hide row based on matches
+                if (typeMatch && prevMatch && gradeMatch && yearMatch) {
                     row.style.display = "";
                 } else {
                     row.style.display = "none";
                 }
             });
         }
+
+
 
     </script>
 </body>
