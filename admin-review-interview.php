@@ -799,6 +799,7 @@ $adminLastName = $_SESSION['last_name'];
                                 </div>
                             </div>
                             
+                            <!-- Document Thumbnails -->
                             <div class="container mt-4">
                                 <h3>Uploaded Documents</h3>
                                 
@@ -831,7 +832,7 @@ $adminLastName = $_SESSION['last_name'];
                                 <!-- PDF Viewer -->
                                 <div class="mt-4">
                                     <h4>Document Preview</h4>
-                                    <iframe id="pdfViewer" src="" width="100%" height="600px" style="border: none; display: none;"></iframe>
+                                    <iframe id="pdfViewer" src="" width="100%" height="800px" style="border: none; display: none;"></iframe>
                                 </div>
                             </div>
 

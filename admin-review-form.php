@@ -795,6 +795,7 @@ $adminLastName = $_SESSION['last_name'];
                                 </div>
                             </div>
                             
+                            
                             <!-- Document Thumbnails -->
                             <div class="container mt-4">
                                 <h3>Uploaded Documents</h3>
@@ -802,25 +803,25 @@ $adminLastName = $_SESSION['last_name'];
                                 <div class="row mb-3">
                                     <!-- Birth Certificate -->
                                     <div class="col-md-4">
-                                        <div class="form-group">
+                                        <div class="form-group" style="display: flex; flex-direction: column; align-items: flex-start;">
                                             <label class="form-label">Birth Certificate <span class="text-danger">*</span></label>
-                                            <img src="path/to/birth_certificate_thumbnail.jpg" 
+                                            <img src="<?= htmlspecialchars($student['birth_certificate']) ?>" 
                                                 alt="Birth Certificate" 
                                                 class="img-thumbnail preview-thumbnail" 
                                                 data-pdf="<?= htmlspecialchars($student['birth_certificate']) ?>" 
-                                                style="cursor: pointer;">
+                                                style="cursor: pointer; width: 100%; height: 100%; max-width: 2in; max-height: 2in; object-fit: cover;">
                                         </div>
                                     </div>
                                     
                                     <!-- Report Card -->
                                     <div class="col-md-4">
-                                        <div class="form-group">
+                                        <div class="form-group" style="display: flex; flex-direction: column; align-items: flex-start;">
                                             <label class="form-label">Report Card <span class="text-danger">*</span></label>
-                                            <img src="path/to/report_card_thumbnail.jpg" 
+                                            <img src="<?= htmlspecialchars($student['report_card']) ?>" 
                                                 alt="Report Card" 
                                                 class="img-thumbnail preview-thumbnail" 
                                                 data-pdf="<?= htmlspecialchars($student['report_card']) ?>" 
-                                                style="cursor: pointer;">
+                                                style="cursor: pointer; width: 100%; height: 100%; max-width: 2in; max-height: 2in; object-fit: cover;">
                                         </div>
                                     </div>
                                 </div>
@@ -828,7 +829,7 @@ $adminLastName = $_SESSION['last_name'];
                                 <!-- PDF Viewer -->
                                 <div class="mt-4">
                                     <h4>Document Preview</h4>
-                                    <iframe id="pdfViewer" src="" width="100%" height="600px" style="border: none; display: none;"></iframe>
+                                    <iframe id="pdfViewer" src="" width="100%" height="800px" style="border: none; display: none;"></iframe>
                                 </div>
                             </div>
 
