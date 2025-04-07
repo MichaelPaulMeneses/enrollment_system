@@ -1,26 +1,33 @@
 <?php
-include('db_connection.php'); // Ensure database connection is included
+include 'db_connection.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get submitted form data with correct field names
-    $subjectId = $_POST['editSubjectId'];  
-    $subjectCode = $_POST['editSubjectCode'];  
-    $subjectName = $_POST['editSubjectName'];  
-    $gradeLevelId = $_POST['editGradeLevelId'];
+    $subjectId = $_POST['editSubjectId'];
+    $subject_code = $_POST['editSubjectCode'];
+    $subject_name = $_POST['editSubjectName'];
+    $grade_level_id = intval($_POST['editGradeLevelId']); 
+    $academic_track = $_POST['editAcademicTrackId'] ?? null;
+    $academic_semester = $_POST['editAcademicSemesterId'] ?? null;
 
-    // Validate inputs
-    if (empty($subjectId) || empty($subjectCode) || empty($subjectName) || empty($gradeLevelId)) {
-        echo json_encode(["status" => "error", "message" => "All fields are required."]);
-        exit;
+    if (empty($subjectId) || empty($subject_code) || empty($subject_name) || empty($grade_level_id)) {
+        echo json_encode(['status' => 'error', 'message' => 'All fields are required.']);
+        exit();
     }
 
-    // Prepare SQL query to update subject details
-    $sql = "UPDATE subjects SET subject_code = ?, subject_name = ?, grade_level_id = ? WHERE subject_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssii", $subjectCode, $subjectName, $gradeLevelId, $subjectId);
+    // Only keep academic_track and academic_semester if Grade 11 or 12
+    if (!in_array($grade_level_id, [14, 15])) {
+        $academic_track = null;
+        $academic_semester = null;
+    }
+
+    $query = "UPDATE subjects 
+                SET subject_code = ?, subject_name = ?, grade_level_id = ?, academic_track = ?, academic_semester = ? 
+                WHERE subject_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param('ssisii', $subject_code, $subject_name, $grade_level_id, $academic_track, $academic_semester, $subjectId);
 
     if ($stmt->execute()) {
-        echo json_encode(["status" => "success", "subject_id" => $subjectId, "subject_name" => $subjectName]);
+        echo json_encode(["status" => "success", "subject_id" => $subjectId, "subject_name" => $subject_name]);
     } else {
         echo json_encode(["status" => "error", "message" => "Failed to update subject."]);
     }
@@ -28,6 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->close();
     $conn->close();
 } else {
-    echo json_encode(["status" => "error", "message" => "Invalid request."]);
+    echo json_encode(['status' => 'error', 'message' => 'Invalid request.']);
 }
 ?>

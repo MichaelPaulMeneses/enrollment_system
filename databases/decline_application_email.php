@@ -29,15 +29,16 @@ if (isset($data['student_id'], $data['admin_user_id'], $data['status_remarks']))
         $surname = htmlspecialchars($row['last_name']);
         $gender = trim($row['gender']);
 
+        $enrollment_status = 'Application Declined';
         // Update enrollment status to 'Declined'
         $updateSql = "UPDATE students 
-                        SET enrollment_status = 'Application Declined', 
+                        SET enrollment_status = ?, 
                             status_remarks = ?, 
                             status_updated_by = ?, 
                             status_updated_at = NOW() 
                         WHERE student_id = ?";
         $updateStmt = $conn->prepare($updateSql);
-        $updateStmt->bind_param("sii", $status_remarks, $admin_user_id, $student_id);
+        $updateStmt->bind_param("ssii", $enrollment_status, $status_remarks, $admin_user_id, $student_id);
         if ($updateStmt->execute()) {
             
             // Determine salutation
@@ -60,7 +61,7 @@ if (isset($data['student_id'], $data['admin_user_id'], $data['status_remarks']))
 
                 // Email Content
                 $mail->isHTML(true);
-                $mail->Subject = 'Enrollment Declined - Saint John the Baptist Parochial School';
+                $mail->Subject = "Enrollment Declined - Status: $enrollment_status";                
                 $mail->Body    = "<p>Dear $salutation $surname,</p>
                                     <p>We regret to inform you that your enrollment application has been declined.</p>
                                     <p><strong>Reason:</strong> $status_remarks</p>

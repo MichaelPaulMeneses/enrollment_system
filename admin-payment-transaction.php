@@ -442,7 +442,7 @@ $adminLastName = $_SESSION['last_name'];
                 console.log("Student ID:", studentId);
                 console.log("Admin User ID:", adminUserId);
 
-                alert("Sending request to create transactions... Please Wait");
+                alert("Sending request to create transactions... Please Wait...");
 
                 // Send the POST request to the PHP script
                 fetch("databases/approve_payment_email.php", {

@@ -3,10 +3,11 @@ include 'db_connection.php'; // Make sure this includes your database connection
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $curriculumName = $_POST["curriculumName"];
+    $curriculumStatus = $_POST["curriculum_is_active"];
 
     if (!empty($curriculumName)) {
-        $stmt = $conn->prepare("INSERT INTO curriculums (curriculum_name) VALUES (?)");
-        $stmt->bind_param("s", $curriculumName);
+        $stmt = $conn->prepare("INSERT INTO curriculums (curriculum_name, curriculum_is_active) VALUES (?, ?)");
+        $stmt->bind_param("si", $curriculumName, $curriculumStatus);
 
         if ($stmt->execute()) {
             echo json_encode(["status" => "success"]);

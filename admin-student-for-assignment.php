@@ -399,145 +399,6 @@ $adminLastName = $_SESSION['last_name'];
     </div>
 </div>
 
-<script>
-    // Function to open the modal and fetch the student data
-    function assignStudent(studentId) {
-        // Reset all fields and hide the academic information sections
-        document.getElementById('assignStudentId').value = '';
-        document.getElementById('studentName').value = '';
-        document.getElementById('gradeApplying').value = '';
-        document.getElementById('academicTrack').value = '';
-        document.getElementById('academicSemester').value = '';
-        document.getElementById('academicInfo').style.display = 'none';
-        document.getElementById('semesterInfo').style.display = 'none';
-
-        // Set the student ID in the hidden input field
-        document.getElementById('assignStudentId').value = studentId;
-
-        console.log(studentId);
-
-        // Use fetch to get the student data for assignment modal
-        fetch("databases/fetch_for_assignment_modal_data.php", {
-            method: "POST",
-            body: JSON.stringify({ student_id: studentId }),
-            headers: { "Content-Type": "application/json" }
-        })
-        .then(response => response.json()) // Expecting JSON response
-        .then(data => {
-            // Populate the modal with the received data
-            console.log(data.full_name);
-            console.log(data.grade_applying_for);
-            console.log(data.grade_name);
-            console.log(data.academic_track);
-            console.log(data.academic_semester);
-            console.log(data.school_year_id);
-
-            document.getElementById('studentName').value = data.full_name;
-            document.getElementById('gradeApplying').value = data.grade_name;
-
-            // Show academic info if applicable
-            if (data.grade_applying_for == 14 || data.grade_applying_for == 15) {
-                document.getElementById('academicTrack').value = data.academic_track;
-                document.getElementById('academicInfo').style.display = 'block';
-                document.getElementById('academicSemester').value = data.academic_semester;
-                document.getElementById('semesterInfo').style.display = 'block';
-            }
-            
-            // Fetch sections for the dropdown based on the grade level
-            const gradeLevel = data.grade_applying_for;
-            const schoolYear = data.school_year_id;
-
-            fetch("databases/fetch_sections_for_dropdown.php", {
-                method: "POST",
-                body: JSON.stringify({ grade_level_id: gradeLevel, school_year_id: schoolYear }),
-                headers: { "Content-Type": "application/json" }
-            })
-            .then(response => response.json())
-            .then(responseData => {
-                const sectionDropdown = document.getElementById("sectionDropdown");
-                sectionDropdown.innerHTML = '<option value="" disabled selected>Select Section</option>';
-
-                if (responseData.status === "success" && Array.isArray(responseData.sections)) {
-                    responseData.sections.forEach(section => {
-                        const option = document.createElement("option");
-                        option.value = section.section_id;
-                        option.textContent = section.section_name;
-                        sectionDropdown.appendChild(option);
-                    });
-                } else {
-                    console.error("Failed to fetch sections:", responseData.message || "No sections available");
-                    const option = document.createElement("option");
-                    option.value = "";
-                    option.textContent = "No sections available";
-                    option.disabled = true;
-                    option.selected = true;
-                    sectionDropdown.appendChild(option);
-                }
-            })
-            .catch(error => console.error("Error fetching sections:", error));
-
-        })
-        .catch(error => {
-            console.error("Error fetching data:", error);
-        });
-    }
-
-    // Function to handle the form submission
-    document.getElementById("submitButton").addEventListener("click", function() {
-        // Collect form data
-        const studentId = document.getElementById("student_id").value;
-        const adminUserId = document.getElementById("admin_user_id").value;
-        const amountPaid = document.getElementById("amount_paid").value;
-        const statusRemarks = document.getElementById("status_remarks").value;
-        const sectionId = document.getElementById("section_id").value;
-
-        // Validate form data
-        if (!studentId || !adminUserId || !amountPaid || !statusRemarks || !sectionId) {
-            alert("All fields are required!");
-            return;
-        }
-
-        // Prepare data object to send in the request
-        const data = {
-            student_id: studentId,
-            admin_user_id: adminUserId,
-            amount_paid: amountPaid,
-            status_remarks: statusRemarks,
-            section_id: sectionId
-        };
-
-        // Send data to PHP backend using fetch
-        fetch("enrollment_script.php", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        })
-        .then(response => response.json())
-        .then(responseData => {
-            if (responseData.success) {
-                alert(responseData.message);
-            } else {
-                alert("Error: " + responseData.message);
-            }
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("Something went wrong. Please try again.");
-        });
-    });
-
-
-
-</script>
-
-
-
-
-
-
-    
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
@@ -620,6 +481,129 @@ $adminLastName = $_SESSION['last_name'];
                 })
                 .catch(error => console.error("Error fetching data:", error));  // Error handling
         }
+
+        // Function to open the modal and fetch the student data
+        function assignStudent(studentId) {
+            // Reset all fields and hide the academic information sections
+            document.getElementById('assignStudentId').value = '';
+            document.getElementById('studentName').value = '';
+            document.getElementById('gradeApplying').value = '';
+            document.getElementById('academicTrack').value = '';
+            document.getElementById('academicSemester').value = '';
+            document.getElementById('academicInfo').style.display = 'none';
+            document.getElementById('semesterInfo').style.display = 'none';
+
+            // Set the student ID in the hidden input field
+            document.getElementById('assignStudentId').value = studentId;
+
+            console.log(studentId);
+
+            // Use fetch to get the student data for assignment modal
+            fetch("databases/fetch_for_assignment_modal_data.php", {
+                method: "POST",
+                body: JSON.stringify({ student_id: studentId }),
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json()) // Expecting JSON response
+            .then(data => {
+                // Populate the modal with the received data
+                console.log(data.full_name);
+                console.log(data.grade_applying_for);
+                console.log(data.grade_name);
+                console.log(data.academic_track);
+                console.log(data.academic_semester);
+                console.log(data.school_year_id);
+
+                document.getElementById('studentName').value = data.full_name;
+                document.getElementById('gradeApplying').value = data.grade_name;
+
+                // Show academic info if applicable
+                if (data.grade_applying_for == 14 || data.grade_applying_for == 15) {
+                    document.getElementById('academicTrack').value = data.academic_track;
+                    document.getElementById('academicInfo').style.display = 'block';
+                    document.getElementById('academicSemester').value = data.academic_semester;
+                    document.getElementById('semesterInfo').style.display = 'block';
+                }
+                
+                // Fetch sections for the dropdown based on the grade level
+                const gradeLevel = data.grade_applying_for;
+                const schoolYear = data.school_year_id;
+
+                fetch("databases/fetch_sections_for_dropdown.php", {
+                    method: "POST",
+                    body: JSON.stringify({ grade_level_id: gradeLevel, school_year_id: schoolYear }),
+                    headers: { "Content-Type": "application/json" }
+                })
+                .then(response => response.json())
+                .then(responseData => {
+                    const sectionDropdown = document.getElementById("sectionDropdown");
+                    sectionDropdown.innerHTML = '<option value="" disabled selected>Select Section</option>';
+
+                    if (responseData.status === "success" && Array.isArray(responseData.sections)) {
+                        responseData.sections.forEach(section => {
+                            const option = document.createElement("option");
+                            option.value = section.section_id;
+                            option.textContent = section.section_name;
+                            sectionDropdown.appendChild(option);
+                        });
+                    } else {
+                        console.error("Failed to fetch sections:", responseData.message || "No sections available");
+                        const option = document.createElement("option");
+                        option.value = "";
+                        option.textContent = "No sections available";
+                        option.disabled = true;
+                        option.selected = true;
+                        sectionDropdown.appendChild(option);
+                    }
+                })
+                .catch(error => console.error("Error fetching sections:", error));
+
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+            });
+        }
+
+        // Function to handle the form submission
+        document.querySelector("#assignForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent page reload
+
+            const studentId = document.getElementById("assignStudentId").value;
+            const sectionId = document.getElementById("sectionDropdown").value;
+            const adminUserId = "<?php echo isset($adminUserId) ? htmlspecialchars($adminUserId) : 0; ?>";
+            
+            alert("Sending request to assign enrolee... Please Wait...");
+
+            fetch("databases/approve_assignment_email.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    student_id: studentId,
+                    section_id: sectionId,
+                    admin_user_id: adminUserId
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log("Assignment result:", result);
+                if (result.success) {
+                    // Success case: Show message and redirect
+                    alert("Enrollee assigned and email sent successfully!");
+
+                    setTimeout(function() {
+                        window.location.href = "admin-student-for-assignment.php";  // Redirect after success
+                    }, 500);
+                } else {
+                    alert("Error: " + result.message);
+                }
+            })
+            .catch(error => {
+                console.error("Assignment error:", error);
+                alert("Something went wrong while assigning the student.");
+            });
+        });
 
         // Fetch school years for the filter dropdown Modal
         function fetchSchoolYears() {

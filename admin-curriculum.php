@@ -279,6 +279,7 @@ $adminLastName = $_SESSION['last_name'];
                             <tr>
                                 <th>#</th>
                                 <th>Curriculum Name</th>
+                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -301,6 +302,12 @@ $adminLastName = $_SESSION['last_name'];
                                     <div class="mb-3">
                                         <label for="curriculumName" class="form-label">Curriculum Name</label>
                                         <input type="text" class="form-control" id="curriculumName" name="curriculumName" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="curriculumIsActive" class="form-label">Is Active</label>
+                                        <select class="form-select" id="curriculumIsActive" name="curriculum_is_active" required>
+                                        
+                                        </select>
                                     </div>
                                     <div class="d-flex justify-content-end">
                                         <button type="submit" class="btn btn-primary me-2">Add</button>
@@ -326,6 +333,12 @@ $adminLastName = $_SESSION['last_name'];
                                     <div class="mb-3">
                                         <label for="editCurriculumName" class="form-label">Curriculum Name</label>
                                         <input type="text" class="form-control" id="editCurriculumName" name="editCurriculumName" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="editCurriculumIsActive" class="form-label">Is Active</label>
+                                        <select class="form-select" id="editCurriculumIsActive" name="editCurriculumIsActive" required>
+                                        
+                                        </select>
                                     </div>
                                     <div class="d-flex justify-content-end">
                                         <button type="submit" class="btn btn-primary me-2">Update</button>
@@ -385,6 +398,7 @@ $adminLastName = $_SESSION['last_name'];
 
             // INIT
             fetchCurriculums();
+            fetchCurriculumStatus();
             attachFormHandlers();
             attachDeleteHandler();
 
@@ -413,6 +427,7 @@ $adminLastName = $_SESSION['last_name'];
                                 row.innerHTML = `
                                     <td>${index + 1}</td>
                                     <td>${curriculum.curriculum_name}</td>
+                                    <td>${curriculum.status}</td>
                                     <td>
                                         <form action="admin-subjects.php" method="POST" style="display:inline;">
                                             <input type="hidden" name="curriculum_id" value="${curriculum.curriculum_id}">
@@ -420,13 +435,13 @@ $adminLastName = $_SESSION['last_name'];
                                         </form>
                                         <button class="btn btn-warning btn-sm edit-btn"
                                             data-id="${curriculum.curriculum_id}"
-                                            data-name="${curriculum.curriculum_name}">
+                                            data-name="${curriculum.curriculum_name}"
+                                            data-status="${curriculum.curriculum_is_active}">
                                             Edit
                                         </button>
                                         <button class="btn btn-danger btn-sm" onclick="deleteCurriculum(${curriculum.curriculum_id})">
                                             Delete
                                         </button>
-
                                     </td>
                                 `;
                                 curriculumContainer.appendChild(row);
@@ -438,12 +453,61 @@ $adminLastName = $_SESSION['last_name'];
                     .catch(error => console.error("Error fetching curriculums:", error));
             }
 
-            // Edit modal handler
+            // Fetch curriculum status (whether there's already an active curriculum)
+            function fetchCurriculumStatus() {
+                fetch('databases/check_active_curriculum.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        const select = document.getElementById('curriculumIsActive');
+                        const editSelect = document.getElementById('editCurriculumIsActive');
+                        const hasActive = data.hasActive;
+
+                        console.log("this is the:", editCurriculumIsActive.value);
+
+                        // Clear existing options
+                        select.innerHTML = '';
+                        editSelect.innerHTML = ''; // Clear options in editSelect as well, if needed
+
+                        // Always allow "Inactive"
+                        const optionInactive = document.createElement('option');
+                        optionInactive.value = "0";
+                        optionInactive.textContent = "Inactive";
+                        select.appendChild(optionInactive);
+
+                        // Clone the "Inactive" option and append to editSelect
+                        let clonedInactiveOption = optionInactive.cloneNode(true); 
+                        editSelect.appendChild(clonedInactiveOption);
+
+                        // Conditionally add "Active"
+
+                        const optionActive = document.createElement('option');
+                        optionActive.value = "1";
+                        optionActive.textContent = hasActive ? "Active (already in use)" : "Active";
+                        optionActive.disabled = hasActive; // Disable "Active" if it’s already in use and not being edited
+                        select.appendChild(optionActive);
+
+                        // Clone the "Active" option and append to editSelect
+                        let clonedActiveOption = optionActive.cloneNode(true);
+                        editSelect.appendChild(clonedActiveOption);
+                    })
+                    .catch(error => {
+                        console.error('Error checking active curriculum:', error);
+                        const select = document.getElementById('curriculumIsActive');
+                    });
+            }
+
+            // Edit modal handler (Allowing admin to select active status again)
             function attachEditListeners() {
                 document.querySelectorAll(".edit-btn").forEach(button => {
                     button.addEventListener("click", () => {
-                        document.getElementById("editCurriculumId").value = button.dataset.id;
-                        document.getElementById("editCurriculumName").value = button.dataset.name;
+                        // Pre-fill the edit form fields
+                        const curriculumId = button.dataset.id;
+                        const curriculumName = button.dataset.name;
+                        const curriculumStatus = button.dataset.status;
+
+                        document.getElementById("editCurriculumId").value = curriculumId;
+                        document.getElementById("editCurriculumName").value = curriculumName;
+                        document.getElementById("editCurriculumIsActive").value = curriculumStatus;
 
                         const editModal = new bootstrap.Modal(document.getElementById("editCurriculumModal"));
                         editModal.show();
@@ -451,10 +515,11 @@ $adminLastName = $_SESSION['last_name'];
                 });
             }
 
+
             // Add & Edit form handlers
             function attachFormHandlers() {
-                document.getElementById("addCurriculumForm").addEventListener("submit", function (e) {
-                    e.preventDefault();
+                document.getElementById("addCurriculumForm").addEventListener("submit", function (event) {
+                    event.preventDefault();
                     const formData = new FormData(this);
 
                     fetch("databases/insert_curriculum.php", {
@@ -466,11 +531,11 @@ $adminLastName = $_SESSION['last_name'];
                         alert(data.status === "success" ? "Curriculum added successfully!" : "Error: " + data.message);
                         if (data.status === "success") location.reload();
                     })
-                    .catch(err => console.error("Add curriculum error:", err));
+                    .catch(err => console.error("Add curriculum error:", error));
                 });
 
-                document.getElementById("editCurriculumForm").addEventListener("submit", function (e) {
-                    e.preventDefault();
+                document.getElementById("editCurriculumForm").addEventListener("submit", function (event) {
+                    event.preventDefault();
                     const formData = new FormData(this);
 
                     fetch("databases/edit_curriculum.php", {
@@ -482,7 +547,7 @@ $adminLastName = $_SESSION['last_name'];
                         alert(data.status === "success" ? "Curriculum updated successfully!" : "Error: " + data.message);
                         if (data.status === "success") location.reload();
                     })
-                    .catch(err => console.error("Edit curriculum error:", err));
+                    .catch(err => console.error("Edit curriculum error:", error));
                 });
             }
 

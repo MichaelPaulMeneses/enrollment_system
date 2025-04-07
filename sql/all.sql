@@ -1,22 +1,22 @@
--- Drop existing tables if they exist
-DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS assigned_students;
+DROP TABLE IF EXISTS payment_history;
 DROP TABLE IF EXISTS students;
+DROP TABLE IF EXISTS subjects;
 DROP TABLE IF EXISTS grade_level_subjects;
-
+DROP TABLE IF EXISTS sections;
+DROP TABLE IF EXISTS grade_levels;
+DROP TABLE IF EXISTS curriculums;
+DROP TABLE IF EXISTS school_year;
 DROP TABLE IF EXISTS nationalities;
 DROP TABLE IF EXISTS religions;
-DROP TABLE IF EXISTS school_year;
-
-DROP TABLE IF EXISTS curriculums;
-DROP TABLE IF EXISTS grade_levels;
-DROP TABLE IF EXISTS subjects;
-
 DROP TABLE IF EXISTS refregion;
 DROP TABLE IF EXISTS refprovince;
 DROP TABLE IF EXISTS refcitymun;
 DROP TABLE IF EXISTS refbrgy;
+DROP TABLE IF EXISTS users;
 
 DROP TABLE IF EXISTS school_logo;
+DROP TABLE IF EXISTS school_names;
 DROP TABLE IF EXISTS homepage_carousel;
 DROP TABLE IF EXISTS homepage_mission;
 DROP TABLE IF EXISTS homepage_vision;
@@ -59,7 +59,8 @@ CREATE TABLE school_year (
 -- Create the curriculums table with a reference to school_year
 CREATE TABLE curriculums (
     curriculum_id INT(11) AUTO_INCREMENT PRIMARY KEY,
-    curriculum_name VARCHAR(255) NOT NULL
+    curriculum_name VARCHAR(255) NOT NULL,
+    curriculum_is_active TINYINT(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create the grade_levels table
@@ -76,6 +77,8 @@ CREATE TABLE subjects (
     subject_name VARCHAR(255) NOT NULL,
 	curriculum_id INT(11) NOT NULL,
     grade_level_id INT(11) NOT NULL,
+    academic_track VARCHAR(100) DEFAULT NULL,
+    academic_semester VARCHAR(50) DEFAULT NULL,
     FOREIGN KEY (curriculum_id) REFERENCES curriculums(curriculum_id) ON DELETE CASCADE,
     FOREIGN KEY (grade_level_id) REFERENCES grade_levels(grade_level_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -88,16 +91,6 @@ CREATE TABLE sections (
     school_year_id INT(11) NOT NULL,
     FOREIGN KEY (grade_level_id) REFERENCES grade_levels(grade_level_id) ON DELETE CASCADE,
     FOREIGN KEY (school_year_id) REFERENCES school_year(school_year_id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
--- Create the grade_level_subjects table
-CREATE TABLE assigned_students (
-    assigned_id INT(11) AUTO_INCREMENT PRIMARY KEY,
-    student_id INT(11) NOT NULL,
-    section_id INT(11) NOT NULL,
-    FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
-    FOREIGN KEY (section_id) REFERENCES sections(section_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create refregion table
@@ -208,7 +201,14 @@ CREATE TABLE payment_history (
     FOREIGN KEY (payment_facilitated_by) REFERENCES users(user_id) ON DELETE SET NULL 
 );
 
-
+-- Create the grade_level_subjects table
+CREATE TABLE assigned_students (
+    assigned_id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    student_id INT(11) NOT NULL,
+    section_id INT(11) NOT NULL,
+    FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
+    FOREIGN KEY (section_id) REFERENCES sections(section_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE school_logo (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -470,10 +470,10 @@ INSERT INTO school_year (school_year, is_active) VALUES
     ('2025-2026', 1);
 
 -- Insert data into the curriculums table
-INSERT INTO curriculums (curriculum_name, school_year_id) VALUES
-('K-12', 1),
-('MATATAG', 2),  
-('Alternative Learning System', 3); 
+INSERT INTO curriculums (curriculum_name, curriculum_is_active) VALUES
+('K-12', 0),
+('MATATAG', 1),  
+('Alternative Learning System', 0); 
 
 
 -- Insert data into grade_levels table

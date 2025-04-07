@@ -423,7 +423,7 @@ $adminLastName = $_SESSION['last_name'];
                                 <td>${interview.appointment_time}</td>
                                 <td>${interview.school_year}</td>
                                 <td>
-                                    <form action="#" method="POST" style="display:inline;">
+                                    <form action="admin-review-interview.php" method="POST" style="display:inline;">
                                         <input type="hidden" name="student_id" value="${interview.student_id}">
                                         <button type="submit" class="btn btn-primary btn-sm">Review</button>
                                     </form>

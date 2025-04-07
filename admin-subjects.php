@@ -307,9 +307,31 @@ $adminLastName = $_SESSION['last_name'];
                                         <label for="gradeLevelId" class="form-label">Grade Level</label>
                                         <select class="form-select" id="gradeLevelId" name="gradeLevelId" required>
                                             <option value="" disabled selected>Select Grade Level</option>
-
+                                            <!-- Options dynamically populated -->
                                         </select>
                                     </div>
+
+                                    <!-- Shown only when grade level is 14 or 15 -->
+                                    <div id="semesterField" style="display: none;">
+                                        <div class="mb-3">
+                                            <label for="academicTrackId" class="form-label">Academic Track</label>
+                                            <select class="form-select" id="academicTrackId" name="academicTrackId" required>
+                                                <option value="" disabled selected>Select Academic Track</option>
+                                                <option value="STEM">STEM - Science, Technology, Engineering, and Mathematics</option>
+                                                <option value="ABM">ABM - Accountancy, Business, and Management</option>
+                                                <option value="HUMSS">HUMSS - Humanities and Social Sciences</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="academicSemesterId" class="form-label">Semester</label>
+                                            <select class="form-select" id="academicSemesterId" name="academicSemesterId" required>
+                                                <option value="" disabled selected>Select Semester</option>
+                                                <option value="1">1st Semester</option>
+                                                <option value="2">2nd Semester</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
                                     <input type="hidden" name="curriculumId" value="<?php echo $curriculum_id; ?>">
                                 </div>
                                 <div class="modal-footer">
@@ -347,6 +369,28 @@ $adminLastName = $_SESSION['last_name'];
                                             <!-- Dynamically populate options here -->
                                         </select>
                                     </div>
+
+                                    <!-- Shown only when grade level is 14 or 15 -->
+                                    <div id="editSemesterField" style="display: none;">
+                                        <div class="mb-3">
+                                            <label for="editAcademicTrackId" class="form-label">Academic Track</label>
+                                            <select class="form-select" id="editAcademicTrackId" name="editAcademicTrackId" required>
+                                                <option value="" disabled selected>Select Academic Track</option>
+                                                <option value="STEM">STEM - Science, Technology, Engineering, and Mathematics</option>
+                                                <option value="ABM">ABM - Accountancy, Business, and Management</option>
+                                                <option value="HUMSS">HUMSS - Humanities and Social Sciences</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="editAcademicSemesterId" class="form-label">Semester</label>
+                                            <select class="form-select" id="editAcademicSemesterId" name="editAcademicSemesterId" required>
+                                                <option value="" disabled selected>Select Semester</option>
+                                                <option value="1">1st Semester</option>
+                                                <option value="2">2nd Semester</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -356,7 +400,6 @@ $adminLastName = $_SESSION['last_name'];
                         </div>
                     </div>
                 </div>
-
 
                 <!-- Delete Subject Modal -->
                 <div class="modal fade" id="deleteSubjectModal" tabindex="-1" aria-labelledby="deleteSubjectModalLabel" aria-hidden="true">
@@ -392,6 +435,8 @@ $adminLastName = $_SESSION['last_name'];
                                 <th>Subject Name</th>
                                 <th>Curriculum</th>
                                 <th>Grade Level</th>
+                                <th>Academic Track</th>
+                                <th>Academic Semester</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -416,7 +461,7 @@ $adminLastName = $_SESSION['last_name'];
             const subjectsContainer = document.getElementById("subjectsContainer");
             const searchInput = document.getElementById("searchSubject");
             const clearBtn = document.getElementById("clearBtn");
-            
+
             // Search Functionality
             searchInput.addEventListener("input", () => {
                 const searchValue = searchInput.value.toLowerCase().trim();
@@ -451,11 +496,45 @@ $adminLastName = $_SESSION['last_name'];
                                 option.textContent = grade.grade_name;
 
                                 gradeLevelSelect.appendChild(option);
-                                editGradeLevelSelect.appendChild(option.cloneNode(true));
+                                const clonedOption = option.cloneNode(true);
+                                editGradeLevelSelect.appendChild(clonedOption);
                             }
                         });
+
+                        gradeLevelSelect.addEventListener('change', toggleFields);
+                        editGradeLevelSelect.addEventListener('change', toggleFields);
                     })
                     .catch(error => console.error("Error fetching grade levels:", error));
+            }
+
+            function toggleFields() {
+                const semesterField = document.getElementById("semesterField");
+                const editSemesterField = document.getElementById("editSemesterField");
+                const gradeLevelId = this.value;
+
+                console.log(gradeLevelId);
+
+                if (gradeLevelId === "14" || gradeLevelId === "15") {
+                    semesterField.style.display = "block";
+                    document.getElementById("academicTrackId").required = true;
+                    document.getElementById("academicSemesterId").required = true;
+
+                    editSemesterField.style.display = "block";
+                    document.getElementById("editAcademicTrackId").required = true;
+                    document.getElementById("editAcademicSemesterId").required = true;
+                } else {
+                    semesterField.style.display = "none";
+                    document.getElementById("academicTrackId").value = '';
+                    document.getElementById("academicSemesterId").value = '';
+                    document.getElementById("academicTrackId").required = false;
+                    document.getElementById("academicSemesterId").required = false;
+
+                    editSemesterField.style.display = "none";
+                    document.getElementById("editAcademicTrackId").value = '';
+                    document.getElementById("editAcademicSemesterId").value = '';
+                    document.getElementById("editAcademicTrackId").required = false;
+                    document.getElementById("editAcademicSemesterId").required = false;
+                }
             }
 
             // Fetch and display subjects
@@ -477,12 +556,14 @@ $adminLastName = $_SESSION['last_name'];
                         } else {
                             data.forEach((subject, index) => {
                                 const row = document.createElement("tr");
-                                row.innerHTML = `
+                                row.innerHTML += `
                                     <td>${index + 1}</td>
                                     <td>${subject.subject_code}</td>
                                     <td>${subject.subject_name}</td>
                                     <td>${subject.curriculum_name}</td>
                                     <td>${subject.grade_name}</td>
+                                    <td>${subject.academic_track}</td>
+                                    <td>${subject.academic_semester}</td>
                                     <td>
                                         <button class="btn btn-warning btn-sm" onclick="editSubject(${subject.subject_id})">Edit</button>
                                         <button class="btn btn-danger btn-sm" onclick="deleteSubject(${subject.subject_id})">Delete</button>
@@ -501,9 +582,18 @@ $adminLastName = $_SESSION['last_name'];
                 const editForm = document.getElementById("editSubjectForm");
 
                 if (addForm) {
-                    addForm.addEventListener("submit", function (e) {
-                        e.preventDefault();
+                    addForm.addEventListener("submit", function (event) {
+                        event.preventDefault();
                         const formData = new FormData(this);
+
+                        const gradeLevelId = parseInt(formData.get('gradeLevelId'), 10);
+                        console.log("Grade Level ID:", gradeLevelId);
+
+                        // If NOT Senior High School (Grade 11 = 14, Grade 12 = 15), clear academic fields
+                        if (gradeLevelId !== 14 && gradeLevelId !== 15) {
+                            formData.set('editAcademicTrackId', '');
+                            formData.set('editAcademicSemesterId', '');
+                        }
 
                         fetch("databases/insert_subject.php", {
                             method: "POST",
@@ -513,18 +603,33 @@ $adminLastName = $_SESSION['last_name'];
                         .then(data => {
                             alert(data.status === "success" ? "Subject added successfully!" : "Error: " + data.message);
                             if (data.status === "success") {
-                                bootstrap.Modal.getInstance(document.getElementById("addSubjectsModal")).hide();
+                                const modalElement = document.getElementById("addSubjectsModal");
+                                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                                if (modalInstance) modalInstance.hide();
                                 setTimeout(() => location.reload(), 500);
                             }
                         })
-                        .catch(err => console.error("Add subject error:", err));
+                        .catch(err => {
+                            console.error("Add subject error:", err);
+                            alert("An error occurred while adding a subject.");
+                        });
                     });
                 }
+
 
                 if (editForm) {
                     editForm.addEventListener("submit", function (e) {
                         e.preventDefault();
                         const formData = new FormData(this);
+
+                        const editGradeLevelId = parseInt(formData.get('editGradeLevelId'), 10);
+                        console.log("Grade Level ID:", editGradeLevelId);
+
+                        // If NOT Senior High School (Grade 11 = 14, Grade 12 = 15), clear academic fields
+                        if (editGradeLevelId !== 14 && editGradeLevelId !== 15) {
+                            formData.set('editAcademicTrackId', '');
+                            formData.set('editAcademicSemesterId', '');
+                        }
 
                         fetch("databases/edit_subject.php", {
                             method: "POST",
@@ -533,14 +638,22 @@ $adminLastName = $_SESSION['last_name'];
                         .then(res => res.json())
                         .then(data => {
                             alert(data.status === "success" ? "Subject updated successfully!" : "Error: " + data.message);
-                            if (data.status === "success") location.reload();
+                            if (data.status === "success") {
+                                const modalElement = document.getElementById("editSubjectModal");
+                                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                                if (modalInstance) modalInstance.hide();
+                                setTimeout(() => location.reload(), 500); // Refresh to show changes
+                            }
                         })
-                        .catch(err => console.error("Edit subject error:", err));
+                        .catch(err => {
+                            console.error("Edit subject error:", err);
+                            alert("An error occurred while updating the subject.");
+                        });
                     });
                 }
             }
 
-            // Expose to global scope
+            // Populate the modal with subject data for editing
             window.editSubject = (subjectId) => {
             fetch(`databases/fetch_subjects.php?subject_id=${subjectId}`)
                 .then(res => res.json())
@@ -550,8 +663,13 @@ $adminLastName = $_SESSION['last_name'];
                     document.getElementById("editSubjectId").value = data.subject_id;
                     document.getElementById("editSubjectCode").value = data.subject_code;
                     document.getElementById("editSubjectName").value = data.subject_name;
-                    document.getElementById("editGradeLevelId").value = data.grade_level_id;
+                    //document.getElementById("editGradeLevelId").value = data.grade_level_id;
 
+                    console.log(data.grade_level_id);
+                    // Trigger the function to toggle fields based on the grade level
+                    toggleEditFields(data.grade_level_id);  
+
+                    // Show the modal after all values are set
                     new bootstrap.Modal(document.getElementById("editSubjectModal")).show();
                 })
                 .catch(err => {
@@ -559,6 +677,29 @@ $adminLastName = $_SESSION['last_name'];
                     alert("An error occurred while fetching subject details.");
                 });
             };
+
+            // Toggle fields for editing based on grade level
+            function toggleEditFields(gradeLevelId) {
+                const editSemesterField = document.getElementById("editSemesterField");
+                const editAcademicTrack = document.getElementById("editAcademicTrackId");
+                const editAcademicSemester = document.getElementById("editAcademicSemesterId");
+
+                if (gradeLevelId === "14" || gradeLevelId === "15") { // Senior High School (Grade 11 or 12)
+                    editSemesterField.style.display = "block";
+                    
+                    editAcademicTrack.value = editAcademicTrackId.value;
+                    editAcademicSemester.value = editAcademicSemesterId.value;
+                    
+                    editAcademicTrack.required = true;
+                    editAcademicSemester.required = true;
+                } else {
+                    editSemesterField.style.display = "none";
+                    editAcademicTrack.value = '';
+                    editAcademicSemester.value = '';
+                    editAcademicTrack.required = false;
+                    editAcademicSemester.required = false;
+                }
+            }
 
             // Delete handler
             function attachDeleteHandler() {
@@ -589,6 +730,7 @@ $adminLastName = $_SESSION['last_name'];
             };
         });
     </script>
+
 
     
 

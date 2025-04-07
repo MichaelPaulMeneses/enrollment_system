@@ -314,12 +314,17 @@ $adminLastName = $_SESSION['last_name'];
             border: none;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-        
         .modal-header {
-            background-color: var(--primary-dark-blue);
             color: white;
             border-radius: 10px 10px 0 0;
             border-bottom: none;
+        }
+        .approve {
+            background-color: var(--primary-dark-blue);
+        }
+
+        .decline {
+            background-color: var(--decline-red);
         }
         
         .modal-footer {
@@ -871,7 +876,7 @@ $adminLastName = $_SESSION['last_name'];
     <div class="modal fade" id="declineModal" tabindex="-1" aria-labelledby="declineModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header decline">
                     <h5 class="modal-title" id="declineModalLabel">Reason for Declining</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -895,7 +900,7 @@ $adminLastName = $_SESSION['last_name'];
     <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header approve">
                     <h5 class="modal-title" id="confirmModalLabel">Confirmation</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>

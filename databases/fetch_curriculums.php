@@ -3,9 +3,17 @@
 include('db_connection.php');
 
 // SQL Query to fetch student data, including the school year
-$sql = "SELECT * 
-        FROM curriculums 
-        ORDER BY curriculum_name ASC;";
+$sql = "SELECT 
+            curriculum_id, 
+            curriculum_name, 
+            curriculum_is_active,
+            CASE 
+                WHEN curriculum_is_active = 1 THEN 'Active'
+                ELSE 'Inactive'
+            END AS status
+        FROM curriculums
+        ORDER BY curriculum_is_active DESC;
+        ";
         
 $result = $conn->query($sql);
 
