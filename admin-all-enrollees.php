@@ -18,7 +18,7 @@ $adminLastName = $_SESSION['last_name'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - SJBPS Payment Transactions</title>
+    <title>Admin - SJBPS All Enrollees</title>
     <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -202,6 +202,7 @@ $adminLastName = $_SESSION['last_name'];
                             <i class="fas fa-history me-2"></i>Transactions History
                         </a>
                     </li>
+                    
                     <li class="nav-item">
                         <a class="nav-link" href="admin-student-for-assignment.php">
                             <i class="fas fa-tasks me-2"></i>For Assignment
@@ -220,6 +221,11 @@ $adminLastName = $_SESSION['last_name'];
                     <li class="nav-item">
                         <a class="nav-link" href="admin-curriculum.php">
                             <i class="fas fa-book-open me-2"></i>Curriculum
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-school-years.php">
+                        <i class="fas fa-graduation-cap me-2"></i>School Years
                         </a>
                     </li>
                     <li class="nav-item">
@@ -247,7 +253,7 @@ $adminLastName = $_SESSION['last_name'];
                 <!-- Search Bar -->
                 <div class="search-container d-flex justify-content-end">
                     <div class="input-group" style="max-width: 300px;">
-                        <input type="text" id="searchInput" class="form-control" placeholder="Search Enrollees" aria-label="Search">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search applications" aria-label="Search">
                         <button class="btn btn-outline-secondary" type="button" id="clearBtn">
                             <i class="fas fa-times"></i>
                         </button>
@@ -262,13 +268,16 @@ $adminLastName = $_SESSION['last_name'];
                             <tr>
                                 <th>ID</th>
                                 <th>Student Name</th>
-                                <th>Payment Amount</th>
-                                <th>Payment Date</th>
-                                <th>Transaction by</th>
+                                <th>Grade Level</th>
+                                <th>Section</th>
+                                <th>Track</th>
+                                <th>Semester</th>
+                                <th>School Year</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
-                        <tbody id="enrolleesTable">
-                            <!-- Data will be inserted here by JavaScript -->
+                        <tbody id="allEnrolleesTable">
+                            <!-- JavaScript will populate this section -->
 
                         </tbody>
                     </table>
@@ -286,16 +295,7 @@ $adminLastName = $_SESSION['last_name'];
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Enrollment Type Filter -->
-                    <div class="mb-3">
-                        <label class="form-label">Enrollment Type</label>
-                        <select id="enrollmentTypeFilter" class="form-select">
-                            <option value="">All Types</option>
-                            <option value="old">Old Student</option>
-                            <option value="new/transferee">New/Transferee Student</option>
-                        </select>
-                    </div>
-                    
+
                     <!-- Grade Applying For Filter -->
                     <div class="mb-3">
                         <label class="form-label">Grade Applying For</label>
@@ -317,6 +317,36 @@ $adminLastName = $_SESSION['last_name'];
                             <option value="Grade 12">Grade 12</option>
                         </select>
                     </div>
+
+                    <!-- Section Filter -->
+                    <div class="mb-3">
+                        <label class="form-label">Sections</label>
+                        <select id="sectionFilter" class="form-select">
+                            <option value="" disabled selected>Loading sections...</option>
+                        </select>
+                    </div>
+
+                    <!-- Academic Track Filter -->
+                    <div class="mb-3">
+                        <label class="form-label">Academic Track</label>
+                        <select id="academicTrack" class="form-select">
+                            <option value="" >Select Academic Track</option>
+                            <option value="STEM">STEM - Science, Technology, Engineering, and Mathematics</option>
+                            <option value="ABM">ABM - Accountancy, Business, and Management</option>
+                            <option value="HUMSS">HUMSS - Humanities and Social Sciences</option>
+                        </select>
+                    </div>
+
+                    <!-- Academic Semester Filter -->
+                    <div class="mb-3">
+                        <label class="form-label">Academic Semester</label>
+                        <select id="academicSemester" class="form-select">
+                            <option value="">Select Semester</option>
+                            <option value="1">1st Semester</option>
+                            <option value="2">2nd Semester</option>
+                        </select>
+                    </div>
+
                     
                     <!-- School Year Filter -->
                     <div class="mb-3">
@@ -350,19 +380,7 @@ $adminLastName = $_SESSION['last_name'];
             // Fetch school years for the filter dropdown
             fetchSchoolYears();
 
-            // Get filter elements
-            const gradeApplyingFilter = document.getElementById("gradeApplyingFilter");
-            const applyFiltersBtn = document.getElementById("applyFiltersBtn");
-
-            // Apply filters when the button is clicked
-            applyFiltersBtn.addEventListener("click", () => {
-                filterTable();
-                // Close modal after applying filters
-                let filterModalEl = document.getElementById("filterModal");
-                let filterModal = bootstrap.Modal.getInstance(filterModalEl);
-                filterModal.hide();
-
-            });
+            fetchSections();
             
             // Search Method
             // Filter subjects based on search input
@@ -393,14 +411,14 @@ $adminLastName = $_SESSION['last_name'];
 
         // Fetch enrollments from the database
         function fetchEnrollments() {
-            fetch("databases/fetch_transaction_history.php")
+            fetch("databases/fetch_enrolled_students.php")
                 .then(response => response.json())
                 .then(data => {
-                    let enrolleesTable = document.getElementById("enrolleesTable");
-                    enrolleesTable.innerHTML = ""; // Clear existing rows
+                    let allEnrolleesTable = document.querySelector("#allEnrolleesTable");
+                    allEnrolleesTable.innerHTML = ""; // Clear existing rows
 
                     if (data.length === 0) {
-                        enrolleesTable.innerHTML = `
+                        allEnrolleesTable.innerHTML = `
                             <tr>
                                 <td colspan="7" class="text-center py-5 empty-table-message">
                                     <i class="fas fa-inbox fa-3x mb-3"></i>
@@ -409,19 +427,24 @@ $adminLastName = $_SESSION['last_name'];
                             </tr>
                         `;
                     } else {
-                        data.forEach((student, index) => {
+                        data.forEach((enrollees, index) => {
                             let row = document.createElement("tr");
-                            row.classList.add("student-row");
-                            row.setAttribute("data-id", student.payment_id);
+                            row.classList.add("assign-row");
+                            row.setAttribute("data-id", enrollees.assigned_id);
 
-                            row.innerHTML = `
-                                <td>${index += 1}</td>
-                                <td>${student.student_name}</td>
-                                <td>${student.payment_amount}</td>
-                                <td>${student.payment_date}</td>
-                                <td>${student.status_updated_by_name}</td>
+                            console.log(enrollees)
+
+                            row.innerHTML += `
+                                <td>${index + 1}</td>
+                                <td>${enrollees.student_name}</td>
+                                <td>${enrollees.grade_name}</td>
+                                <td>${enrollees.section_name}</td>
+                                <td>${enrollees.academic_track}</td>
+                                <td>${enrollees.academic_semester}</td>
+                                <td>${enrollees.school_year}</td>
+                                <td>${enrollees.enrollment_status}</td>
                             `;
-                            enrolleesTable.appendChild(row);
+                            allEnrolleesTable.appendChild(row);
                         });
 
                     }
@@ -429,7 +452,7 @@ $adminLastName = $_SESSION['last_name'];
                 .catch(error => console.error("Error fetching data:", error));
         }
 
-        // Fetch school years for the filter dropdown
+        // Fetch school years for the filter dropdown Modal
         function fetchSchoolYears() {
             fetch("databases/school_years.php")
                 .then(response => response.json())
@@ -450,7 +473,30 @@ $adminLastName = $_SESSION['last_name'];
                 })
                 .catch(error => console.error("Error fetching school years:", error));
         }
-        
+
+
+        function fetchSections() {
+            fetch("databases/fetch_all_sections.php")
+                .then(response => response.json())
+                .then(data => {
+                    const sectionFilter = document.getElementById("sectionFilter");
+                    sectionFilter.innerHTML = '<option value="">Select Section</option>';
+                    if (data.status === "success") {
+                        data.sections.forEach(section => {
+                            const option = document.createElement("option");
+                            option.value = section.section_name;
+                            option.textContent = section.section_info;
+                            sectionFilter.appendChild(option);
+                        });
+                    } else {
+                        console.error("Error loading sections:", data.message);
+                    }
+                })
+                .catch(error => console.error("Fetch error:", error));
+        }
+
+
+        // Advane Filter Method
         document.getElementById("applyFiltersBtn").addEventListener("click", function() {
             filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
             $('#filterModal').modal('hide');  // Close the modal after applying filters
@@ -458,25 +504,29 @@ $adminLastName = $_SESSION['last_name'];
 
         // Filter Method
         function filterTable() {
-            let enrollmentType = document.getElementById("enrollmentTypeFilter").value.toLowerCase();
             let gradeApplying = document.getElementById("gradeApplyingFilter").value.toLowerCase();
+            let allSection = document.getElementById("sectionFilter").value.toLowerCase();
+            let academicTrack = document.getElementById("academicTrack").value.toLowerCase();
+            let academicSemester = document.getElementById("academicSemester").value.toLowerCase();
             let schoolYear = document.getElementById("schoolYearFilter").value.toLowerCase();
+            
+            console.log(allSection, academicTrack, academicSemester);
 
             document.querySelectorAll("tbody tr").forEach(row => {
-                let typeMatch = enrollmentType === "" || row.innerHTML.toLowerCase().includes(enrollmentType);
-                let gradeMatch = gradeApplying === "" || row.innerHTML.toLowerCase().includes(gradeApplying);
-                let yearMatch = schoolYear === "" || row.innerHTML.toLowerCase().includes(schoolYear);
+                let gradeMatch = gradeApplying === "" || row.cells[2].textContent.toLowerCase() === gradeApplying;
+                let sectionMatch = allSection === "" || row.cells[3].textContent.toLowerCase() === allSection;
+                let trackMatch = academicTrack === "" || row.cells[4].textContent.toLowerCase() === academicTrack;
+                let semesterMatch = academicSemester === "" || row.cells[5].textContent.toLowerCase() === academicSemester;
+                let yearMatch = schoolYear === "" || row.cells[6].textContent.toLowerCase() === schoolYear;
 
-                row.style.display = typeMatch && gradeMatch && yearMatch ? "" : "none";
+                if (gradeMatch && sectionMatch && trackMatch && semesterMatch && yearMatch) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
             });
         }
 
-        function searchTable(query) {
-            document.querySelectorAll("tbody tr").forEach(row => {
-                let text = row.textContent.toLowerCase();
-                row.style.display = text.includes(query) ? "" : "none";
-            });
-        }
 
     </script>
 </body>

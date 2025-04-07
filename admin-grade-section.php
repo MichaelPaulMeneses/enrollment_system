@@ -228,6 +228,11 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="admin-school-years.php">
+                        <i class="fas fa-graduation-cap me-2"></i>School Years
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="admin-homepage-editor.php">
                             <i class="fas fa-edit me-2"></i>Home Page Editor
                         </a>

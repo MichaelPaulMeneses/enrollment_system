@@ -14,12 +14,11 @@ $data = json_decode(file_get_contents("php://input"), true);
 
 // Check if required data is present
 if (isset($data['student_id'], $data['section_id'], $data['admin_user_id'])) {
-    // Assign values
     $student_id = intval($data['student_id']);
     $section_id = intval($data['section_id']);
     $admin_user_id = intval($data['admin_user_id']);
 
-    // Step 1: Fetch student details for email
+    // Step 1: Fetch student details
     $fetchSql = "SELECT s.email, s.last_name, s.gender, g.grade_name, s.grade_applying_for, s.academic_track, s.academic_semester
                 FROM students s
                 JOIN grade_levels g ON s.grade_applying_for = g.grade_level_id
@@ -43,7 +42,7 @@ if (isset($data['student_id'], $data['section_id'], $data['admin_user_id'])) {
     $academicSemester = intval($row['academic_semester']);
     $fetchStmt->close();
 
-    // Step 2: Fetch curriculum_id for the student
+    // Step 2: Fetch active curriculum
     $fetchCurrSql = "SELECT curriculum_id FROM curriculums WHERE curriculum_is_active = 1";
     $fetchCurrStmt = $conn->prepare($fetchCurrSql);
     $fetchCurrStmt->execute();
@@ -57,17 +56,21 @@ if (isset($data['student_id'], $data['section_id'], $data['admin_user_id'])) {
         exit;
     }
 
-    // Only keep academic_track and academic_semester if Grade 11 or 12
-    if (!in_array($gradeApplyingFor, [14, 15])) {
-        $academicTrack = null;
-        $academicSemester = null;
+    // Step 3: Fetch subjects based on grade level
+    if (in_array($gradeApplyingFor, [14, 15])) {
+        // Grades 11 and 12 - use track and semester
+        $fetchSubjectsSql = "SELECT subject_code, subject_name FROM subjects 
+                            WHERE curriculum_id = ? AND grade_level_id = ? AND academic_track = ? AND academic_semester = ?";
+        $fetchSubjectsStmt = $conn->prepare($fetchSubjectsSql);
+        $fetchSubjectsStmt->bind_param("iisi", $curriculum_id, $gradeApplyingFor, $academicTrack, $academicSemester);
+    } else {
+        // Grades 2–10 - no track or semester
+        $fetchSubjectsSql = "SELECT subject_code, subject_name FROM subjects 
+                            WHERE curriculum_id = ? AND grade_level_id = ?";
+        $fetchSubjectsStmt = $conn->prepare($fetchSubjectsSql);
+        $fetchSubjectsStmt->bind_param("ii", $curriculum_id, $gradeApplyingFor);
     }
 
-    // Step 3: Fetch subjects for the student's grade level and curriculum
-    $fetchSubjectsSql = "SELECT subject_code, subject_name FROM subjects 
-                        WHERE curriculum_id = ? AND grade_level_id = ? AND academic_track = ? AND academic_semester = ?";
-    $fetchSubjectsStmt = $conn->prepare($fetchSubjectsSql);
-    $fetchSubjectsStmt->bind_param("iisi", $curriculum_id, $gradeApplyingFor, $academicTrack, $academicSemester);
     $fetchSubjectsStmt->execute();
     $subjectsResult = $fetchSubjectsStmt->get_result();
 
@@ -108,23 +111,13 @@ if (isset($data['student_id'], $data['section_id'], $data['admin_user_id'])) {
     }
     $stmt->close();
 
-    // Step 6: Prepare email content with subjects (optional)
+    // Step 6: Prepare email
+    $salutation = ($gender == 'Male') ? 'Mr.' : (($gender == 'Female') ? 'Ms.' : 'Mr./Ms.');
     $subjectList = "";
     foreach ($subjects as $subject) {
         $subjectList .= $subject['subject_code'] . " - " . $subject['subject_name'] . "\n";
     }
 
-    // Define salutation based on gender
-    if ($gender == 'Male') {
-        $salutation = 'Mr.';
-    } elseif ($gender == 'Female') {
-        $salutation = 'Ms.';
-    } else {
-        $salutation = 'Mr./Ms.';  // Default, for other gender or unspecified
-    }
-
-
-    // Example of sending email notification using PHPMailer (Step 4 optional)
     $mail = new PHPMailer(true);
     try {
         $mail->isSMTP();
@@ -137,26 +130,21 @@ if (isset($data['student_id'], $data['section_id'], $data['admin_user_id'])) {
         $mail->setFrom('sasatoru510@gmail.com', 'SJBPS Admin');
         $mail->addAddress($userEmail);
         $mail->isHTML(true);
+        $mail->CharSet = 'UTF-8';
 
         $mail->Subject = "Enrollment Approved - Status: $enrollment_status";
 
-        // Email body
         $message = "<p>Dear $salutation $surname,</p>";
-
         $message .= "<p>Congratulations! We are pleased to inform you that you have successfully passed the interview at Saint John the Baptist Parochial School and your enrollment has been approved.</p>";
-
-        $message .= "<p>You are now officially enrolled in $gradeName and your following subjects are:</p>";
-        $message .= "<ul>";
+        $message .= "<p>You are now officially enrolled in $gradeName and your following subjects are:</p><ul>";
         foreach ($subjects as $subject) {
             $message .= "<li><strong>{$subject['subject_code']}</strong> - {$subject['subject_name']}</li>";
         }
         $message .= "</ul>";
-
         $message .= "<p>For further assistance or inquiries, please contact our Admissions Office:</p>
-        <p><a href='mailto:registrar.sjbps@gmail.com'>registrar.sjbps@gmail.com</a> | (02) 8296 5896 | 0920 122 5764</p>";
+            <p><a href='mailto:registrar.sjbps@gmail.com'>registrar.sjbps@gmail.com</a> | (02) 8296 5896 | 0920 122 5764</p>";
 
         $mail->Body = $message;
-        $mail->CharSet = 'UTF-8';
         $mail->send();
     } catch (Exception $e) {
         echo json_encode(["success" => false, "message" => "Email sending failed: " . $mail->ErrorInfo]);

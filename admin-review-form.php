@@ -351,6 +351,32 @@ $adminLastName = $_SESSION['last_name'];
         }
     </style>
 
+    <!-- For loadingSpinner -->
+    <style>
+        #loadingSpinner {
+            position: fixed;
+            top: 50%;
+            left: 100%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+    </style>
+
     <!-- Fetch the name of the User -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -506,6 +532,11 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                 </ul>
+            </div>
+
+            <!-- Loading Spinner Area -->
+            <div id="loadingSpinner" style="display: none;">
+                <div class="spinner"></div> <!-- You can use CSS or an external library like Font Awesome for the spinner -->
             </div>
             
             <!-- Main Content Area -->
@@ -972,7 +1003,8 @@ $adminLastName = $_SESSION['last_name'];
                 // Ensure both studentId and adminUserId are available
                 if (studentId && adminUserId) {
 
-                    alert("Sending request to approve application... Please Wait");
+                    document.getElementById("loadingSpinner").style.display = "block";
+                    document.getElementById("finalConfirmBtn").disabled = true;
 
                     // Send the POST request to the PHP script
                     fetch("databases/approve_application_email.php", {
@@ -990,7 +1022,7 @@ $adminLastName = $_SESSION['last_name'];
                             alert("Enrollment approved and email sent successfully!");
                             setTimeout(function() {
                                 window.location.href = "admin-application-for-review.php";  // Redirect after success
-                            }, 500);
+                            }, 250);
                         } else {
                             // Error case: Show error message from response
                             alert("Error: " + data.message);
@@ -1000,6 +1032,10 @@ $adminLastName = $_SESSION['last_name'];
                         // Catch any fetch errors (network issues, etc.)
                         console.error("Request failed", error);
                         alert("An error occurred while processing the request.");
+                    })
+                    .finally(() => {
+                        document.getElementById("loadingSpinner").style.display = "none";
+                        document.getElementById("finalConfirmBtn").disabled = false;
                     });
                 } else {
                     // Missing studentId or adminUserId
@@ -1019,7 +1055,8 @@ $adminLastName = $_SESSION['last_name'];
                     return;
                 }
 
-                alert("Sending request to decline application... Please Wait");
+                document.getElementById("loadingSpinner").style.display = "block";
+                document.getElementById("confirmDeclineBtn").disabled = true;
 
                 // Send the data using Fetch API
                 fetch('databases/decline_application_email.php', {
@@ -1038,7 +1075,7 @@ $adminLastName = $_SESSION['last_name'];
                         
                         setTimeout(function() {
                             window.location.href = "admin-application-for-review.php";  // Redirect after success
-                        }, 500);
+                        }, 250);
                         
                     } else {
                         alert(data.message); // Display error message
@@ -1047,6 +1084,10 @@ $adminLastName = $_SESSION['last_name'];
                 .catch(error => {
                     console.error('Error:', error);
                     alert('There was an error processing the request.');
+                })
+                .finally(() => {
+                    document.getElementById("loadingSpinner").style.display = "none";
+                    document.getElementById("confirmDeclineBtn").disabled = false;
                 });
             });
         });
