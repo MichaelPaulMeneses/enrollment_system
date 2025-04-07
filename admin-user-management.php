@@ -7,29 +7,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
     header("Location: login.php");
     exit();
 }
-
-include "databases/db_connection.php"; // Include database connection
-
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["curriculum_id"])) {
-    $curriculum_id = $_POST["curriculum_id"];
-
-    $query = "SELECT curriculum_name FROM curriculums WHERE curriculum_id = ?";
-        
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("i", $curriculum_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
-        $subject = $result->fetch_assoc();
-    } else {
-        die("Curriculum not found.");
-    }
-    $stmt->close();
-} else {
-    die("Access denied.");
-}
-
 // Retrieve admin details from session
 $adminFirstName = $_SESSION['first_name'];
 $adminLastName = $_SESSION['last_name'];
@@ -40,7 +17,7 @@ $adminLastName = $_SESSION['last_name'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SJBPS Admin - Subjects</title>
+    <title>SJBPS Admin - Users Management</title>
     <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -265,7 +242,7 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="admin-curriculum.php">
+                        <a class="nav-link" href="admin-curriculum.php">
                             <i class="fas fa-book-open me-2"></i>Curriculum
                         </a>
                     </li>
@@ -280,7 +257,7 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-user-management.php">
+                        <a class="nav-link active" href="admin-user-management.php">
                             <i class="fas fa-user-cog me-2"></i>Users
                         </a>
                     </li>
@@ -290,16 +267,16 @@ $adminLastName = $_SESSION['last_name'];
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="mb-0">Subjects for <?php echo htmlspecialchars($subject['curriculum_name']); ?></h4>
+                    <h4 class="mb-0">User Management</h4>
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
                         <i class="fas fa-filter me-2"></i>Advanced Filters
                     </button>
                 </div>
 
                 <div class="d-flex justify-content-end align-items-center mb-4 gap-3">
-                    <!-- Add Subjects Button -->  
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubjectsModal">
-                        Add Subjects
+                    <!-- Add User Button -->  
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUsersModal">
+                        Add User
                     </button>
                     <!-- Search Bar -->
                     <div class="search-container">
@@ -313,53 +290,53 @@ $adminLastName = $_SESSION['last_name'];
                 </div>
 
                 <!-- Add Subjects Modal -->
-                <div class="modal fade" id="addSubjectsModal" tabindex="-1" aria-labelledby="addSubjectsModalLabel" aria-hidden="true">
+                <div class="modal fade" id="addUsersModal" tabindex="-1" aria-labelledby="addUsersModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                            <form id="addSubjectForm" method="POST">
+                            <form id="addUsersForm" method="POST">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="addSubjectsModalLabel">Add New Subject</h5>
+                                    <h5 class="modal-title" id="addUsersModalLabel">Add New User</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <div class="mb-3">
-                                        <label for="subjectCode" class="form-label">Subject Code</label>
-                                        <input type="text" class="form-control" id="subjectCode" name="subjectCode" required>
+                                <div class="mb-3">
+                                        <label for="username" class="form-label">Username</label>
+                                        <input type="text" class="form-control" id="username" name="username" required>
                                     </div>
+
                                     <div class="mb-3">
-                                        <label for="subjectName" class="form-label">Subject Name</label>
-                                        <input type="text" class="form-control" id="subjectName" name="subjectName" required>
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" name="email" required>
                                     </div>
+
                                     <div class="mb-3">
-                                        <label for="gradeLevelId" class="form-label">Grade Level</label>
-                                        <select class="form-select" id="gradeLevelId" name="gradeLevelId" required>
-                                            <option value="" disabled selected>Select Grade Level</option>
-                                            <!-- Options dynamically populated -->
+                                        <label for="password" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="password" name="password" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="password_repeat" class="form-label">Repeat Password</label>
+                                        <input type="password" class="form-control" id="password_repeat" name="password_repeat" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="first_name" class="form-label">First Name</label>
+                                        <input type="text" class="form-control" id="first_name" name="first_name" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="last_name" class="form-label">Last Name</label>
+                                        <input type="text" class="form-control" id="last_name" name="last_name" required>
+                                    </div>
+
+                                    <!-- User Type Dropdown -->
+                                    <div class="mb-3">
+                                        <label for="user_type" class="form-label">User Type</label>
+                                        <select class="form-control" id="user_type" name="user_type" required>
+                                            <!-- Options will be added via JavaScript -->
                                         </select>
                                     </div>
 
-                                    <!-- Shown only when grade level is 14 or 15 -->
-                                    <div id="semesterField" style="display: none;">
-                                        <div class="mb-3">
-                                            <label for="academicTrackId" class="form-label">Academic Track</label>
-                                            <select class="form-select" id="academicTrackId" name="academicTrackId" required>
-                                                <option value="" disabled selected>Select Academic Track</option>
-                                                <option value="STEM">STEM - Science, Technology, Engineering, and Mathematics</option>
-                                                <option value="ABM">ABM - Accountancy, Business, and Management</option>
-                                                <option value="HUMSS">HUMSS - Humanities and Social Sciences</option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="academicSemesterId" class="form-label">Semester</label>
-                                            <select class="form-select" id="academicSemesterId" name="academicSemesterId" required>
-                                                <option value="" disabled selected>Select Semester</option>
-                                                <option value="1">1st Semester</option>
-                                                <option value="2">2nd Semester</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <input type="hidden" name="curriculumId" value="<?php echo $curriculum_id; ?>">
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -370,57 +347,56 @@ $adminLastName = $_SESSION['last_name'];
                     </div>
                 </div>
 
-                <!-- Edit Subjects Modal -->
-                <div class="modal fade" id="editSubjectModal" tabindex="-1" aria-labelledby="editSubjectModalLabel" aria-hidden="true">
+                <!-- Edit User Modal -->
+                <div class="modal fade" id="editUsersModal" tabindex="-1" aria-labelledby="editUsersModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                            <form id="editSubjectForm" method="POST">
+                            <form id="editUserForm" method="POST">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="editSubjectModalLabel">Edit Subject</h5>
+                                    <h5 class="modal-title" id="editUsersModalLabel">Edit User</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <input type="hidden" id="editSubjectId" name="editSubjectId">
+                                    <!-- Hidden input for user ID -->
+                                    <input type="hidden" id="edit_user_id" name="user_id">
+
                                     <div class="mb-3">
-                                        <label for="editSubjectCode" class="form-label">Subject Code</label>
-                                        <input type="text" class="form-control" id="editSubjectCode" name="editSubjectCode" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editSubjectName" class="form-label">Subject Name</label>
-                                        <input type="text" class="form-control" id="editSubjectName" name="editSubjectName" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editGradeLevelId" class="form-label">Grade Level</label>
-                                        <select class="form-select" id="editGradeLevelId" name="editGradeLevelId" required>
-                                            <option value="" disabled selected>Select Grade Level</option>
-                                            <!-- Dynamically populate options here -->
-                                        </select>
+                                        <label for="edit_username" class="form-label">Username</label>
+                                        <input type="text" class="form-control" id="edit_username" name="username" required>
                                     </div>
 
-                                    <!-- Shown only when grade level is 14 or 15 -->
-                                    <div id="editSemesterField" style="display: none;">
-                                        <div class="mb-3">
-                                            <label for="editAcademicTrackId" class="form-label">Academic Track</label>
-                                            <select class="form-select" id="editAcademicTrackId" name="editAcademicTrackId" required>
-                                                <option value="" disabled selected>Select Academic Track</option>
-                                                <option value="STEM">STEM - Science, Technology, Engineering, and Mathematics</option>
-                                                <option value="ABM">ABM - Accountancy, Business, and Management</option>
-                                                <option value="HUMSS">HUMSS - Humanities and Social Sciences</option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="editAcademicSemesterId" class="form-label">Semester</label>
-                                            <select class="form-select" id="editAcademicSemesterId" name="editAcademicSemesterId" required>
-                                                <option value="" disabled selected>Select Semester</option>
-                                                <option value="1">1st Semester</option>
-                                                <option value="2">2nd Semester</option>
-                                            </select>
-                                        </div>
+                                    <div class="mb-3">
+                                        <label for="edit_email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="edit_email" name="email" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="edit_first_name" class="form-label">First Name</label>
+                                        <input type="text" class="form-control" id="edit_first_name" name="first_name" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="edit_last_name" class="form-label">Last Name</label>
+                                        <input type="text" class="form-control" id="edit_last_name" name="last_name" required>
+                                    </div>
+                                    
+                                    <!-- Password Fields -->
+                                    <div class="mb-3">
+                                        <label for="edit_password" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="edit_password" name="password">
+                                    </div>
+
+                                    <!-- User Type Dropdown -->
+                                    <div class="mb-3">
+                                        <label for="edit_user_type" class="form-label">User Type</label>
+                                        <select class="form-control" id="edit_user_type" name="user_type" required>
+                                            <!-- Options will be filled dynamically via JS -->
+                                        </select>
                                     </div>
 
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                     <button type="submit" class="btn btn-primary">Save Changes</button>
                                 </div>
                             </form>
@@ -428,27 +404,6 @@ $adminLastName = $_SESSION['last_name'];
                     </div>
                 </div>
 
-                <!-- Delete Subject Modal -->
-                <div class="modal fade" id="deleteSubjectModal" tabindex="-1" aria-labelledby="deleteSubjectModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <form id="deleteSubjectForm" method="POST">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="deleteSubjectModalLabel">Delete Subject</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p>Are you sure you want to delete this subject?</p>
-                                    <input type="hidden" id="deleteSubjectId" name="subject_id">
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
 
 
 
@@ -458,16 +413,14 @@ $adminLastName = $_SESSION['last_name'];
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Subject Code</th>
-                                <th>Subject Name</th>
-                                <th>Curriculum</th>
-                                <th>Grade Level</th>
-                                <th>Academic Track</th>
-                                <th>Academic Semester</th>
+                                <th>Username</th>
+                                <th>User Fullname</th>
+                                <th>Email</th>
+                                <th>UserType</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="subjectsContainer">
+                        <tbody id="usersContainer">
                             <!-- Dynamic Content will be inserted here -->
                         </tbody>
                     </table>
@@ -545,10 +498,9 @@ $adminLastName = $_SESSION['last_name'];
     
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const curriculumId = <?php echo $curriculum_id; ?>;
             const gradeLevelSelect = document.getElementById("gradeLevelId");
             const editGradeLevelSelect = document.getElementById("editGradeLevelId");
-
+            
             // Search Method
             // Filter subjects based on search input
             const searchInput = document.getElementById("searchSubject");
@@ -576,75 +528,22 @@ $adminLastName = $_SESSION['last_name'];
             });
 
             // INIT
-            fetchGradeLevels();
-            fetchSubjects();
+            fetchUsers();
+            populateUserTypes();
+
+            
             attachFormHandlers();
             attachDeleteHandler();
 
-            // Fetch and populate grade levels
-            function fetchGradeLevels() {
-                fetch("databases/grade_levels.php")
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.error) throw new Error(data.error);
-
-                        data.forEach(grade => {
-                            if (grade.grade_level_id !== '1') {
-                                const option = document.createElement("option");
-                                option.value = grade.grade_level_id;
-                                option.textContent = grade.grade_name;
-
-                                gradeLevelSelect.appendChild(option);
-                                const clonedOption = option.cloneNode(true);
-                                editGradeLevelSelect.appendChild(clonedOption);
-                            }
-                        });
-
-                        gradeLevelSelect.addEventListener('change', toggleFields);
-                        editGradeLevelSelect.addEventListener('change', toggleFields);
-                    })
-                    .catch(error => console.error("Error fetching grade levels:", error));
-            }
-
-            function toggleFields() {
-                const semesterField = document.getElementById("semesterField");
-                const editSemesterField = document.getElementById("editSemesterField");
-                const gradeLevelId = this.value;
-
-                console.log(gradeLevelId);
-
-                if (gradeLevelId === "14" || gradeLevelId === "15") {
-                    semesterField.style.display = "block";
-                    document.getElementById("academicTrackId").required = true;
-                    document.getElementById("academicSemesterId").required = true;
-
-                    editSemesterField.style.display = "block";
-                    document.getElementById("editAcademicTrackId").required = true;
-                    document.getElementById("editAcademicSemesterId").required = true;
-                } else {
-                    semesterField.style.display = "none";
-                    document.getElementById("academicTrackId").value = '';
-                    document.getElementById("academicSemesterId").value = '';
-                    document.getElementById("academicTrackId").required = false;
-                    document.getElementById("academicSemesterId").required = false;
-
-                    editSemesterField.style.display = "none";
-                    document.getElementById("editAcademicTrackId").value = '';
-                    document.getElementById("editAcademicSemesterId").value = '';
-                    document.getElementById("editAcademicTrackId").required = false;
-                    document.getElementById("editAcademicSemesterId").required = false;
-                }
-            }
-
             // Fetch and display subjects
-            function fetchSubjects() {
-                fetch(`databases/fetch_subjects_for_display.php?curriculum_id=${curriculumId}`)
+            function fetchUsers() {
+                fetch(`databases/fetch_users_for_display.php`)
                     .then(res => res.json())
                     .then(data => {
-                        subjectsContainer.innerHTML = "";
+                        usersContainer.innerHTML = "";
 
                         if (data.length === 0) {
-                            subjectsContainer.innerHTML = `
+                            usersContainer.innerHTML = `
                                 <tr>
                                     <td colspan="8" class="text-center py-5 empty-table-message">
                                         <i class="fas fa-inbox fa-3x mb-3"></i>
@@ -653,129 +552,200 @@ $adminLastName = $_SESSION['last_name'];
                                 </tr>
                             `;
                         } else {
-                            data.forEach((subject, index) => {
+                            data.forEach((user, index) => {
                                 const row = document.createElement("tr");
                                 row.innerHTML += `
                                     <td>${index + 1}</td>
-                                    <td>${subject.subject_code}</td>
-                                    <td>${subject.subject_name}</td>
-                                    <td>${subject.curriculum_name}</td>
-                                    <td>${subject.grade_name}</td>
-                                    <td>${subject.academic_track}</td>
-                                    <td>${subject.academic_semester}</td>
+                                    <td>${user.username}</td>
+                                    <td>${user.full_name}</td>
+                                    <td>${user.email}</td>
+                                    <td>${user.user_type}</td>
                                     <td>
-                                        <button class="btn btn-warning btn-sm" onclick="editSubject(${subject.subject_id})">Edit</button>
-                                        <button class="btn btn-danger btn-sm" onclick="deleteSubject(${subject.subject_id})">Delete</button>
+                                        <button class="btn btn-warning btn-sm" onclick="editUser(${user.user_id})">Edit</button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteSubject(${user.user_id})">Delete</button>
                                     </td>
                                 `;
-                                subjectsContainer.appendChild(row);
+                                usersContainer.appendChild(row);
                             });
                         }
                     })
                     .catch(error => console.error("Error fetching subjects:", error));
             }
 
+            // Populate User Type dropdown and checks if admin alrady exist
+            function populateUserTypes() {
+                const userTypeSelect = document.getElementById("user_type");
+
+                // All user types
+                const userTypes = [
+                    { value: "admin", label: "Admin" },
+                    { value: "sub-admin", label: "Sub-Admin" },
+                    { value: "cashier", label: "Cashier" }
+                ];
+
+                fetch("databases/check_admin_exists.php")
+                    .then(res => res.json())
+                    .then(data => {
+                        userTypes.forEach(type => {
+                            const option = document.createElement("option");
+                            option.value = type.value;
+                            option.textContent = type.label;
+
+                            // Disable admin if already exists
+                            if (type.value === "admin" && data.admin_exists) {
+                                option.disabled = true;
+                                option.textContent += " (already assigned)";
+                            }
+
+                            userTypeSelect.appendChild(option);
+                        });
+                    })
+                    .catch(err => {
+                        console.error("Error checking admin:", err);
+                        // Fallback: populate options anyway
+                        userTypes.forEach(type => {
+                            const option = document.createElement("option");
+                            option.value = type.value;
+                            option.textContent = type.label;
+                            userTypeSelect.appendChild(option);
+                        });
+                    });
+            }
+
+
             // Add and Edit form submission
             function attachFormHandlers() {
-                const addForm = document.getElementById("addSubjectForm");
-                const editForm = document.getElementById("editSubjectForm");
+                const addForm = document.getElementById("addUsersForm");
+                const editForm = document.getElementById("editUserForm");
 
                 if (addForm) {
                     addForm.addEventListener("submit", function (event) {
                         event.preventDefault();
                         const formData = new FormData(this);
 
-                        const gradeLevelId = parseInt(formData.get('gradeLevelId'), 10);
-                        console.log("Grade Level ID:", gradeLevelId);
-
-                        // If NOT Senior High School (Grade 11 = 14, Grade 12 = 15), clear academic fields
-                        if (gradeLevelId !== 14 && gradeLevelId !== 15) {
-                            formData.set('editAcademicTrackId', '');
-                            formData.set('editAcademicSemesterId', '');
-                        }
-
-                        fetch("databases/insert_subject.php", {
+                        fetch("databases/insert_user.php", {
                             method: "POST",
                             body: formData
                         })
                         .then(res => res.json())
                         .then(data => {
-                            alert(data.status === "success" ? "Subject added successfully!" : "Error: " + data.message);
+                            alert(data.status === "success" ? "User added successfully!" : "Error: " + data.message);
                             if (data.status === "success") {
-                                const modalElement = document.getElementById("addSubjectsModal");
+                                const modalElement = document.getElementById("addUsersModal");
                                 const modalInstance = bootstrap.Modal.getInstance(modalElement);
                                 if (modalInstance) modalInstance.hide();
                                 setTimeout(() => location.reload(), 250);
                             }
                         })
                         .catch(err => {
-                            console.error("Add subject error:", err);
-                            alert("An error occurred while adding a subject.");
+                            console.error("Add user error:", err);
+                            alert("An error occurred while adding a user.");
                         });
                     });
                 }
 
 
                 if (editForm) {
-                    editForm.addEventListener("submit", function (e) {
-                        e.preventDefault();
-                        const formData = new FormData(this);
+                    editForm.addEventListener("submit", function (event) {
+                        event.preventDefault();
+                        const formData = new FormData(this); // Get form data
 
-                        const editGradeLevelId = parseInt(formData.get('editGradeLevelId'), 10);
-                        console.log("Grade Level ID:", editGradeLevelId);
-
-                        // If NOT Senior High School (Grade 11 = 14, Grade 12 = 15), clear academic fields
-                        if (editGradeLevelId !== 14 && editGradeLevelId !== 15) {
-                            formData.set('editAcademicTrackId', '');
-                            formData.set('editAcademicSemesterId', '');
-                        }
-
-                        fetch("databases/edit_subject.php", {
+                        fetch("databases/edit_user.php", {
                             method: "POST",
-                            body: formData
+                            body: formData // Send form data to PHP file
                         })
-                        .then(res => res.json())
+                        .then(res => res.json())  // Assume the response is in JSON format
                         .then(data => {
-                            alert(data.status === "success" ? "Subject updated successfully!" : "Error: " + data.message);
+                            alert(data.status === "success" ? "User updated successfully!" : "Error: " + data.message);
                             if (data.status === "success") {
-                                const modalElement = document.getElementById("editSubjectModal");
+                                const modalElement = document.getElementById("editUsersModal");
                                 const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                                if (modalInstance) modalInstance.hide();
+                                if (modalInstance) modalInstance.hide();  // Close the modal on success
                                 setTimeout(() => location.reload(), 250); // Refresh to show changes
                             }
                         })
                         .catch(err => {
-                            console.error("Edit subject error:", err);
-                            alert("An error occurred while updating the subject.");
+                            console.error("Edit user error:", err);
+                            alert("An error occurred while updating the user.");
                         });
                     });
                 }
+
             }
 
-            // Populate the modal with subject data for editing
-            window.editSubject = (subjectId) => {
-            fetch(`databases/fetch_subjects.php?subject_id=${subjectId}`)
+            window.editUser = (userId) => {
+                fetch('databases/fetch_users_by_id.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `user_id=${encodeURIComponent(userId)}`
+                })
                 .then(res => res.json())
                 .then(data => {
                     if (data.error) throw new Error(data.error);
 
-                    document.getElementById("editSubjectId").value = data.subject_id;
-                    document.getElementById("editSubjectCode").value = data.subject_code;
-                    document.getElementById("editSubjectName").value = data.subject_name;
-                    //document.getElementById("editGradeLevelId").value = data.grade_level_id;
+                    // Clear existing options in the dropdown
+                    const userTypeSelect = document.getElementById("edit_user_type");
+                    userTypeSelect.innerHTML = "";  // Clear previous options
 
-                    console.log(data.grade_level_id);
-                    // Trigger the function to toggle fields based on the grade level
-                    toggleEditFields(data.grade_level_id);  
+                    // Populate User Type dropdown (same logic as before)
+                    const userTypes = [
+                        { value: "admin", label: "Admin" },
+                        { value: "sub-admin", label: "Sub-Admin" },
+                        { value: "cashier", label: "Cashier" }
+                    ];
 
-                    // Show the modal after all values are set
-                    new bootstrap.Modal(document.getElementById("editSubjectModal")).show();
+                    fetch("databases/check_admin_exists.php")
+                        .then(res => res.json())
+                        .then(checkData => {
+                            userTypes.forEach(type => {
+                                const option = document.createElement("option");
+                                option.value = type.value;
+                                option.textContent = type.label;
+
+                                // Disable admin if already exists
+                                if (type.value === "admin" && checkData.admin_exists) {
+                                    option.disabled = true;
+                                    option.textContent += " (already assigned)";
+                                }
+
+                                userTypeSelect.appendChild(option);
+                            });
+
+                            // Set the current user type in the dropdown
+                            userTypeSelect.value = data.user_type;  // Assuming 'user_type' holds the current value for the user
+                        })
+                        .catch(err => {
+                            console.error("Error checking admin:", err);
+                            // Fallback: populate options anyway
+                            userTypes.forEach(type => {
+                                const option = document.createElement("option");
+                                option.value = type.value;
+                                option.textContent = type.label;
+                                userTypeSelect.appendChild(option);
+                            });
+                        });
+
+                    // Populate other fields
+                    document.getElementById("edit_user_id").value = data.user_id;
+                    document.getElementById("edit_username").value = data.username;
+                    document.getElementById("edit_email").value = data.email;
+                    document.getElementById("edit_first_name").value = data.first_name;
+                    document.getElementById("edit_last_name").value = data.last_name;
+
+                    // Set the password fields to empty (because they are optional and for editing)
+                    document.getElementById("edit_password").value = "";
+
+                    // Show the modal
+                    new bootstrap.Modal(document.getElementById("editUsersModal")).show();
                 })
                 .catch(err => {
-                    console.error("Fetch subject error:", err);
-                    alert("An error occurred while fetching subject details.");
+                    console.error("Fetch user error:", err);
+                    alert("An error occurred while fetching user details.");
                 });
             };
+
 
             // Toggle fields for editing based on grade level
             function toggleEditFields(gradeLevelId) {
@@ -823,38 +793,11 @@ $adminLastName = $_SESSION['last_name'];
                 }
             }
 
-            window.deleteSubject = (subjectId) => {
-                document.getElementById("deleteSubjectId").value = subjectId;
+            window.deleteSubject = (userId) => {
+                document.getElementById("deleteSubjectId").value = userId;
                 new bootstrap.Modal(document.getElementById("deleteSubjectModal")).show();
             };
         });
-
-        // Advane Filter Method
-        document.getElementById("applyFiltersBtn").addEventListener("click", function() {
-            filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
-            $('#filterModal').modal('hide');  // Close the modal after applying filters
-        });
-
-        // Filter Method
-        function filterTable() {
-            let gradeApplying = document.getElementById("gradeApplyingFilter").value.toLowerCase();
-            let academicTrack = document.getElementById("academicTrackFilter").value.toLowerCase();
-            let academicSemester = document.getElementById("academicSemesterFilter").value.toLowerCase();
-            
-            console.log(gradeApplying, academicTrack, academicSemester);
-
-            document.querySelectorAll("tbody tr").forEach(row => {
-                let gradeMatch = gradeApplying === "" || row.cells[4].textContent.toLowerCase() === gradeApplying;
-                let trackMatch = academicTrack === "" || row.cells[5].textContent.toLowerCase() === academicTrack;
-                let semesterMatch = academicSemester === "" || row.cells[6].textContent.toLowerCase() === academicSemester;
-
-                if (gradeMatch && trackMatch && semesterMatch) {
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none";
-                }
-            });
-        }
 
     </script>
 
