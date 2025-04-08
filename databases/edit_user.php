@@ -10,7 +10,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $last_name = isset($_POST['last_name']) ? $_POST['last_name'] : '';
     $user_type = isset($_POST['user_type']) ? $_POST['user_type'] : '';
     $password = isset($_POST['password']) ? $_POST['password'] : '';
-    $password_repeat = isset($_POST['password_repeat']) ? $_POST['password_repeat'] : '';
 
     // Validate the data (basic validation)
     if (empty($user_id) || empty($username) || empty($email) || empty($first_name) || empty($last_name) || empty($user_type)) {
@@ -18,11 +17,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 
-    // Validate password if provided
-    if (!empty($password) && $password !== $password_repeat) {
-        echo json_encode(["status" => "error", "message" => "Passwords do not match."]);
-        exit;
-    }
 
     // If password is provided, hash it before saving to the database
     if (!empty($password)) {

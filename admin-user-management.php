@@ -405,6 +405,30 @@ $adminLastName = $_SESSION['last_name'];
                 </div>
 
 
+                <!-- Delete User Modal -->
+                <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form id="deleteUserForm" method="POST">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteUserModalLabel">Confirm Delete</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="hidden" name="user_id" id="delete_user_id">
+                                    <p>Are you sure you want to delete user: <strong id="delete_username_display"></strong>?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+
+
 
 
                 <!-- Subjects Table -->
@@ -554,23 +578,31 @@ $adminLastName = $_SESSION['last_name'];
                         } else {
                             data.forEach((user, index) => {
                                 const row = document.createElement("tr");
-                                row.innerHTML += `
+
+                                let actionButtons = "";
+                                if (user.user_type !== 'admin') {
+                                    actionButtons = `
+                                        <button class="btn btn-warning btn-sm" onclick="editUser(${user.user_id})">Edit</button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.user_id}, '${encodeURIComponent(user.username)}')">Delete</button>
+                                    `;
+                                }
+
+                                row.innerHTML = `
                                     <td>${index + 1}</td>
                                     <td>${user.username}</td>
                                     <td>${user.full_name}</td>
                                     <td>${user.email}</td>
                                     <td>${user.user_type}</td>
-                                    <td>
-                                        <button class="btn btn-warning btn-sm" onclick="editUser(${user.user_id})">Edit</button>
-                                        <button class="btn btn-danger btn-sm" onclick="deleteSubject(${user.user_id})">Delete</button>
-                                    </td>
+                                    <td>${actionButtons}</td>
                                 `;
+
                                 usersContainer.appendChild(row);
                             });
                         }
                     })
                     .catch(error => console.error("Error fetching subjects:", error));
             }
+
 
             // Populate User Type dropdown and checks if admin alrady exist
             function populateUserTypes() {
@@ -705,10 +737,11 @@ $adminLastName = $_SESSION['last_name'];
                                 option.textContent = type.label;
 
                                 // Disable admin if already exists
-                                if (type.value === "admin" && checkData.admin_exists) {
+                                if (type.value === "admin" && checkData.admin_exists && data.user_type !== "admin") {
                                     option.disabled = true;
                                     option.textContent += " (already assigned)";
                                 }
+
 
                                 userTypeSelect.appendChild(option);
                             });
@@ -747,56 +780,45 @@ $adminLastName = $_SESSION['last_name'];
             };
 
 
-            // Toggle fields for editing based on grade level
-            function toggleEditFields(gradeLevelId) {
-                const editSemesterField = document.getElementById("editSemesterField");
-                const editAcademicTrack = document.getElementById("editAcademicTrackId");
-                const editAcademicSemester = document.getElementById("editAcademicSemesterId");
-
-                if (gradeLevelId === "14" || gradeLevelId === "15") { // Senior High School (Grade 11 or 12)
-                    editSemesterField.style.display = "block";
-                    
-                    editAcademicTrack.value = editAcademicTrackId.value;
-                    editAcademicSemester.value = editAcademicSemesterId.value;
-                    
-                    editAcademicTrack.required = true;
-                    editAcademicSemester.required = true;
-                } else {
-                    editSemesterField.style.display = "none";
-                    editAcademicTrack.value = '';
-                    editAcademicSemester.value = '';
-                    editAcademicTrack.required = false;
-                    editAcademicSemester.required = false;
-                }
-            }
-
             // Delete handler
             function attachDeleteHandler() {
-                const deleteForm = document.getElementById("deleteSubjectForm");
+                const deleteForm = document.getElementById("deleteUserForm");
 
                 if (deleteForm) {
-                    deleteForm.addEventListener("submit", function (e) {
-                        e.preventDefault();
+                    deleteForm.addEventListener("submit", function (event) {
+                        event.preventDefault();
                         const formData = new FormData(this);
 
-                        fetch("databases/delete_subject.php", {
+                        fetch("databases/delete_user.php", {
                             method: "POST",
                             body: formData
                         })
                         .then(res => res.json())
                         .then(data => {
-                            alert(data.status === "success" ? "Subject deleted successfully!" : "Error: " + data.message);
-                            if (data.status === "success") location.reload();
+                            alert(data.status === "success" ? "User deleted successfully!" : "Error: " + data.message);
+                            if (data.status === "success") {
+                                const modalElement = document.getElementById("deleteUserModal");
+                                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                                if (modalInstance) modalInstance.hide();
+                                setTimeout(() => location.reload(), 250);
+                            }
                         })
-                        .catch(err => console.error("Delete subject error:", err));
+                        .catch(err => {
+                            console.error("Delete user error:", err);
+                            alert("An error occurred while deleting the user.");
+                        });
                     });
                 }
             }
 
-            window.deleteSubject = (userId) => {
-                document.getElementById("deleteSubjectId").value = userId;
-                new bootstrap.Modal(document.getElementById("deleteSubjectModal")).show();
+            // Define globally so it's accessible from buttons
+            window.deleteUser = (userId, username) => {
+                document.getElementById("delete_user_id").value = userId;
+                document.getElementById("delete_username_display").textContent = username;
+                new bootstrap.Modal(document.getElementById("deleteUserModal")).show();
             };
+
+
         });
 
     </script>
