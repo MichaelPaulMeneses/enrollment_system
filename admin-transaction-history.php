@@ -266,10 +266,25 @@ $adminLastName = $_SESSION['last_name'];
             <div class="col-md-9 col-lg-10 main-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="mb-0">Transactions History</h4>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
-                        <i class="fas fa-filter me-2"></i>Advanced Filters
-                    </button>
+                    
+                    <div class="ms-auto d-flex align-items-center">
+                        <!-- School Year Dropdown -->
+                        <div class="me-3">
+                            <select id="schoolYearSelect" class="form-select school-year-select">
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        
+                        <!-- Advanced Filters Button -->
+                        <div>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
+                                <i class="fas fa-filter me-2"></i>Advanced Filters
+                            </button>
+                        </div>
+                    </div>
                 </div>
+
+
                 
                 <!-- Search Bar -->
                 <div class="search-container d-flex justify-content-end">
@@ -294,7 +309,7 @@ $adminLastName = $_SESSION['last_name'];
                                 <th>Transaction by</th>
                             </tr>
                         </thead>
-                        <tbody id="transactionHistoryTable">
+                        <tbody id="transactionsContainer">
                             <!-- JavaScript will populate this section -->
 
                         </tbody>
@@ -362,9 +377,17 @@ $adminLastName = $_SESSION['last_name'];
     <!-- Advance Filter Method -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            
-            // Fetch enrollments for the table
-            fetchEnrollments();
+
+            const schoolYearSelect = document.getElementById("schoolYearSelect");
+            const transactionsContainer = document.getElementById("transactionsContainer");
+
+            // Fetch and populate the school years for the filter dropdown
+            fetchSchoolYears([schoolYearSelect]);
+
+            // Handle School Year Change
+            schoolYearSelect.addEventListener("change", () => {
+                fetchTransactionHistory(schoolYearSelect.value);  // Fetch transactions when school year is selected
+            });
 
             // Fetch school years for the filter dropdown
             fetchUserForTransactions();
@@ -396,43 +419,86 @@ $adminLastName = $_SESSION['last_name'];
             });
         });
 
-        // Fetch enrollments from the database
-        function fetchEnrollments() {
-            fetch("databases/fetch_transaction_history.php")
-                .then(response => response.json())
+
+        // Fetch school years for the dropdown
+        function fetchSchoolYears(selectElements) {
+            fetch("databases/school_years.php")
+                .then(res => res.json())
                 .then(data => {
-                    let transactionHistoryTable = document.querySelector("#transactionHistoryTable");
-                    transactionHistoryTable.innerHTML = ""; // Clear existing rows
+                    if (data.status !== "success") {
+                        throw new Error(data.message || "Failed to fetch school years");
+                    }
+
+                    selectElements.forEach(select => {
+                        if (select) select.innerHTML = ""; // Clear old options
+                    });
+
+                    data.schoolYears.forEach(year => {
+                        selectElements.forEach(select => {
+                            if (select) {
+                                const option = document.createElement("option");
+                                option.value = year.school_year_id;
+                                option.textContent = year.school_year;
+                                select.appendChild(option);
+                            }
+                        });
+                    });
+                    if (schoolYearSelect.value) {
+                        fetchTransactionHistory(schoolYearSelect.value);
+                        }
+                })
+                .catch(error => console.error("Error fetching school years:", error));
+        }
+
+        // Fetch and Display Transactions based on school year
+        function fetchTransactionHistory(schoolYearId) {
+            if (!schoolYearId) return;
+
+            const formData = new FormData();
+            formData.append('school_year_id', schoolYearId);
+
+            fetch('databases/fetch_transaction_history.php', {
+                method: 'POST',  // Using POST method
+                body: formData,  // Sending the data using FormData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    transactionsContainer.innerHTML = '';  // Clear existing data
 
                     if (data.length === 0) {
-                        transactionHistoryTable.innerHTML = `
+                        transactionsContainer.innerHTML = `
                             <tr>
                                 <td colspan="7" class="text-center py-5 empty-table-message">
                                     <i class="fas fa-inbox fa-3x mb-3"></i>
-                                    <p>No applications for review at this time</p>
+                                    <p>No transactions available for the selected school year.</p>
                                 </td>
                             </tr>
                         `;
                     } else {
-                        data.forEach((student, index) => {
+                        data.forEach((transaction, index) => {
                             let row = document.createElement("tr");
-                            row.classList.add("student-row");
-                            row.setAttribute("data-id", student.payment_id);
+                            row.classList.add("transaction-row");
+                            row.setAttribute("data-id", transaction.payment_id);
 
                             row.innerHTML += `
                                 <td>${index + 1}</td>
-                                <td>${student.student_name}</td>
-                                <td>${student.payment_amount}</td>
-                                <td>${student.payment_date}</td>
-                                <td>${student.facilitator_name}</td>
+                                <td>${transaction.student_name}</td>
+                                <td>${transaction.payment_amount}</td>
+                                <td>${transaction.payment_date}</td>
+                                <td>${transaction.facilitator_name}</td>
                             `;
-                            transactionHistoryTable.appendChild(row);
+                            transactionsContainer.appendChild(row);
                         });
-
                     }
                 })
-                .catch(error => console.error("Error fetching data:", error));
+                .catch(error => console.error("Error fetching transactions:", error));
         }
+
+
 
         // Fetch school years for the filter dropdown Modal
         function fetchUserForTransactions() {

@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 header("Location: admin-dashboard.php");
                 exit();
             } elseif ($user['user_type'] == 'sub-admin') {
-                header("Location: homepage.php");
+                header("Location: sub-admin-dashboard.php");
                 exit();
             } elseif ($user['user_type'] == 'cashier') {
                 header("Location: homepage.php");

@@ -440,7 +440,7 @@ $adminLastName = $_SESSION['last_name'];
                                 <th>Username</th>
                                 <th>User Fullname</th>
                                 <th>Email</th>
-                                <th>UserType</th>
+                                <th>User Type</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -461,46 +461,14 @@ $adminLastName = $_SESSION['last_name'];
                             </div>
                             <div class="modal-body">
 
-                                <!-- Grade Applying For Filter -->
+                                <!-- User Type Filter -->
                                 <div class="mb-3">
-                                    <label class="form-label">Grade Applying For</label>
-                                    <select id="gradeApplyingFilter" class="form-select">
-                                        <option value="">All Grade Levels</option>
-                                        <option value="Prekindergarten">Prekindergarten</option>
-                                        <option value="Kindergarten">Kindergarten</option>
-                                        <option value="Grade 1">Grade 1</option>
-                                        <option value="Grade 2">Grade 2</option>
-                                        <option value="Grade 3">Grade 3</option>
-                                        <option value="Grade 4">Grade 4</option>
-                                        <option value="Grade 5">Grade 5</option>
-                                        <option value="Grade 6">Grade 6</option>
-                                        <option value="Grade 7">Grade 7</option>
-                                        <option value="Grade 8">Grade 8</option>
-                                        <option value="Grade 9">Grade 9</option>
-                                        <option value="Grade 10">Grade 10</option>
-                                        <option value="Grade 11">Grade 11</option>
-                                        <option value="Grade 12">Grade 12</option>
-                                    </select>
-                                </div>
-
-                                <!-- Academic Track Filter -->
-                                <div class="mb-3">
-                                    <label class="form-label">Academic Track</label>
-                                    <select id="academicTrackFilter" class="form-select">
-                                        <option value="" >Select Academic Track</option>
-                                        <option value="STEM">STEM - Science, Technology, Engineering, and Mathematics</option>
-                                        <option value="ABM">ABM - Accountancy, Business, and Management</option>
-                                        <option value="HUMSS">HUMSS - Humanities and Social Sciences</option>
-                                    </select>
-                                </div>
-
-                                <!-- Academic Semester Filter -->
-                                <div class="mb-3">
-                                    <label class="form-label">Academic Semester</label>
-                                    <select id="academicSemesterFilter" class="form-select">
-                                        <option value="">Select Semester</option>
-                                        <option value="1">1st Semester</option>
-                                        <option value="2">2nd Semester</option>
+                                    <label class="form-label">User Type</label>
+                                    <select id="userFilter" class="form-select">
+                                        <option value="">Select User Type</option>
+                                        <option value="admin">Admin</option>
+                                        <option value="sub-admin">Sub-Admin</option>
+                                        <option value="cashier">Cashier</option>
                                     </select>
                                 </div>
                             </div>
@@ -519,6 +487,8 @@ $adminLastName = $_SESSION['last_name'];
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -817,6 +787,28 @@ $adminLastName = $_SESSION['last_name'];
                 document.getElementById("delete_username_display").textContent = username;
                 new bootstrap.Modal(document.getElementById("deleteUserModal")).show();
             };
+
+            // Apply Filters on Click
+            document.getElementById("applyFiltersBtn").addEventListener("click", function () {
+                filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
+                $('#filterModal').modal('hide');  // Close the modal after applying filters
+            });
+
+            function filterTable() {
+                let userFilter = document.getElementById("userFilter").value.toLowerCase();
+
+                document.querySelectorAll("tbody tr").forEach(row => {
+
+                    // User filter (assumed to be in column index 4)
+                    let userMatch = userFilter === "" || row.cells[4].textContent.toLowerCase() === userFilter;
+
+                    if (userMatch) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+            }
 
 
         });

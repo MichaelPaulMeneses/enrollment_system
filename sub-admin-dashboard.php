@@ -2,7 +2,7 @@
 session_start();
 
 // Redirect to login if the user is not authenticated
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'sub-admin') {
     header("Location: login.php");
     exit();
 }
@@ -17,7 +17,7 @@ $adminLastName = $_SESSION['last_name'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - SJBPS Dashboard</title>
+    <title>Sub-Admin - SJBPS Dashboard</title>
     <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -156,7 +156,7 @@ $adminLastName = $_SESSION['last_name'];
         document.addEventListener('DOMContentLoaded', function() {
             const adminFirstName = "<?php echo htmlspecialchars($adminFirstName); ?>";
             const adminLastName = "<?php echo htmlspecialchars($adminLastName); ?>";
-            const welcomeMessage = `WELCOME! Admin ${adminFirstName} ${adminLastName}`;
+            const welcomeMessage = `WELCOME! Sub-Admin ${adminFirstName} ${adminLastName}`;
             document.getElementById('adminWelcomeMessage').textContent = welcomeMessage;
         });
     </script>
@@ -185,7 +185,7 @@ $adminLastName = $_SESSION['last_name'];
         <div class="container-fluid">
             <div class="d-flex align-items-center">
                 <img id="navLogo" src="assets/homepage_images/logo/placeholder.png" alt="Profile" class="logo-image me-2">
-                <a class="navbar-brand" href="admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Admin</a>
+                <a class="navbar-brand" href="admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Sub-Admin</a>
             </div>
             <div class="ms-auto">
                 <ul class="navbar-nav">
@@ -228,79 +228,59 @@ $adminLastName = $_SESSION['last_name'];
             <div class="col-md-3 col-lg-2 d-md-block sidebar pt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link active" href="admin-dashboard.php">
+                        <a class="nav-link active" href="sub-admin-dashboard.php">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-application-for-review.php">
+                        <a class="nav-link" href="sub-admin-application-for-review.php">
                             <i class="fas fa-file-alt me-2"></i>Applications for Review
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-approved-application.php">
+                        <a class="nav-link" href="sub-admin-approved-application.php">
                             <i class="fas fa-check-circle me-2"></i>Approved Applications
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-declined-application.php">
+                        <a class="nav-link" href="sub-admin-declined-application.php">
                             <i class="fas fa-times-circle me-2"></i>Declined Applications
                         </a>
                     </li>
                     
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-interviews.php">
+                        <a class="nav-link" href="sub-admin-interviews.php">
                             <i class="fas fa-calendar-check me-2"></i>Interviews
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-declined-interviews.php">
+                        <a class="nav-link" href="sub-admin-declined-interviews.php">
                             <i class="fas fa-times-circle me-2"></i>Declined Interviews
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-payment-transaction.php">
-                            <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-transaction-history.php">
-                            <i class="fas fa-history me-2"></i>Transactions History
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-student-for-assignment.php">
+                        <a class="nav-link" href="sub-admin-student-for-assignment.php">
                             <i class="fas fa-tasks me-2"></i>For Assignment
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-all-enrollees.php">
+                        <a class="nav-link" href="sub-admin-all-enrollees.php">
                             <i class="fas fa-users me-2"></i>All Enrollees
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-grade-section.php">
+                        <a class="nav-link" href="sub-admin-grade-section.php">
                             <i class="fas fa-chalkboard-teacher me-2"></i>Grade-Section
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-curriculum.php">
+                        <a class="nav-link" href="sub-admin-curriculum.php">
                             <i class="fas fa-book-open me-2"></i>Curriculum
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-school-years.php">
-                        <i class="fas fa-graduation-cap me-2"></i>School Years
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-homepage-editor.php">
+                        <a class="nav-link" href="sub-admin-homepage-editor.php">
                             <i class="fas fa-edit me-2"></i>Home Page Editor
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-user-management.php">
-                            <i class="fas fa-user-cog me-2"></i>Users
                         </a>
                     </li>
                 </ul>
@@ -310,8 +290,8 @@ $adminLastName = $_SESSION['last_name'];
             <div class="col-md-9 col-lg-10 px-md-4 pt-3">
                 <div class="row">
                     <!-- First Row - 4 Cards -->
-                    <div class="col-md-6 col-lg-3 mb-4">
-                        <a href="admin-application-for-review.php" class="text-decoration-none">
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <a href="sub-admin-application-for-review.php" class="text-decoration-none">
                             <div class="card-container">
                                 <div class="card-title">Applications For Review</div>
                                 <div class="metric-card red">
@@ -322,8 +302,8 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </div>
 
-                    <div class="col-md-6 col-lg-3 mb-4">
-                        <a href="admin-interviews.php" class="text-decoration-none">
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <a href="sub-admin-interviews.php" class="text-decoration-none">
                             <div class="card-container">
                                 <div class="card-title">Enrollees For Interview</div>
                                 <div class="metric-card orange">
@@ -334,20 +314,19 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </div>
 
-                    <div class="col-md-6 col-lg-3 mb-4">
-                        <a href="admin-payment-transaction.php" class="text-decoration-none">
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <a class="text-decoration-none">
                             <div class="card-container">
                                 <div class="card-title">Applications For Payment</div>
                                 <div class="metric-card blue">
                                     <div class="metric-value" id="applicationPaymentCount">...</div>
-                                    <i class="fas fa-arrow-right"></i>
                                 </div>
                             </div>
                         </a>
                     </div>
 
-                    <div class="col-md-6 col-lg-3 mb-4">
-                        <a href="admin-interviews.php" class="text-decoration-none">
+                    <div class="col-md-6 col-lg-6 mb-4">
+                        <a href="sub-admin-interviews.php" class="text-decoration-none">
                             <div class="card-container">
                                 <div class="card-title">Applications For Assignment</div>
                                 <div class="metric-card navy">
@@ -359,8 +338,8 @@ $adminLastName = $_SESSION['last_name'];
                     </div>
 
                     <!-- Second Row - 4 Cards -->
-                    <div class="col-md-6 col-lg-3 mb-4">
-                        <a href="admin-all-enrollees.php" class="text-decoration-none">
+                    <div class="col-md-6 col-lg-6 mb-4">
+                        <a href="sub-admin-all-enrollees.php" class="text-decoration-none">
                             <div class="card-container">
                                 <div class="card-title">Total Enrollees</div>
                                 <div class="metric-card green">
@@ -371,32 +350,8 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </div>
 
-                    <div class="col-md-6 col-lg-3 mb-4">
-                        <a href="admin-transaction-history.php" class="text-decoration-none">
-                            <div class="card-container">
-                                <div class="card-title">Total Revenue</div>
-                                <div class="metric-card yellow">
-                                    <div class="metric-value" id="totalRevenueCount">...</div>
-                                    <i class="fas fa-arrow-right"></i>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-
-                    <div class="col-md-6 col-lg-3 mb-4">
-                        <a href="admin-user-management.php" class="text-decoration-none">
-                            <div class="card-container">
-                                <div class="card-title">Total Users</div>
-                                <div class="metric-card brown">
-                                    <div class="metric-value" id="totalUsersCount">...</div>
-                                    <i class="fas fa-arrow-right"></i>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-
-                    <div class="col-md-6 col-lg-3 mb-4">
-                        <a href="admin-school-years.php" class="text-decoration-none">
+                    <div class="col-md-6 col-lg-6 mb-4" style="display: none;">
+                        <a href="sub-admin-school-years.php" class="text-decoration-none">
                             <div class="card-container">
                                 <div class="card-title">Assign School Year</div>
                                 <div class="metric-card purple">
@@ -427,16 +382,6 @@ $adminLastName = $_SESSION['last_name'];
                         </div>
                     </div>
 
-                    <!-- Chart: Number of Applicants by Enrollment Status -->
-                    <div class="col-12 mt-4">
-                        <div class="chart-container">
-                            <h5 class="mb-3">Total Revenue per Grade Level</h5>
-                            <div style="position: relative; width: 100%; height: 300px;">
-                                <canvas id="revenueChart" style="width: 100%; height: 100%;"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
 
 
 
@@ -449,6 +394,7 @@ $adminLastName = $_SESSION['last_name'];
     <!-- Bootstrap JS and dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
 
     <!-- Dashbaord Cards -->
     <script>
@@ -567,49 +513,19 @@ $adminLastName = $_SESSION['last_name'];
                     console.error('Error fetching all enrollees count:', error);
                 });
             
-            // fetch total revenue for the active school year 
-            fetch('databases/fetch_total_revenue.php', {
-                    method: 'POST', // Use POST request
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded', // Set content type for POST
-                    },
-                    body: 'school_year_id=' + encodeURIComponent(activeSY.school_year_id) // Send the activeSY.id in the body
-                })
-                .then(response => response.text())
-                .then(data => {
-                    // Add the Philippine Peso symbol to the total revenue
-                    document.getElementById('totalRevenueCount').textContent = '₱' + data;
-                    console.log("Total Revenue:", data);
-                })
-                .catch(error => {
-                    console.error('Error fetching total revenue count:', error);
-                });
 
         });
-
-        // Count applications for total users
-        fetch('databases/count_total_users.php')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('totalUsersCount').textContent = data;
-                console.log("All Users:", data);
-            })
-            .catch(error => {
-                console.error('Error fetching total users count:', error);
-            });
-
     </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const ctx = document.getElementById('gradeLevelChart').getContext('2d');
             const ctxStatus = document.getElementById('enrollmentStatusChart').getContext('2d');
-            const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
-
 
             // Fetch the active school year ID first
             fetchActiveSchoolYear(function(activeSY) {
                 const schoolYearId = activeSY.school_year_id; // Get the school year ID
+                console.log("nandito", activeSY.school_year_id);
 
                 // Fetch the data for the chart, using POST and sending the school_year_id
                 fetch('databases/fetch_students_per_grade_level.php', {
@@ -745,85 +661,6 @@ $adminLastName = $_SESSION['last_name'];
                     });
                 })
                 .catch(error => console.error('Error fetching enrollment status data:', error));
-
-                
-
-
-                fetch('databases/fetch_revenue_per_grade_level.php', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: 'school_year_id=' + encodeURIComponent(activeSY.school_year_id)
-})
-.then(response => response.json())
-.then(data => {
-    // Define an array of colors, one for each grade level including Prekindergarten and Kindergarten
-    const gradeColors = [
-        'rgba(255, 87, 34, 0.7)', // Prekindergarten (Orange)
-        'rgba(255, 152, 0, 0.7)', // Kindergarten (Amber)
-        'rgba(46, 204, 113, 0.7)', // Green for Grade 1
-        'rgba(39, 174, 96, 0.7)',  // Dark Green for Grade 2
-        'rgba(52, 152, 219, 0.7)', // Blue for Grade 3
-        'rgba(231, 76, 60, 0.7)',  // Red for Grade 4
-        'rgba(155, 89, 182, 0.7)', // Purple for Grade 5
-        'rgba(241, 196, 15, 0.7)', // Yellow for Grade 6
-        'rgba(26, 188, 156, 0.7)', // Turquoise for Grade 7
-        'rgba(52, 152, 219, 0.7)', // Blue for Grade 8
-        'rgba(231, 76, 60, 0.7)',  // Red for Grade 9
-        'rgba(155, 89, 182, 0.7)', // Purple for Grade 10
-        'rgba(241, 196, 15, 0.7)', // Yellow for Grade 11
-        'rgba(26, 188, 156, 0.7)'  // Turquoise for Grade 12
-    ];
-
-    // Dynamically assign colors based on the number of grade levels
-    const colors = data.grades.map((grade, index) => gradeColors[index % gradeColors.length]);
-
-    const chartData = {
-        labels: data.grades, // Grade levels
-        datasets: [{
-            label: 'Total Revenue (₱)',
-            data: data.revenues, // Revenue data per grade level
-            backgroundColor: colors, // Dynamic background color per grade level
-            borderColor: colors.map(color => color.replace('0.7', '1')), // Darker border for each bar
-            borderWidth: 1
-        }]
-    };
-
-    const options = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'top',
-            },
-            title: {
-                display: true,
-                text: 'Total Revenue per Grade Level'
-            }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    callback: function(value) {
-                        return '₱' + value.toLocaleString(); // Format as currency
-                    },
-                    stepSize: 1000
-                }
-            }
-        }
-    };
-
-    new Chart(ctxRevenue, {
-        type: 'bar',
-        data: chartData,
-        options: options
-    });
-})
-.catch(error => console.error('Error fetching total revenue data:', error));
-
-
 
             });
         });
