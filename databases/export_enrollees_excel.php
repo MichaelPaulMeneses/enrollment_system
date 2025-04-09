@@ -24,52 +24,45 @@ $trackFilter = isset($_GET['track']) ? $_GET['track'] : '';
 $semesterFilter = isset($_GET['semester']) ? $_GET['semester'] : '';
 $schoolYearFilter = isset($_GET['school_year']) ? $_GET['school_year'] : '';
 
-// Based on your actual database schema
+// Base query
 $query = "SELECT 
-            a.assigned_id,
-            CONCAT(s.last_name, ', ', s.first_name, ' ', s.middle_name) AS student_name,
-            gl.grade_name,
+            s.first_name, 
+            s.last_name, 
+            s.middle_name,
+            g.grade_name,
             sec.section_name,
-            s.academic_track,
-            s.academic_semester,
+            e.academic_track,
+            e.academic_semester,
             sy.school_year,
-            s.enrollment_status
+            e.enrollment_status
           FROM 
-            assigned_students a
-            JOIN students s ON a.student_id = s.student_id
-            JOIN sections sec ON a.section_id = sec.section_id
-            JOIN grade_levels gl ON sec.grade_level_id = gl.grade_level_id
-            JOIN school_year sy ON sec.school_year_id = sy.school_year_id
-          WHERE 
-            s.enrollment_status = 'Fully Enrolled'";
+            student_grade_assignments e
+            JOIN students s ON e.student_id = s.student_id
+            JOIN grades g ON e.grade_id = g.grade_id
+            JOIN sections sec ON e.section_id = sec.section_id
+            JOIN school_years sy ON e.school_year_id = sy.id
+          WHERE 1=1";
 
 // Add filters if provided
 if (!empty($gradeFilter)) {
-    $query .= " AND gl.grade_name = '" . mysqli_real_escape_string($conn, $gradeFilter) . "'";
+    $query .= " AND g.grade_name = '$gradeFilter'";
 }
 if (!empty($sectionFilter)) {
-    $query .= " AND sec.section_name = '" . mysqli_real_escape_string($conn, $sectionFilter) . "'";
+    $query .= " AND sec.section_name = '$sectionFilter'";
 }
 if (!empty($trackFilter)) {
-    $query .= " AND s.academic_track = '" . mysqli_real_escape_string($conn, $trackFilter) . "'";
+    $query .= " AND e.academic_track = '$trackFilter'";
 }
 if (!empty($semesterFilter)) {
-    $query .= " AND s.academic_semester = '" . mysqli_real_escape_string($conn, $semesterFilter) . "'";
+    $query .= " AND e.academic_semester = '$semesterFilter'";
 }
 if (!empty($schoolYearFilter)) {
-    $query .= " AND sy.school_year = '" . mysqli_real_escape_string($conn, $schoolYearFilter) . "'";
+    $query .= " AND sy.school_year = '$schoolYearFilter'";
 }
 
-$query .= " ORDER BY gl.grade_level_id ASC, sec.section_name ASC, s.last_name ASC";
+$query .= " ORDER BY g.grade_id ASC, sec.section_name ASC, s.last_name ASC";
 
 $result = mysqli_query($conn, $query);
-
-if (!$result) {
-    // If there's an error with the query, log it and provide a useful message
-    error_log("Query Error: " . mysqli_error($conn));
-    echo "Error fetching data: " . mysqli_error($conn);
-    exit;
-}
 
 // Start the Excel file content
 echo '<!DOCTYPE html>';
@@ -114,11 +107,11 @@ echo '<div class="subheader">Enrollees Report - Generated on ' . date('F d, Y') 
 // Filter information
 echo '<table style="margin-bottom: 15px; width: 50%;">';
 echo '<tr><th colspan="2">Filter Criteria</th></tr>';
-echo '<tr><td>Grade Level</td><td>' . (!empty($gradeFilter) ? htmlspecialchars($gradeFilter) : 'All') . '</td></tr>';
-echo '<tr><td>Section</td><td>' . (!empty($sectionFilter) ? htmlspecialchars($sectionFilter) : 'All') . '</td></tr>';
-echo '<tr><td>Academic Track</td><td>' . (!empty($trackFilter) ? htmlspecialchars($trackFilter) : 'All') . '</td></tr>';
-echo '<tr><td>Academic Semester</td><td>' . (!empty($semesterFilter) ? htmlspecialchars($semesterFilter) : 'All') . '</td></tr>';
-echo '<tr><td>School Year</td><td>' . (!empty($schoolYearFilter) ? htmlspecialchars($schoolYearFilter) : 'All') . '</td></tr>';
+echo '<tr><td>Grade Level</td><td>' . (!empty($gradeFilter) ? $gradeFilter : 'All') . '</td></tr>';
+echo '<tr><td>Section</td><td>' . (!empty($sectionFilter) ? $sectionFilter : 'All') . '</td></tr>';
+echo '<tr><td>Academic Track</td><td>' . (!empty($trackFilter) ? $trackFilter : 'All') . '</td></tr>';
+echo '<tr><td>Academic Semester</td><td>' . (!empty($semesterFilter) ? $semesterFilter : 'All') . '</td></tr>';
+echo '<tr><td>School Year</td><td>' . (!empty($schoolYearFilter) ? $schoolYearFilter : 'All') . '</td></tr>';
 echo '</table>';
 
 // Start the main table
@@ -142,13 +135,13 @@ if (mysqli_num_rows($result) > 0) {
     while ($row = mysqli_fetch_assoc($result)) {
         echo '<tr>';
         echo '<td>' . $count . '</td>';
-        echo '<td>' . htmlspecialchars($row['student_name']) . '</td>';
-        echo '<td>' . htmlspecialchars($row['grade_name']) . '</td>';
-        echo '<td>' . htmlspecialchars($row['section_name']) . '</td>';
-        echo '<td>' . (isset($row['academic_track']) && $row['academic_track'] ? htmlspecialchars($row['academic_track']) : 'N/A') . '</td>';
-        echo '<td>' . (isset($row['academic_semester']) && $row['academic_semester'] ? htmlspecialchars($row['academic_semester']) : 'N/A') . '</td>';
-        echo '<td>' . htmlspecialchars($row['school_year']) . '</td>';
-        echo '<td>' . htmlspecialchars($row['enrollment_status']) . '</td>';
+        echo '<td>' . $row['last_name'] . ', ' . $row['first_name'] . ' ' . $row['middle_name'] . '</td>';
+        echo '<td>' . $row['grade_name'] . '</td>';
+        echo '<td>' . $row['section_name'] . '</td>';
+        echo '<td>' . ($row['academic_track'] ? $row['academic_track'] : 'N/A') . '</td>';
+        echo '<td>' . ($row['academic_semester'] ? $row['academic_semester'] : 'N/A') . '</td>';
+        echo '<td>' . $row['school_year'] . '</td>';
+        echo '<td>' . $row['enrollment_status'] . '</td>';
         echo '</tr>';
         $count++;
     }

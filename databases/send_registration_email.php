@@ -44,12 +44,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'], $_POST['surna
         // Email Content
         $mail->isHTML(true);
         $mail->Subject = 'Registration For Review';
-        $mail->Body    = "<p>Dear $salutation $surname,</p>
-                            <p>Thank you for your interest in enrolling at Saint John the Baptist Parochial School. We are pleased to inform you that we have received your application for the upcoming school year.</p>
-                            <p>To ensure a smooth enrollment process, please make sure to check your email regularly for updates and further instructions.</p>
-                            <p>Our admissions team will review your application and contact you within 5-7 business days regarding the next steps.</p>
-                            <p>If you have any immediate questions, please contact our Admissions Office at 
-                            <a href='mailto:registrar.sjbps@gmail.com'>registrar.sjbps@gmail.com</a> or call (02) 8296 5896 and 0920 122 5764.</p>";
+        $mail->Body = "<p>Dear $salutation $surname,</p>
+                        <p>Thank you for your interest in enrolling at Saint John the Baptist Parochial School. We are pleased to inform you that we have received your application for the upcoming school year.</p>
+                        <p>Our admissions team will review your application and contact you within 5-7 business days regarding the next steps.</p>
+                        <p>Please check your email regularly for updates and further instructions. If you do not see any updates in your inbox, kindly check your spam or junk folder.</p>
+                        <p>If you have any immediate questions, please contact our Admissions Office at 
+                        <a href='mailto:registrar.sjbps@gmail.com'>registrar.sjbps@gmail.com</a> or call (02) 8296 5896 and 0920 122 5764.</p>";
+
 
         // Send Email
         if ($mail->send()) {

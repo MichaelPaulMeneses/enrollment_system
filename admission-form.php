@@ -124,7 +124,8 @@
                         </svg>
                     </div>
                     <h5 class="mb-3">Your application has been successfully submitted!</h5>
-                    <p class="mb-3">We've sent a confirmation email to your registered address with a copy of your submission details. Our admissions team will review your application and contact you within 5-7 business days regarding the next steps.</p>
+                    <p class="mb-3">Thank you for applying to Saint John the Baptist Parochial School. We have received your application, and our admissions team will review it and contact you within 5-7 business days regarding the next steps.</p>
+                    <p class="mb-4">Please check your email regularly for updates. If you do not see our message in your inbox, kindly check your spam or junk folder.</p>
                     <p class="mb-4">If you have any immediate questions, please contact our Admissions Office at 
                         <a href="mailto:registrar.sjbps@gmail.com">registrar.sjbps@gmail.com</a> or (02) 8296 5896 and 0920 122 5764.
                     </p>
@@ -133,6 +134,7 @@
             </div>
         </div>
     </div>
+
 
 
     <div class="container-fluid py-5">
