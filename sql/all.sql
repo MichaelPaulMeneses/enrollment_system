@@ -1,3 +1,8 @@
+DROP DATABASE IF EXISTS enrollment_system;
+CREATE DATABASE enrollment_system;
+USE enrollment_system;
+
+
 DROP TABLE IF EXISTS assigned_students;
 DROP TABLE IF EXISTS payment_history;
 DROP TABLE IF EXISTS students;

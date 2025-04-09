@@ -2,7 +2,7 @@
 $host = "localhost"; // Change if using a remote database
 $username = "root"; // Default for XAMPP
 $password = ""; // Default is empty for XAMPP
-$database = "enrollment_database_test"; // Your database name
+$database = "enrollment_system"; // Your database name
 
 // Create a connection
 $conn = new mysqli($host, $username, $password, $database);
