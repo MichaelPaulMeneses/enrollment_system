@@ -266,10 +266,39 @@ $adminLastName = $_SESSION['last_name'];
             <div class="col-md-9 col-lg-10 main-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="mb-0">All Enrollees</h4>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
-                        <i class="fas fa-filter me-2"></i>Advanced Filters
-                    </button>
+                    <div>
+                        <button id="exportExcelBtn" class="btn btn-success me-2">
+                            <i class="fas fa-file-excel me-2"></i>Export to Excel
+                        </button>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
+                            <i class="fas fa-filter me-2"></i>Advanced Filters
+                        </button>
+                    </div>
                 </div>
+
+
+                <script>
+                    // Excel Export Functionality
+document.getElementById("exportExcelBtn").addEventListener("click", function () {
+    // Get filter values
+    const gradeFilter = document.getElementById("gradeApplyingFilter").value;
+    const sectionFilter = document.getElementById("sectionFilter").value;
+    const trackFilter = document.getElementById("academicTrack").value;
+    const semesterFilter = document.getElementById("academicSemester").value;
+    const schoolYearFilter = document.getElementById("schoolYearFilter").value;
+    
+    // Build the query string with current filters
+    let queryString = "databases/export_enrollees_excel.php?";
+    if (gradeFilter) queryString += `grade=${encodeURIComponent(gradeFilter)}&`;
+    if (sectionFilter) queryString += `section=${encodeURIComponent(sectionFilter)}&`;
+    if (trackFilter) queryString += `track=${encodeURIComponent(trackFilter)}&`;
+    if (semesterFilter) queryString += `semester=${encodeURIComponent(semesterFilter)}&`;
+    if (schoolYearFilter) queryString += `school_year=${encodeURIComponent(schoolYearFilter)}&`;
+    
+    // Redirect to the export script
+    window.location.href = queryString;
+});
+                </script>
                 
                 <!-- Search Bar -->
                 <div class="search-container d-flex justify-content-end">
@@ -550,5 +579,6 @@ $adminLastName = $_SESSION['last_name'];
 
 
     </script>
+    
 </body>
 </html>

@@ -2,12 +2,13 @@
 session_start();
 
 // Redirect to login if the user is not authenticated
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'cashier') {
     header("Location: login.php");
     exit();
 }
 
 // Retrieve admin details from session
+$userId = $_SESSION['user_id'];
 $adminFirstName = $_SESSION['first_name'];
 $adminLastName = $_SESSION['last_name'];
 ?>
@@ -17,7 +18,7 @@ $adminLastName = $_SESSION['last_name'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - SJBPS Declined Applications</title>
+    <title>Cashier - SJBPS Payment Transactions</title>
     <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -109,7 +110,7 @@ $adminLastName = $_SESSION['last_name'];
         document.addEventListener('DOMContentLoaded', function() {
             const adminFirstName = "<?php echo htmlspecialchars($adminFirstName); ?>";
             const adminLastName = "<?php echo htmlspecialchars($adminLastName); ?>";
-            const welcomeMessage = `WELCOME! Admin ${adminFirstName} ${adminLastName}`;
+            const welcomeMessage = `WELCOME! Cashier ${adminFirstName} ${adminLastName}`;
             document.getElementById('adminWelcomeMessage').textContent = welcomeMessage;
         });
     </script>
@@ -139,12 +140,12 @@ $adminLastName = $_SESSION['last_name'];
         <div class="container-fluid">
             <div class="d-flex align-items-center">
                 <img id="navLogo" src="assets/homepage_images/logo/placeholder.png" alt="Profile" class="logo-image me-2">
-                <a class="navbar-brand" href="admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Admin</a>
+                <a class="navbar-brand" href="cashier-dashboard.php" id="adminWelcomeMessage">WELCOME! Cashier</a>
             </div>
             <div class="ms-auto">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-dashboard.php"><i class="fas fa-home me-2"></i>Dashboard</a>
+                        <a class="nav-link" href="cashier-dashboard.php"><i class="fas fa-home me-2"></i>Dashboard</a>
                     </li>
                     <li class="nav-item">
                     <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
@@ -182,79 +183,18 @@ $adminLastName = $_SESSION['last_name'];
             <div class="col-md-3 col-lg-2 d-md-block sidebar pt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-dashboard.php">
+                        <a class="nav-link" href="cashier-dashboard.php">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-application-for-review.php">
-                            <i class="fas fa-file-alt me-2"></i>Applications for Review
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-approved-application.php">
-                            <i class="fas fa-check-circle me-2"></i>Approved Applications
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="admin-declined-application.php">
-                            <i class="fas fa-times-circle me-2"></i>Declined Applications
-                        </a>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-interviews.php">
-                            <i class="fas fa-calendar-check me-2"></i>Interviews
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-declined-interviews.php">
-                            <i class="fas fa-times-circle me-2"></i>Declined Interviews
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-payment-transaction.php">
+                        <a class="nav-link" href="cashier-payment-transaction.php">
                             <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-transaction-history.php">
+                        <a class="nav-link active" href="cashier-transaction-history.php">
                             <i class="fas fa-history me-2"></i>Transactions History
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-student-for-assignment.php">
-                            <i class="fas fa-tasks me-2"></i>For Assignment
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-all-enrollees.php">
-                            <i class="fas fa-users me-2"></i>All Enrollees
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-grade-section.php">
-                            <i class="fas fa-chalkboard-teacher me-2"></i>Grade-Section
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-curriculum.php">
-                            <i class="fas fa-book-open me-2"></i>Curriculum
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-school-years.php">
-                        <i class="fas fa-graduation-cap me-2"></i>School Years
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-homepage-editor.php">
-                            <i class="fas fa-edit me-2"></i>Home Page Editor
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-user-management.php">
-                            <i class="fas fa-user-cog me-2"></i>Users
                         </a>
                     </li>
                 </ul>
@@ -263,11 +203,26 @@ $adminLastName = $_SESSION['last_name'];
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="mb-0">Declined Applications</h4>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
-                        <i class="fas fa-filter me-2"></i>Advanced Filters
-                    </button>
+                    <h4 class="mb-0">Transactions History</h4>
+                    
+                    <div class="ms-auto d-flex align-items-center">
+                        <!-- School Year Dropdown -->
+                        <div class="me-3">
+                            <select id="schoolYearSelect" class="form-select school-year-select">
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        
+                        <!-- Advanced Filters Button -->
+                        <div>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
+                                <i class="fas fa-filter me-2"></i>Advanced Filters
+                            </button>
+                        </div>
+                    </div>
                 </div>
+
+
                 
                 <!-- Search Bar -->
                 <div class="search-container d-flex justify-content-end">
@@ -287,18 +242,18 @@ $adminLastName = $_SESSION['last_name'];
                             <tr>
                                 <th>ID</th>
                                 <th>Student Name</th>
-                                <th>Applying For</th>
-                                <th>School Year</th>
-                                <th>Enrollment Status</th>
+                                <th>Payment Amount</th>
+                                <th>Payment Date</th>
+                                <th>Transaction by</th>
                             </tr>
                         </thead>
-                        <tbody id="declinedApplicationsTable">
+                        <tbody id="transactionsContainer">
                             <!-- JavaScript will populate this section -->
 
                         </tbody>
                     </table>
                 </div>
-            </>
+            </div>
         </div>
     </div>
 
@@ -311,33 +266,34 @@ $adminLastName = $_SESSION['last_name'];
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    
-                    <!-- Grade Applying For Filter -->
+                    <!-- Amount Range Filter -->
                     <div class="mb-3">
-                        <label class="form-label">Grade Applying For</label>
-                        <select id="gradeApplyingFilter" class="form-select">
-                            <option value="">All Grade Levels</option>
-                            <option value="Prekindergarten">Prekindergarten</option>
-                            <option value="Kindergarten">Kindergarten</option>
-                            <option value="Grade 1">Grade 1</option>
-                            <option value="Grade 2">Grade 2</option>
-                            <option value="Grade 3">Grade 3</option>
-                            <option value="Grade 4">Grade 4</option>
-                            <option value="Grade 5">Grade 5</option>
-                            <option value="Grade 6">Grade 6</option>
-                            <option value="Grade 7">Grade 7</option>
-                            <option value="Grade 8">Grade 8</option>
-                            <option value="Grade 9">Grade 9</option>
-                            <option value="Grade 10">Grade 10</option>
-                            <option value="Grade 11">Grade 11</option>
-                            <option value="Grade 12">Grade 12</option>
+                        <label class="form-label">Amount Range</label>
+                        <div class="d-flex">
+                            <input type="number" id="minAmount" class="form-control me-2" placeholder="Min Amount">
+                            <input type="number" id="maxAmount" class="form-control" placeholder="Max Amount">
+                        </div>
+                    </div>
+
+
+                    <!-- Interview Date Range Filter -->
+                    <div class="mb-3">
+                        <label class="form-label">Interview Date Range</label>
+                        <select id="interviewDateRange" class="form-select">
+                            <option value="">Select Date Range</option>
+                            <option value="today">Today</option>
+                            <option value="1_week_ago">1 Week Ago</option>
+                            <option value="2_weeks_ago">2 Weeks Ago</option>
+                            <option value="1_month_ago">1 Month Ago</option>
+                            <option value="1_month_ago">3 Months Ago</option>
+                            <option value="6_months_ago"> 6 Months Ago</option>
                         </select>
                     </div>
-                    
+
                     <!-- School Year Filter -->
                     <div class="mb-3">
-                        <label class="form-label">School Year</label>
-                        <select id="schoolYearFilter" class="form-select">
+                        <label class="form-label">Facilitator</label>
+                        <select id="userFilter" class="form-select">
 
                         </select>
                     </div>
@@ -350,6 +306,8 @@ $adminLastName = $_SESSION['last_name'];
         </div>
     </div>
 
+
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -357,12 +315,23 @@ $adminLastName = $_SESSION['last_name'];
     <!-- Advance Filter Method -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Fetch enrollments when the page loads
-            fetchEnrollments();
+
+            const schoolYearSelect = document.getElementById("schoolYearSelect");
+            const transactionsContainer = document.getElementById("transactionsContainer");
+
+            // Fetch and populate the school years for the filter dropdown
+            fetchSchoolYears([schoolYearSelect]);
+
+            // Handle School Year Change
+            schoolYearSelect.addEventListener("change", () => {
+                fetchTransactionHistory(schoolYearSelect.value);  // Fetch transactions when school year is selected
+            });
+
             // Fetch school years for the filter dropdown
-            fetchSchoolYears();
+            fetchUserForTransactions();
             
-            // Search Functionality            
+            // Search Method
+            // Filter subjects based on search input
             const searchInput = document.getElementById("searchInput");
             const clearBtn = document.getElementById("clearBtn");
             const tableBody = document.querySelector("tbody");
@@ -380,7 +349,6 @@ $adminLastName = $_SESSION['last_name'];
                         row.style.display = "none";
                     }
                 });
-
             });
 
             clearBtn.addEventListener("click", function () {
@@ -389,100 +357,183 @@ $adminLastName = $_SESSION['last_name'];
             });
         });
 
-        // Fetch enrollments from the database
-        function fetchEnrollments() {
-            fetch("databases/fetch_declined_applications.php")
-                .then(response => response.json())
-                .then(data => {
-                    let declinedApplicationsTable = document.querySelector("#declinedApplicationsTable");
-                    declinedApplicationsTable.innerHTML = ""; // Clear existing rows
 
-                    if (data.length === 0) {
-                        declinedApplicationsTable.innerHTML = `
-                            <tr>
-                                <td colspan="6" class="text-center py-5 empty-table-message">
-                                    <i class="fas fa-inbox fa-3x mb-3"></i>
-                                    <p>No declined application at this time</p>
-                                </td>
-                            </tr>
-                        `;
-                    } else {
-                        data.forEach((student, index) => {
-                            let row = document.createElement("tr");
-                            row.classList.add("student-row");
-                            row.setAttribute("data-id", student.student_id);
-
-                            row.innerHTML += `
-                                <td>${index + 1}</td>
-                                <td>${student.student_name}</td>
-                                <td>${student.grade_applying_name}</td>
-                                <td>${student.school_year}</td>
-                                <td>${student.enrollment_status}</td>
-                            `;
-                            declinedApplicationsTable.appendChild(row);
-                        });
-                    }
-                })
-                .catch(error => console.error("Error fetching data:", error));
-        }
-
-        // Fetch school years for the filter dropdown Modal
-        function fetchSchoolYears() {
+        // Fetch school years for the dropdown
+        function fetchSchoolYears(selectElements) {
             fetch("databases/school_years.php")
-                .then(response => response.json())
+                .then(res => res.json())
                 .then(data => {
-                    if (data.status === "success") {
-                        const schoolYearDropdown = document.getElementById("schoolYearFilter");
-                        schoolYearDropdown.innerHTML = '<option value="">All School Years</option>';
-
-                        data.schoolYears.forEach(year => {
-                            const option = document.createElement("option");
-                            option.value = year.school_year; // Use the readable school_year for matching
-                            option.textContent = year.school_year;
-                            schoolYearDropdown.appendChild(option);
-                        });
-                    } else {
-                        console.error("Failed to fetch school years.");
+                    if (data.status !== "success") {
+                        throw new Error(data.message || "Failed to fetch school years");
                     }
+
+                    selectElements.forEach(select => {
+                        if (select) select.innerHTML = ""; // Clear old options
+                    });
+
+                    data.schoolYears.forEach(year => {
+                        selectElements.forEach(select => {
+                            if (select) {
+                                const option = document.createElement("option");
+                                option.value = year.school_year_id;
+                                option.textContent = year.school_year;
+                                select.appendChild(option);
+                            }
+                        });
+                    });
+                    if (schoolYearSelect.value) {
+                        fetchTransactionHistory(schoolYearSelect.value);
+                        }
                 })
                 .catch(error => console.error("Error fetching school years:", error));
         }
 
-        // Advane Filter Method
-        document.getElementById("applyFiltersBtn").addEventListener("click", function() {
+        // Fetch and Display Transactions based on school year
+        function fetchTransactionHistory(schoolYearId) {
+            if (!schoolYearId) return;
+
+            const formData = new FormData();
+            formData.append('school_year_id', schoolYearId);
+
+            fetch('databases/fetch_transaction_history.php', {
+                method: 'POST',  // Using POST method
+                body: formData,  // Sending the data using FormData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    transactionsContainer.innerHTML = '';  // Clear existing data
+
+                    if (data.length === 0) {
+                        transactionsContainer.innerHTML = `
+                            <tr>
+                                <td colspan="7" class="text-center py-5 empty-table-message">
+                                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                                    <p>No transactions available for the selected school year.</p>
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        data.forEach((transaction, index) => {
+                            let row = document.createElement("tr");
+                            row.classList.add("transaction-row");
+                            row.setAttribute("data-id", transaction.payment_id);
+
+                            row.innerHTML += `
+                                <td>${index + 1}</td>
+                                <td>${transaction.student_name}</td>
+                                <td>${transaction.payment_amount}</td>
+                                <td>${transaction.payment_date}</td>
+                                <td>${transaction.facilitator_name}</td>
+                            `;
+                            transactionsContainer.appendChild(row);
+                        });
+                    }
+                })
+                .catch(error => console.error("Error fetching transactions:", error));
+        }
+
+
+
+        // Fetch school years for the filter dropdown Modal
+        function fetchUserForTransactions() {
+            fetch("databases/users_for_transactions.php")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const userDropdown = document.getElementById("userFilter");
+                        userDropdown.innerHTML = '<option value="">All Users</option>';
+
+                        data.users.forEach(user => {
+                            const option = document.createElement("option");
+                            option.value = user.full_name;
+                            option.textContent = user.full_name;
+                            userDropdown.appendChild(option);
+                        });
+                    } else {
+                        console.error("Failed to fetch users.");
+                    }
+                })
+                .catch(error => console.error("Error fetching users:", error));
+        }
+
+        function getDateRange(range) {
+            const endDate = new Date();  // Today
+            const startDate = new Date(); // Will be modified
+
+            switch (range) {
+                case "today":
+                    // Start and end are the same day
+                    break;
+                case "1_week_ago":
+                    startDate.setDate(endDate.getDate() - 7);
+                    break;
+                case "2_weeks_ago":
+                    startDate.setDate(endDate.getDate() - 14);
+                    break;
+                case "1_month_ago":
+                    startDate.setMonth(endDate.getMonth() - 1);
+                    break;
+                case "3_months_ago":
+                    startDate.setMonth(endDate.getMonth() - 3);
+                    break;
+                case "6_months_ago":
+                    startDate.setMonth(endDate.getMonth() - 6);
+                    break;
+                default:
+                    return { startDate: null, endDate: null };
+            }
+
+            return { startDate, endDate };
+        }
+
+        // Apply Filters on Click
+        document.getElementById("applyFiltersBtn").addEventListener("click", function () {
             filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
             $('#filterModal').modal('hide');  // Close the modal after applying filters
         });
 
-        // Filter Method
         function filterTable() {
-            let gradeApplying = document.getElementById("gradeApplyingFilter").value.toLowerCase();
-            let schoolYear = document.getElementById("schoolYearFilter").value.toLowerCase();
+            let minAmount = parseFloat(document.getElementById('minAmount').value) || 0;
+            let maxAmount = parseFloat(document.getElementById('maxAmount').value) || Infinity;
+
+            let dateRange = document.getElementById("interviewDateRange").value;
+            let { startDate, endDate } = getDateRange(dateRange);
+
+            let userFilter = document.getElementById("userFilter").value.toLowerCase();
 
             document.querySelectorAll("tbody tr").forEach(row => {
-                let gradeMatch = gradeApplying === "" || row.cells[2].textContent.toLowerCase() === gradeApplying;
-                let yearMatch = schoolYear === "" || row.cells[3].textContent.toLowerCase() === schoolYear;
+                // Amount filter (assumed to be in column index 2)
+                let amountText = row.cells[2].textContent.replace(/[^0-9.-]+/g, ""); // remove currency symbols, commas, etc.
+                let amount = parseFloat(amountText) || 0;
 
-                if (gradeMatch && yearMatch) {
+                let amountMatch = amount >= minAmount && amount <= maxAmount;
+
+                // Interview date filter (assumed to be in column index 3)
+                let interviewDateText = row.cells[3].textContent.trim();
+                let interviewDate = new Date(interviewDateText);
+
+                let dateMatch = true;
+                if (startDate && endDate) {
+                    interviewDate.setHours(0, 0, 0, 0);
+                    startDate.setHours(0, 0, 0, 0);
+                    endDate.setHours(23, 59, 59, 999);
+                    dateMatch = interviewDate >= startDate && interviewDate <= endDate;
+                }
+
+                // User filter (assumed to be in column index 4)
+                let userMatch = userFilter === "" || row.cells[4].textContent.toLowerCase() === userFilter;
+
+                if (amountMatch && dateMatch && userMatch) {
                     row.style.display = "";
                 } else {
                     row.style.display = "none";
                 }
             });
         }
-        
-
-
-
-
-
-
-        
-
-
-        
-
-
 
 
     </script>

@@ -2,12 +2,13 @@
 session_start();
 
 // Redirect to login if the user is not authenticated
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'cashier') {
     header("Location: login.php");
     exit();
 }
 
 // Retrieve admin details from session
+$userId = $_SESSION['user_id'];
 $adminFirstName = $_SESSION['first_name'];
 $adminLastName = $_SESSION['last_name'];
 ?>
@@ -17,7 +18,7 @@ $adminLastName = $_SESSION['last_name'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - SJBPS Declined Applications</title>
+    <title>Cashier - SJBPS Payment Transactions</title>
     <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -104,12 +105,38 @@ $adminLastName = $_SESSION['last_name'];
         }
     </style>
 
+        <!-- For loadingSpinner -->
+        <style>
+        #loadingSpinner {
+            position: fixed;
+            top: 50%;
+            left: 100%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+    </style>
+
     <!-- Fetch the name of the User -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const adminFirstName = "<?php echo htmlspecialchars($adminFirstName); ?>";
             const adminLastName = "<?php echo htmlspecialchars($adminLastName); ?>";
-            const welcomeMessage = `WELCOME! Admin ${adminFirstName} ${adminLastName}`;
+            const welcomeMessage = `WELCOME! Cashier ${adminFirstName} ${adminLastName}`;
             document.getElementById('adminWelcomeMessage').textContent = welcomeMessage;
         });
     </script>
@@ -139,12 +166,12 @@ $adminLastName = $_SESSION['last_name'];
         <div class="container-fluid">
             <div class="d-flex align-items-center">
                 <img id="navLogo" src="assets/homepage_images/logo/placeholder.png" alt="Profile" class="logo-image me-2">
-                <a class="navbar-brand" href="admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Admin</a>
+                <a class="navbar-brand" href="cashier-dashboard.php" id="adminWelcomeMessage">WELCOME! Cashier</a>
             </div>
             <div class="ms-auto">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-dashboard.php"><i class="fas fa-home me-2"></i>Dashboard</a>
+                        <a class="nav-link" href="cashier-dashboard.php"><i class="fas fa-home me-2"></i>Dashboard</a>
                     </li>
                     <li class="nav-item">
                     <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
@@ -182,88 +209,33 @@ $adminLastName = $_SESSION['last_name'];
             <div class="col-md-3 col-lg-2 d-md-block sidebar pt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-dashboard.php">
+                        <a class="nav-link" href="cashier-dashboard.php">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-application-for-review.php">
-                            <i class="fas fa-file-alt me-2"></i>Applications for Review
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-approved-application.php">
-                            <i class="fas fa-check-circle me-2"></i>Approved Applications
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="admin-declined-application.php">
-                            <i class="fas fa-times-circle me-2"></i>Declined Applications
-                        </a>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-interviews.php">
-                            <i class="fas fa-calendar-check me-2"></i>Interviews
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-declined-interviews.php">
-                            <i class="fas fa-times-circle me-2"></i>Declined Interviews
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-payment-transaction.php">
+                        <a class="nav-link active" href="cashier-payment-transaction.php">
                             <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-transaction-history.php">
+                        <a class="nav-link" href="cashier-transaction-history.php">
                             <i class="fas fa-history me-2"></i>Transactions History
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-student-for-assignment.php">
-                            <i class="fas fa-tasks me-2"></i>For Assignment
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-all-enrollees.php">
-                            <i class="fas fa-users me-2"></i>All Enrollees
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-grade-section.php">
-                            <i class="fas fa-chalkboard-teacher me-2"></i>Grade-Section
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-curriculum.php">
-                            <i class="fas fa-book-open me-2"></i>Curriculum
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-school-years.php">
-                        <i class="fas fa-graduation-cap me-2"></i>School Years
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-homepage-editor.php">
-                            <i class="fas fa-edit me-2"></i>Home Page Editor
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-user-management.php">
-                            <i class="fas fa-user-cog me-2"></i>Users
-                        </a>
-                    </li>
                 </ul>
+            </div>
+
+            
+            <!-- Loading Spinner Area -->
+            <div id="loadingSpinner" style="display: none;">
+                <div class="spinner"></div> <!-- You can use CSS or an external library like Font Awesome for the spinner -->
             </div>
         
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="mb-0">Declined Applications</h4>
+                    <h4 class="mb-0">Payment Transactions</h4>
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
                         <i class="fas fa-filter me-2"></i>Advanced Filters
                     </button>
@@ -290,9 +262,10 @@ $adminLastName = $_SESSION['last_name'];
                                 <th>Applying For</th>
                                 <th>School Year</th>
                                 <th>Enrollment Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="declinedApplicationsTable">
+                        <tbody id="paymentTrasactionContent">
                             <!-- JavaScript will populate this section -->
 
                         </tbody>
@@ -311,7 +284,7 @@ $adminLastName = $_SESSION['last_name'];
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    
+
                     <!-- Grade Applying For Filter -->
                     <div class="mb-3">
                         <label class="form-label">Grade Applying For</label>
@@ -350,19 +323,207 @@ $adminLastName = $_SESSION['last_name'];
         </div>
     </div>
 
+    <!-- Create Transaction Modal -->
+    <div class="modal fade" id="createTransactionModal" tabindex="-1" aria-labelledby="createTransactionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="createTransactionForm" action="databases/create_transaction.php" method="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createTransactionModalLabel">Create Payment Transaction</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="transactionStudentId" name="student_id">
+                        
+                        <div class="mb-3">
+                            <label for="transactionStudentName" class="form-label">Student Name</label>
+                            <input type="text" id="transactionStudentName" class="form-control" name="student_name" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="transactionGradeApplying" class="form-label">Grade Applying For</label>
+                            <input type="text" id="transactionGradeApplying" class="form-control" name="grade_applying" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="transactionSchoolYear" class="form-label">School Year</label>
+                            <input type="text" id="transactionSchoolYear" class="form-control" name="school_year" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="transactionAmount" class="form-label">Amount</label>
+                            <input type="number" id="transactionAmount" class="form-control" name="amount" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="transactionRemarks" class="form-label">Remarks</label>
+                            <textarea id="transactionRemarks" class="form-control" name="remarks" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="finalConfirmBtn">Create Transaction</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchStudentInfo(studentId, userId) {
+
+            document.getElementById('transactionStudentId').value = '';
+            document.getElementById('transactionStudentName').value = '';
+            document.getElementById('transactionGradeApplying').value = '';
+            document.getElementById('transactionSchoolYear').value = '';
+            document.getElementById('transactionAmount').value = '';
+            document.getElementById('transactionRemarks').value = '';
+
+            console.log(studentId);
+            console.log(userId);
+
+            const response = await fetch("databases/fetch_student_data.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ student_id: studentId, user_id: userId })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                
+                if (data.error) {
+                    console.error("Error:", data.error);
+                    alert("Failed to fetch student info.");
+                    return;
+                }
+                
+                console.log(data.student_id);
+                console.log(data.student_name);
+                console.log(data.grade_applying);
+                console.log(data.school_year);
+
+                document.getElementById("transactionStudentId").value = data.student_id;
+                document.getElementById("transactionStudentName").value = data.student_name;
+                document.getElementById("transactionGradeApplying").value = data.grade_applying;
+                document.getElementById("transactionSchoolYear").value = data.school_year;
+
+                if (!document.getElementById("transactionUserId")) {
+                    const hiddenInput = document.createElement("input");
+                    hiddenInput.type = "hidden";
+                    hiddenInput.name = "user_id";
+                    hiddenInput.id = "transactionUserId";
+                    document.getElementById("createTransactionForm").appendChild(hiddenInput);
+                }
+                document.getElementById("transactionUserId").value = userId;
+
+                const modal = new bootstrap.Modal(document.getElementById('createTransactionModal'));
+                modal.show();
+            } else {
+                console.error("HTTP Error:", response.status);
+                alert("Failed to fetch student info.");
+            }
+        }
+
+        document.getElementById("createTransactionForm").addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            // Get the student and admin user data
+            const studentId = document.getElementById("transactionStudentId").value;
+            const adminUserId = document.getElementById("transactionUserId").value;
+            const amountPaid = document.getElementById("transactionAmount").value;
+            const statusRemarks = document.getElementById("transactionRemarks").value;
+
+            // Ensure both studentId and adminUserId are available
+            if (studentId && adminUserId) {
+
+                console.log("Student ID:", studentId);
+                console.log("Cashier User ID:", adminUserId);
+
+                document.getElementById("loadingSpinner").style.display = "block";
+                document.getElementById("finalConfirmBtn").disabled = true;
+
+                // Send the POST request to the PHP script
+                fetch("databases/approve_payment_email.php", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        student_id: studentId,
+                        admin_user_id: adminUserId,
+                        amount_paid: amountPaid,
+                        status_remarks: statusRemarks
+                    }),
+                    headers: { "Content-Type": "application/json" }
+                })
+                .then(response => response.json())  // Directly return the JSON response
+                .then(data => {
+                    if (data.success) {
+                        // Success case: Show message and redirect
+                        alert("Payment approved and email sent successfully!");
+                        setTimeout(function() {
+                            window.location.href = "cashier-payment-transaction.php";  // Redirect after success
+                        }, 250);
+                    } else {
+                        // Error case: Show error message from response
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    // Catch any fetch errors (network issues, etc.)
+                    console.error("Request failed", error);
+                    alert("An error occurred while processing the request.");
+                })
+                .finally(() => {
+                    document.getElementById("loadingSpinner").style.display = "none";
+                    document.getElementById("finalConfirmBtn").disabled = false;
+                });
+            } else {
+                // Missing studentId or adminUserId
+                console.error("Missing studentId or adminUserId.");
+                alert("Required data missing. Please ensure all fields are filled.");
+            }
+        });
+
+    </script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const createTransactionButtons = document.querySelectorAll(".btn-primary.btn-sm");
+            const createTransactionModal = new bootstrap.Modal(document.getElementById("createTransactionModal"));
+            const transactionStudentId = document.getElementById("transactionStudentId");
+            const transactionStudentName = document.getElementById("transactionStudentName");
+            const transactionGradeApplying = document.getElementById("transactionGradeApplying");
+            const transactionSchoolYear = document.getElementById("transactionSchoolYear");
+
+            createTransactionButtons.forEach(button => {
+                button.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    const row = this.closest("tr");
+                    transactionStudentId.value = row.getAttribute("data-id");
+                    transactionStudentName.value = row.children[1].textContent.trim();
+                    transactionGradeApplying.value = row.children[2].textContent.trim();
+                    transactionSchoolYear.value = row.children[3].textContent.trim();
+                    createTransactionModal.show();
+                });
+            });
+        });
+
+    </script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 
-    <!-- Advance Filter Method -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Fetch enrollments when the page loads
+            
+            // Fetch enrollments for the table
             fetchEnrollments();
+
             // Fetch school years for the filter dropdown
             fetchSchoolYears();
             
-            // Search Functionality            
+            // Search Method
+            // Filter subjects based on search input
             const searchInput = document.getElementById("searchInput");
             const clearBtn = document.getElementById("clearBtn");
             const tableBody = document.querySelector("tbody");
@@ -380,7 +541,6 @@ $adminLastName = $_SESSION['last_name'];
                         row.style.display = "none";
                     }
                 });
-
             });
 
             clearBtn.addEventListener("click", function () {
@@ -391,18 +551,18 @@ $adminLastName = $_SESSION['last_name'];
 
         // Fetch enrollments from the database
         function fetchEnrollments() {
-            fetch("databases/fetch_declined_applications.php")
+            fetch("databases/fetch_for_payment_applications.php")
                 .then(response => response.json())
                 .then(data => {
-                    let declinedApplicationsTable = document.querySelector("#declinedApplicationsTable");
-                    declinedApplicationsTable.innerHTML = ""; // Clear existing rows
+                    let paymentTrasactionContent = document.querySelector("#paymentTrasactionContent");
+                    paymentTrasactionContent.innerHTML = ""; // Clear existing rows
 
                     if (data.length === 0) {
-                        declinedApplicationsTable.innerHTML = `
+                        paymentTrasactionContent.innerHTML = `
                             <tr>
-                                <td colspan="6" class="text-center py-5 empty-table-message">
+                                <td colspan="7" class="text-center py-5 empty-table-message">
                                     <i class="fas fa-inbox fa-3x mb-3"></i>
-                                    <p>No declined application at this time</p>
+                                    <p>No applications for review at this time</p>
                                 </td>
                             </tr>
                         `;
@@ -418,9 +578,19 @@ $adminLastName = $_SESSION['last_name'];
                                 <td>${student.grade_applying_name}</td>
                                 <td>${student.school_year}</td>
                                 <td>${student.enrollment_status}</td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary btn-sm"
+                                        onclick="fetchStudentInfo(${student.student_id}, <?php echo $userId; ?>)">
+                                        Create Transaction
+                                    </button>
+
+                                </td>
                             `;
-                            declinedApplicationsTable.appendChild(row);
+                            paymentTrasactionContent.appendChild(row);
                         });
+
                     }
                 })
                 .catch(error => console.error("Error fetching data:", error));
@@ -470,19 +640,6 @@ $adminLastName = $_SESSION['last_name'];
                 }
             });
         }
-        
-
-
-
-
-
-
-        
-
-
-        
-
-
 
 
     </script>

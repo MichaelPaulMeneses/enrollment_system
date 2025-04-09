@@ -8,6 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
 }
 
 // Retrieve admin details from session
+$userId = $_SESSION['user_id'];
 $adminFirstName = $_SESSION['first_name'];
 $adminLastName = $_SESSION['last_name'];
 ?>
@@ -17,7 +18,7 @@ $adminLastName = $_SESSION['last_name'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - SJBPS Declined Applications</title>
+    <title>Admin - SJBPS All Enrollees</title>
     <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -197,7 +198,7 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="admin-declined-application.php">
+                        <a class="nav-link" href="admin-declined-application.php">
                             <i class="fas fa-times-circle me-2"></i>Declined Applications
                         </a>
                     </li>
@@ -222,13 +223,14 @@ $adminLastName = $_SESSION['last_name'];
                             <i class="fas fa-history me-2"></i>Transactions History
                         </a>
                     </li>
+                    
                     <li class="nav-item">
                         <a class="nav-link" href="admin-student-for-assignment.php">
                             <i class="fas fa-tasks me-2"></i>For Assignment
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-all-enrollees.php">
+                        <a class="nav-link active" href="admin-all-enrollees.php">
                             <i class="fas fa-users me-2"></i>All Enrollees
                         </a>
                     </li>
@@ -263,7 +265,7 @@ $adminLastName = $_SESSION['last_name'];
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="mb-0">Declined Applications</h4>
+                    <h4 class="mb-0">All Enrollees</h4>
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
                         <i class="fas fa-filter me-2"></i>Advanced Filters
                     </button>
@@ -287,18 +289,21 @@ $adminLastName = $_SESSION['last_name'];
                             <tr>
                                 <th>ID</th>
                                 <th>Student Name</th>
-                                <th>Applying For</th>
+                                <th>Grade Level</th>
+                                <th>Section</th>
+                                <th>Track</th>
+                                <th>Semester</th>
                                 <th>School Year</th>
-                                <th>Enrollment Status</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
-                        <tbody id="declinedApplicationsTable">
+                        <tbody id="allEnrolleesTable">
                             <!-- JavaScript will populate this section -->
 
                         </tbody>
                     </table>
                 </div>
-            </>
+            </div>
         </div>
     </div>
 
@@ -311,7 +316,7 @@ $adminLastName = $_SESSION['last_name'];
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    
+
                     <!-- Grade Applying For Filter -->
                     <div class="mb-3">
                         <label class="form-label">Grade Applying For</label>
@@ -333,6 +338,36 @@ $adminLastName = $_SESSION['last_name'];
                             <option value="Grade 12">Grade 12</option>
                         </select>
                     </div>
+
+                    <!-- Section Filter -->
+                    <div class="mb-3">
+                        <label class="form-label">Sections</label>
+                        <select id="sectionFilter" class="form-select">
+                            <option value="" disabled selected>Loading sections...</option>
+                        </select>
+                    </div>
+
+                    <!-- Academic Track Filter -->
+                    <div class="mb-3">
+                        <label class="form-label">Academic Track</label>
+                        <select id="academicTrack" class="form-select">
+                            <option value="" >Select Academic Track</option>
+                            <option value="STEM">STEM - Science, Technology, Engineering, and Mathematics</option>
+                            <option value="ABM">ABM - Accountancy, Business, and Management</option>
+                            <option value="HUMSS">HUMSS - Humanities and Social Sciences</option>
+                        </select>
+                    </div>
+
+                    <!-- Academic Semester Filter -->
+                    <div class="mb-3">
+                        <label class="form-label">Academic Semester</label>
+                        <select id="academicSemester" class="form-select">
+                            <option value="">Select Semester</option>
+                            <option value="1">1st Semester</option>
+                            <option value="2">2nd Semester</option>
+                        </select>
+                    </div>
+
                     
                     <!-- School Year Filter -->
                     <div class="mb-3">
@@ -350,6 +385,8 @@ $adminLastName = $_SESSION['last_name'];
         </div>
     </div>
 
+
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -357,12 +394,17 @@ $adminLastName = $_SESSION['last_name'];
     <!-- Advance Filter Method -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Fetch enrollments when the page loads
+            
+            // Fetch enrollments for the table
             fetchEnrollments();
+
             // Fetch school years for the filter dropdown
             fetchSchoolYears();
+
+            fetchSections();
             
-            // Search Functionality            
+            // Search Method
+            // Filter subjects based on search input
             const searchInput = document.getElementById("searchInput");
             const clearBtn = document.getElementById("clearBtn");
             const tableBody = document.querySelector("tbody");
@@ -380,7 +422,6 @@ $adminLastName = $_SESSION['last_name'];
                         row.style.display = "none";
                     }
                 });
-
             });
 
             clearBtn.addEventListener("click", function () {
@@ -391,36 +432,42 @@ $adminLastName = $_SESSION['last_name'];
 
         // Fetch enrollments from the database
         function fetchEnrollments() {
-            fetch("databases/fetch_declined_applications.php")
+            fetch("databases/fetch_enrolled_students.php")
                 .then(response => response.json())
                 .then(data => {
-                    let declinedApplicationsTable = document.querySelector("#declinedApplicationsTable");
-                    declinedApplicationsTable.innerHTML = ""; // Clear existing rows
+                    let allEnrolleesTable = document.querySelector("#allEnrolleesTable");
+                    allEnrolleesTable.innerHTML = ""; // Clear existing rows
 
                     if (data.length === 0) {
-                        declinedApplicationsTable.innerHTML = `
+                        allEnrolleesTable.innerHTML = `
                             <tr>
-                                <td colspan="6" class="text-center py-5 empty-table-message">
+                                <td colspan="7" class="text-center py-5 empty-table-message">
                                     <i class="fas fa-inbox fa-3x mb-3"></i>
-                                    <p>No declined application at this time</p>
+                                    <p>No applications for review at this time</p>
                                 </td>
                             </tr>
                         `;
                     } else {
-                        data.forEach((student, index) => {
+                        data.forEach((enrollees, index) => {
                             let row = document.createElement("tr");
-                            row.classList.add("student-row");
-                            row.setAttribute("data-id", student.student_id);
+                            row.classList.add("assign-row");
+                            row.setAttribute("data-id", enrollees.assigned_id);
+
+                            console.log(enrollees)
 
                             row.innerHTML += `
                                 <td>${index + 1}</td>
-                                <td>${student.student_name}</td>
-                                <td>${student.grade_applying_name}</td>
-                                <td>${student.school_year}</td>
-                                <td>${student.enrollment_status}</td>
+                                <td>${enrollees.student_name}</td>
+                                <td>${enrollees.grade_name}</td>
+                                <td>${enrollees.section_name}</td>
+                                <td>${enrollees.academic_track}</td>
+                                <td>${enrollees.academic_semester}</td>
+                                <td>${enrollees.school_year}</td>
+                                <td>${enrollees.enrollment_status}</td>
                             `;
-                            declinedApplicationsTable.appendChild(row);
+                            allEnrolleesTable.appendChild(row);
                         });
+
                     }
                 })
                 .catch(error => console.error("Error fetching data:", error));
@@ -448,6 +495,28 @@ $adminLastName = $_SESSION['last_name'];
                 .catch(error => console.error("Error fetching school years:", error));
         }
 
+
+        function fetchSections() {
+            fetch("databases/fetch_all_sections.php")
+                .then(response => response.json())
+                .then(data => {
+                    const sectionFilter = document.getElementById("sectionFilter");
+                    sectionFilter.innerHTML = '<option value="">Select Section</option>';
+                    if (data.status === "success") {
+                        data.sections.forEach(section => {
+                            const option = document.createElement("option");
+                            option.value = section.section_name;
+                            option.textContent = section.section_info;
+                            sectionFilter.appendChild(option);
+                        });
+                    } else {
+                        console.error("Error loading sections:", data.message);
+                    }
+                })
+                .catch(error => console.error("Fetch error:", error));
+        }
+
+
         // Advane Filter Method
         document.getElementById("applyFiltersBtn").addEventListener("click", function() {
             filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
@@ -457,32 +526,27 @@ $adminLastName = $_SESSION['last_name'];
         // Filter Method
         function filterTable() {
             let gradeApplying = document.getElementById("gradeApplyingFilter").value.toLowerCase();
+            let allSection = document.getElementById("sectionFilter").value.toLowerCase();
+            let academicTrack = document.getElementById("academicTrack").value.toLowerCase();
+            let academicSemester = document.getElementById("academicSemester").value.toLowerCase();
             let schoolYear = document.getElementById("schoolYearFilter").value.toLowerCase();
+            
+            console.log(allSection, academicTrack, academicSemester);
 
             document.querySelectorAll("tbody tr").forEach(row => {
                 let gradeMatch = gradeApplying === "" || row.cells[2].textContent.toLowerCase() === gradeApplying;
-                let yearMatch = schoolYear === "" || row.cells[3].textContent.toLowerCase() === schoolYear;
+                let sectionMatch = allSection === "" || row.cells[3].textContent.toLowerCase() === allSection;
+                let trackMatch = academicTrack === "" || row.cells[4].textContent.toLowerCase() === academicTrack;
+                let semesterMatch = academicSemester === "" || row.cells[5].textContent.toLowerCase() === academicSemester;
+                let yearMatch = schoolYear === "" || row.cells[6].textContent.toLowerCase() === schoolYear;
 
-                if (gradeMatch && yearMatch) {
+                if (gradeMatch && sectionMatch && trackMatch && semesterMatch && yearMatch) {
                     row.style.display = "";
                 } else {
                     row.style.display = "none";
                 }
             });
         }
-        
-
-
-
-
-
-
-        
-
-
-        
-
-
 
 
     </script>

@@ -185,12 +185,12 @@ $adminLastName = $_SESSION['last_name'];
         <div class="container-fluid">
             <div class="d-flex align-items-center">
                 <img id="navLogo" src="assets/homepage_images/logo/placeholder.png" alt="Profile" class="logo-image me-2">
-                <a class="navbar-brand" href="admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Sub-Admin</a>
+                <a class="navbar-brand" href="sub-admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Sub-Admin</a>
             </div>
             <div class="ms-auto">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-dashboard.php"><i class="fas fa-home me-2"></i>Dashboard</a>
+                        <a class="nav-link" href="sub-admin-dashboard.php"><i class="fas fa-home me-2"></i>Dashboard</a>
                     </li>
                     <li class="nav-item">
                     <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
@@ -325,7 +325,7 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </div>
 
-                    <div class="col-md-6 col-lg-6 mb-4">
+                    <div class="col-md-6 col-lg-4 mb-4">
                         <a href="sub-admin-interviews.php" class="text-decoration-none">
                             <div class="card-container">
                                 <div class="card-title">Applications For Assignment</div>
@@ -338,7 +338,7 @@ $adminLastName = $_SESSION['last_name'];
                     </div>
 
                     <!-- Second Row - 4 Cards -->
-                    <div class="col-md-6 col-lg-6 mb-4">
+                    <div class="col-md-6 col-lg-4 mb-4">
                         <a href="sub-admin-all-enrollees.php" class="text-decoration-none">
                             <div class="card-container">
                                 <div class="card-title">Total Enrollees</div>
@@ -350,13 +350,12 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </div>
 
-                    <div class="col-md-6 col-lg-6 mb-4" style="display: none;">
-                        <a href="sub-admin-school-years.php" class="text-decoration-none">
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <a class="text-decoration-none">
                             <div class="card-container">
-                                <div class="card-title">Assign School Year</div>
+                                <div class="card-title">Active School Year</div>
                                 <div class="metric-card purple">
                                     <div class="metric-value" id="activeSchoolYear">...</div>
-                                    <i class="fas fa-arrow-right"></i>
                                 </div>
                             </div>
                         </a>

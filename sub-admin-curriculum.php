@@ -2,7 +2,7 @@
 session_start();
 
 // Redirect to login if the user is not authenticated
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'sub-admin') {
     header("Location: login.php");
     exit();
 }
@@ -17,7 +17,7 @@ $adminLastName = $_SESSION['last_name'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - SJBPS School Years</title>
+    <title>Sub-Admin - SJBPS Curriculum</title>
     <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -116,7 +116,7 @@ $adminLastName = $_SESSION['last_name'];
         document.addEventListener('DOMContentLoaded', function() {
             const adminFirstName = "<?php echo htmlspecialchars($adminFirstName); ?>";
             const adminLastName = "<?php echo htmlspecialchars($adminLastName); ?>";
-            const welcomeMessage = `WELCOME! Admin ${adminFirstName} ${adminLastName}`;
+            const welcomeMessage = `WELCOME! Sub-Admin ${adminFirstName} ${adminLastName}`;
             document.getElementById('adminWelcomeMessage').textContent = welcomeMessage;
         });
     </script>
@@ -145,12 +145,12 @@ $adminLastName = $_SESSION['last_name'];
         <div class="container-fluid">
             <div class="d-flex align-items-center">
                 <img id="navLogo" src="assets/homepage_images/logo/placeholder.png" alt="Profile" class="logo-image me-2">
-                <a class="navbar-brand" href="admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Admin</a>
+                <a class="navbar-brand" href="sub-admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Sub-Admin</a>
             </div>
             <div class="ms-auto">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-dashboard.php"><i class="fas fa-home me-2"></i>Dashboard</a>
+                        <a class="nav-link" href="sub-admin-dashboard.php"><i class="fas fa-home me-2"></i>Dashboard</a>
                     </li>
                     <li class="nav-item">
                     <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
@@ -180,6 +180,7 @@ $adminLastName = $_SESSION['last_name'];
             </div>
         </div>
     </div>
+    
 
     <div class="container-fluid">
         <div class="row">
@@ -187,79 +188,59 @@ $adminLastName = $_SESSION['last_name'];
             <div class="col-md-3 col-lg-2 d-md-block sidebar pt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-dashboard.php">
+                        <a class="nav-link" href="sub-admin-dashboard.php">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-application-for-review.php">
+                        <a class="nav-link" href="sub-admin-application-for-review.php">
                             <i class="fas fa-file-alt me-2"></i>Applications for Review
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-approved-application.php">
+                        <a class="nav-link" href="sub-admin-approved-application.php">
                             <i class="fas fa-check-circle me-2"></i>Approved Applications
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-declined-application.php">
+                        <a class="nav-link" href="sub-admin-declined-application.php">
                             <i class="fas fa-times-circle me-2"></i>Declined Applications
                         </a>
                     </li>
                     
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-interviews.php">
+                        <a class="nav-link" href="sub-admin-interviews.php">
                             <i class="fas fa-calendar-check me-2"></i>Interviews
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-declined-interviews.php">
+                        <a class="nav-link" href="sub-admin-declined-interviews.php">
                             <i class="fas fa-times-circle me-2"></i>Declined Interviews
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-payment-transaction.php">
-                            <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-transaction-history.php">
-                            <i class="fas fa-history me-2"></i>Transactions History
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-student-for-assignment.php">
+                        <a class="nav-link" href="sub-admin-student-for-assignment.php">
                             <i class="fas fa-tasks me-2"></i>For Assignment
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-all-enrollees.php">
+                        <a class="nav-link" href="sub-admin-all-enrollees.php">
                             <i class="fas fa-users me-2"></i>All Enrollees
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-grade-section.php">
+                        <a class="nav-link" href="sub-admin-grade-section.php">
                             <i class="fas fa-chalkboard-teacher me-2"></i>Grade-Section
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-curriculum.php">
+                        <a class="nav-link active" href="sub-admin-curriculum.php">
                             <i class="fas fa-book-open me-2"></i>Curriculum
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="admin-school-years.php">
-                        <i class="fas fa-graduation-cap me-2"></i>School Years
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-homepage-editor.php">
+                        <a class="nav-link" href="sub-admin-homepage-editor.php">
                             <i class="fas fa-edit me-2"></i>Home Page Editor
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-user-management.php">
-                            <i class="fas fa-user-cog me-2"></i>Users
                         </a>
                     </li>
                 </ul>
@@ -269,7 +250,7 @@ $adminLastName = $_SESSION['last_name'];
             <div class="col-md-9 col-lg-10 main-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div class="d-flex align-items-center">
-                        <h4 class="mb-0">School Years</h4>
+                        <h4 class="mb-0">Curriculum</h4>
                     </div>
                     <div class="d-flex align-items-center">
                         <div class="ms-auto">
@@ -283,13 +264,13 @@ $adminLastName = $_SESSION['last_name'];
                     </div>
                 </div>
                 <div class="d-flex justify-content-end align-items-center mb-4 gap-3">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSchoolYearModal">
-                        Add School Year
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCurriculumModal">
+                        Add Curriculum
                     </button>
                     <!-- Search Bar -->
                     <div class="search-container">
                         <div class="input-group" style="max-width: 300px;">
-                            <input type="text" id="searchSchoolYear" class="form-control" placeholder="Search school years" aria-label="Search">
+                            <input type="text" id="searchCurriculum" class="form-control" placeholder="Search applications" aria-label="Search">
                             <button class="btn btn-outline-secondary" type="button" id="clearBtn">
                                 <i class="fas fa-times"></i>
                             </button>
@@ -297,40 +278,40 @@ $adminLastName = $_SESSION['last_name'];
                     </div>
                 </div>
 
-                <!-- School Year Table -->
+                <!-- Curriculum Table -->
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>School Year</th>
+                                <th>Curriculum Name</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="schoolYearContainer">
+                        <tbody id="curriculumContainer">
                             <!-- Data will be inserted here by JavaScript -->
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Add School Year Modal -->
-                <div class="modal fade" id="addSchoolYearModal" tabindex="-1" aria-labelledby="addSchoolYearModalLabel" aria-hidden="true">
+                <!-- Add Curriculum Modal -->
+                <div class="modal fade" id="addCurriculumModal" tabindex="-1" aria-labelledby="addCurriculumModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="addSchoolYearModalLabel">Add School Year</h5>
+                                <h5 class="modal-title" id="addCurriculumModalLabel">Add Curriculum</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <form id="addShoolYearForm">
+                                <form id="addSchoolYearForm">
                                     <div class="mb-3">
-                                        <label for="schoolYearName" class="form-label">School Year Name</label>
-                                        <input type="text" class="form-control" id="schoolYearName" name="schoolYearName" required>
+                                        <label for="curriculumName" class="form-label">Curriculum Name</label>
+                                        <input type="text" class="form-control" id="curriculumName" name="curriculumName" required>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="schoolYearIsActive" class="form-label">Is Active</label>
-                                        <select class="form-select" id="schoolYearIsActive" name="school_year_is_active" required>
+                                        <label for="curriculumIsActive" class="form-label">Is Active</label>
+                                        <select class="form-select" id="curriculumIsActive" name="curriculum_is_active" required>
                                         
                                         </select>
                                     </div>
@@ -344,24 +325,24 @@ $adminLastName = $_SESSION['last_name'];
                     </div>
                 </div>
 
-                <!-- Edit School Year Modal -->
-                <div class="modal fade" id="editSchoolYearModal" tabindex="-1" aria-labelledby="editSchoolYearModalLabel" aria-hidden="true">
+                <!-- Edit Curriculum Modal -->
+                <div class="modal fade" id="editCurriculumModal" tabindex="-1" aria-labelledby="editCurriculumModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="editSchoolYearModalLabel">Edit School Year</h5>
+                                <h5 class="modal-title" id="editCurriculumModalLabel">Edit Curriculum</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <form id="editSchoolYearForm">
-                                    <input type="hidden" id="editSchoolYearId" name="editSchoolYearId">
+                                <form id="editCurriculumForm">
+                                    <input type="hidden" id="editCurriculumId" name="editCurriculumId">
                                     <div class="mb-3">
-                                        <label for="editSchoolYearName" class="form-label">School Year Name</label>
-                                        <input type="text" class="form-control" id="editSchoolYearName" name="editSchoolYearName" required>
+                                        <label for="editCurriculumName" class="form-label">Curriculum Name</label>
+                                        <input type="text" class="form-control" id="editCurriculumName" name="editCurriculumName" required>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="editSchoolYearIsActive" class="form-label">Is Active</label>
-                                        <select class="form-select" id="editSchoolYearIsActive" name="editSchoolYearIsActive" required>
+                                        <label for="editCurriculumIsActive" class="form-label">Is Active</label>
+                                        <select class="form-select" id="editCurriculumIsActive" name="editCurriculumIsActive" required>
                                         
                                         </select>
                                     </div>
@@ -375,17 +356,17 @@ $adminLastName = $_SESSION['last_name'];
                     </div>
                 </div>
 
-                <!-- Delete School Year Modal -->
-                <div class="modal fade" id="deleteSchoolYearModal" tabindex="-1" aria-labelledby="deleteSchoolYearModalLabel" aria-hidden="true">
+                <!-- Delete Curriculum Modal -->
+                <div class="modal fade" id="deleteCurriculumModal" tabindex="-1" aria-labelledby="deleteCurriculumModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="deleteSchoolYearModalLabel">Delete School Year</h5>
+                                <h5 class="modal-title" id="deleteCurriculumModalLabel">Delete Curriculum</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <p>Are you sure you want to delete this school year?</p>
-                                <input type="hidden" id="deleteSchoolYearId">
+                                <p>Are you sure you want to delete this curriculum?</p>
+                                <input type="hidden" id="deleteCurriculumId">
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -403,8 +384,8 @@ $adminLastName = $_SESSION['last_name'];
     
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const schoolYearContainer = document.getElementById("schoolYearContainer");
-            const searchInput = document.getElementById("searchSchoolYear");
+            const curriculumContainer = document.getElementById("curriculumContainer");
+            const searchInput = document.getElementById("searchCurriculum");
             const clearBtn = document.getElementById("clearBtn");
 
             // Search Functionality
@@ -422,68 +403,72 @@ $adminLastName = $_SESSION['last_name'];
             });
 
             // INIT
-            fetchSchoolYears();
-            fetchSchoolYearStatus();
+            fetchCurriculums();
+            fetchCurriculumStatus();
             attachFormHandlers();
             attachDeleteHandler();
 
-            // Fetch and display school years
-            function fetchSchoolYears() {
-                fetch("databases/fetch_all_school_years.php")
+            // Fetch and display curriculums
+            function fetchCurriculums() {
+                fetch("databases/fetch_curriculums.php")
                     .then(res => res.json())
                     .then(data => {
-                        schoolYearContainer.innerHTML = "";
+                        curriculumContainer.innerHTML = "";
 
                         if (data.length === 0) {
-                            schoolYearContainer.innerHTML = `
+                            curriculumContainer.innerHTML = `
                                 <tr>
                                     <td colspan="8" class="text-center py-5 empty-table-message">
                                         <i class="fas fa-inbox fa-3x mb-3"></i>
-                                        <p>No school year found.</p>
+                                        <p>No curriculums found.</p>
                                     </td>
                                 </tr>
                             `;
                         } else {
-                            data.forEach((year, index) => {
+                            data.forEach((curriculum, index) => {
                                 const row = document.createElement("tr");
-                                row.classList.add("year-row");
-                                row.setAttribute("data-id", year.school_year_id);
+                                row.classList.add("curriculum-row");
+                                row.setAttribute("data-id", curriculum.curriculum_id);
 
                                 row.innerHTML = `
                                     <td>${index + 1}</td>
-                                    <td>${year.school_year}</td>
-                                    <td>${year.status}</td>
+                                    <td>${curriculum.curriculum_name}</td>
+                                    <td>${curriculum.status}</td>
                                     <td>
+                                        <form action="sub-admin-subjects.php" method="POST" style="display:inline;">
+                                            <input type="hidden" name="curriculum_id" value="${curriculum.curriculum_id}">
+                                            <button type="submit" class="btn btn-info btn-sm">Subjects</button>
+                                        </form>
                                         <button class="btn btn-warning btn-sm edit-btn"
-                                            data-id="${year.school_year_id}"
-                                            data-name="${year.school_year}"
-                                            data-status="${year.is_active}">
+                                            data-id="${curriculum.curriculum_id}"
+                                            data-name="${curriculum.curriculum_name}"
+                                            data-status="${curriculum.curriculum_is_active}">
                                             Edit
                                         </button>
-                                        <button class="btn btn-danger btn-sm" onclick="deleteSchoolYear(${year.school_year_id})">
+                                        <button class="btn btn-danger btn-sm" onclick="deleteCurriculum(${curriculum.curriculum_id})">
                                             Delete
                                         </button>
                                     </td>
                                 `;
-                                schoolYearContainer.appendChild(row);
+                                curriculumContainer.appendChild(row);
                             });
 
                             attachEditListeners();
                         }
                     })
-                    .catch(error => console.error("Error fetching school years:", error));
+                    .catch(error => console.error("Error fetching curriculums:", error));
             }
 
-            // Fetch school year status (whether there's already an active school year)
-            function fetchSchoolYearStatus() {
-                fetch('databases/check_active_school_year.php')
+            // Fetch curriculum status (whether there's already an active curriculum)
+            function fetchCurriculumStatus() {
+                fetch('databases/check_active_curriculum.php')
                     .then(response => response.json())
                     .then(data => {
-                        const select = document.getElementById('schoolYearIsActive');
-                        const editSelect = document.getElementById('editSchoolYearIsActive');
+                        const select = document.getElementById('curriculumIsActive');
+                        const editSelect = document.getElementById('editCurriculumIsActive');
                         const hasActive = data.hasActive;
 
-                        console.log("this is the:", editSchoolYearIsActive.value);
+                        console.log("this is the:", editCurriculumIsActive.value);
 
                         // Clear existing options
                         select.innerHTML = '';
@@ -512,8 +497,8 @@ $adminLastName = $_SESSION['last_name'];
                         editSelect.appendChild(clonedActiveOption);
                     })
                     .catch(error => {
-                        console.error('Error checking active school year:', error);
-                        const select = document.getElementById('schoolYearIsActive');
+                        console.error('Error checking active curriculum:', error);
+                        const select = document.getElementById('curriculumIsActive');
                     });
             }
 
@@ -522,15 +507,15 @@ $adminLastName = $_SESSION['last_name'];
                 document.querySelectorAll(".edit-btn").forEach(button => {
                     button.addEventListener("click", () => {
                         // Pre-fill the edit form fields
-                        const schoolYearId = button.dataset.id;
-                        const schoolYearName = button.dataset.name;
-                        const schoolYearStatus = button.dataset.status;
+                        const curriculumId = button.dataset.id;
+                        const curriculumName = button.dataset.name;
+                        const curriculumStatus = button.dataset.status;
 
-                        document.getElementById("editSchoolYearId").value = schoolYearId;
-                        document.getElementById("editSchoolYearName").value = schoolYearName;
-                        document.getElementById("editSchoolYearIsActive").value = schoolYearStatus;
+                        document.getElementById("editCurriculumId").value = curriculumId;
+                        document.getElementById("editCurriculumName").value = curriculumName;
+                        document.getElementById("editCurriculumIsActive").value = curriculumStatus;
 
-                        const editModal = new bootstrap.Modal(document.getElementById("editSchoolYearModal"));
+                        const editModal = new bootstrap.Modal(document.getElementById("editCurriculumModal"));
                         editModal.show();
                     });
                 });
@@ -539,63 +524,65 @@ $adminLastName = $_SESSION['last_name'];
 
             // Add & Edit form handlers
             function attachFormHandlers() {
-                document.getElementById("addShoolYearForm").addEventListener("submit", function (event) {
+                document.getElementById("addSchoolYearForm").addEventListener("submit", function (event) {
                     event.preventDefault();
                     const formData = new FormData(this);
 
-                    fetch("databases/insert_school_year.php", {
+                    console.log(formData);
+
+                    fetch("databases/insert_curriculum.php", {
                         method: "POST",
                         body: formData
                     })
                     .then(res => res.json())
                     .then(data => {
-                        alert(data.status === "success" ? "School year added successfully!" : "Error: " + data.message);
+                        alert(data.status === "success" ? "Curriculum added successfully!" : "Error: " + data.message);
                         if (data.status === "success") location.reload();
                     })
-                    .catch(err => console.error("Add school year error:", error));
+                    .catch(err => console.error("Add curriculum error:", error));
                 });
 
-                document.getElementById("editSchoolYearForm").addEventListener("submit", function (event) {
+                document.getElementById("editCurriculumForm").addEventListener("submit", function (event) {
                     event.preventDefault();
                     const formData = new FormData(this);
 
-                    fetch("databases/edit_school_year.php", {
+                    fetch("databases/edit_curriculum.php", {
                         method: "POST",
                         body: formData
                     })
                     .then(res => res.json())
                     .then(data => {
-                        alert(data.status === "success" ? "School Year updated successfully!" : "Error: " + data.message);
+                        alert(data.status === "success" ? "Curriculum updated successfully!" : "Error: " + data.message);
                         if (data.status === "success") location.reload();
                     })
-                    .catch(err => console.error("Edit school year error:", error));
+                    .catch(err => console.error("Edit curriculum error:", error));
                 });
             }
 
             // Delete handler
             function attachDeleteHandler() {
                 document.getElementById("confirmDeleteBtn").addEventListener("click", () => {
-                    const schoolYearId = document.getElementById("deleteSchoolYearId").value;
+                    const curriculumId = document.getElementById("deleteCurriculumId").value;
                     const formData = new FormData();
-                    formData.append("school_year_id", schoolYearId);
+                    formData.append("curriculum_id", curriculumId);
 
-                    fetch("databases/delete_school_year.php", {
+                    fetch("databases/delete_curriculum.php", {
                         method: "POST",
                         body: formData
                     })
                     .then(res => res.json())
                     .then(data => {
-                        alert(data.status === "success" ? "School Year deleted successfully!" : "Error: " + data.message);
+                        alert(data.status === "success" ? "Curriculum deleted successfully!" : "Error: " + data.message);
                         if (data.status === "success") location.reload();
                     })
-                    .catch(err => console.error("Delete school year error:", err));
+                    .catch(err => console.error("Delete curriculum error:", err));
                 });
             }
 
             // Open delete modal
-            window.deleteSchoolYear = (id) => {
-                document.getElementById("deleteSchoolYearId").value = id;
-                new bootstrap.Modal(document.getElementById("deleteSchoolYearModal")).show();
+            window.deleteCurriculum = (id) => {
+                document.getElementById("deleteCurriculumId").value = id;
+                new bootstrap.Modal(document.getElementById("deleteCurriculumModal")).show();
             };
         });
     </script>

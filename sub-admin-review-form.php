@@ -2,7 +2,7 @@
 session_start();
 
 // Redirect to login if the user is not authenticated
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'sub-admin') {
     header("Location: login.php");
     exit();
 }
@@ -93,7 +93,7 @@ $adminLastName = $_SESSION['last_name'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - SJBPS Review Admission Form</title>
+    <title>Sub-Admin - SJBPS Review Admission Form</title>
     <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -382,7 +382,7 @@ $adminLastName = $_SESSION['last_name'];
         document.addEventListener('DOMContentLoaded', function() {
             const adminFirstName = "<?php echo htmlspecialchars($adminFirstName); ?>";
             const adminLastName = "<?php echo htmlspecialchars($adminLastName); ?>";
-            const welcomeMessage = `WELCOME! Admin ${adminFirstName} ${adminLastName}`;
+            const welcomeMessage = `WELCOME! Sub-Admin ${adminFirstName} ${adminLastName}`;
             document.getElementById('adminWelcomeMessage').textContent = welcomeMessage;
             
             // Initialize Bootstrap tooltips
@@ -436,12 +436,12 @@ $adminLastName = $_SESSION['last_name'];
         <div class="container-fluid">
             <div class="d-flex align-items-center">
                 <img id="navLogo" src="assets/homepage_images/logo/placeholder.png" alt="Profile" class="logo-image me-2">
-                <a class="navbar-brand" href="admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Admin</a>
+                <a class="navbar-brand" href="sub-admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Sub-Admin</a>
             </div>
             <div class="ms-auto">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-dashboard.php"><i class="fas fa-home me-2"></i>Dashboard</a>
+                        <a class="nav-link" href="sub-admin-dashboard.php"><i class="fas fa-home me-2"></i>Dashboard</a>
                     </li>
                     <li class="nav-item">
                     <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
@@ -478,74 +478,59 @@ $adminLastName = $_SESSION['last_name'];
             <div class="col-md-3 col-lg-2 d-md-block sidebar pt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-dashboard.php">
+                        <a class="nav-link" href="sub-admin-dashboard.php">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="admin-application-for-review.php">
+                        <a class="nav-link active" href="sub-admin-application-for-review.php">
                             <i class="fas fa-file-alt me-2"></i>Applications for Review
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-approved-application.php">
+                        <a class="nav-link" href="sub-admin-approved-application.php">
                             <i class="fas fa-check-circle me-2"></i>Approved Applications
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-declined-application.php">
+                        <a class="nav-link" href="sub-admin-declined-application.php">
                             <i class="fas fa-times-circle me-2"></i>Declined Applications
                         </a>
                     </li>
                     
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-interviews.php">
+                        <a class="nav-link" href="sub-admin-interviews.php">
                             <i class="fas fa-calendar-check me-2"></i>Interviews
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-declined-interviews.php">
+                        <a class="nav-link" href="sub-admin-declined-interviews.php">
                             <i class="fas fa-times-circle me-2"></i>Declined Interviews
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-payment-transaction.php">
-                            <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-transaction-history.php">
-                            <i class="fas fa-history me-2"></i>Transactions History
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-student-for-assignment.php">
+                        <a class="nav-link" href="sub-admin-student-for-assignment.php">
                             <i class="fas fa-tasks me-2"></i>For Assignment
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-all-enrollees.php">
+                        <a class="nav-link" href="sub-admin-all-enrollees.php">
                             <i class="fas fa-users me-2"></i>All Enrollees
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-grade-section.php">
+                        <a class="nav-link" href="sub-admin-grade-section.php">
                             <i class="fas fa-chalkboard-teacher me-2"></i>Grade-Section
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-curriculum.php">
+                        <a class="nav-link" href="sub-admin-curriculum.php">
                             <i class="fas fa-book-open me-2"></i>Curriculum
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-homepage-editor.php">
+                        <a class="nav-link" href="sub-admin-homepage-editor.php">
                             <i class="fas fa-edit me-2"></i>Home Page Editor
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-user-management.php">
-                            <i class="fas fa-user-cog me-2"></i>Users
                         </a>
                     </li>
                 </ul>
@@ -1038,7 +1023,7 @@ $adminLastName = $_SESSION['last_name'];
                             // Success case: Show message and redirect
                             alert("Enrollment approved and email sent successfully!");
                             setTimeout(function() {
-                                window.location.href = "admin-application-for-review.php";  // Redirect after success
+                                window.location.href = "sub-admin-application-for-review.php";  // Redirect after success
                             }, 250);
                         } else {
                             // Error case: Show error message from response
@@ -1091,7 +1076,7 @@ $adminLastName = $_SESSION['last_name'];
                         alert(data.message); // Display success message
                         
                         setTimeout(function() {
-                            window.location.href = "admin-application-for-review.php";  // Redirect after success
+                            window.location.href = "sub-admin-application-for-review.php";  // Redirect after success
                         }, 250);
                         
                     } else {

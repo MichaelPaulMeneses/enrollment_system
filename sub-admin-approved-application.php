@@ -2,7 +2,7 @@
 session_start();
 
 // Redirect to login if the user is not authenticated
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'sub-admin') {
     header("Location: login.php");
     exit();
 }
@@ -17,7 +17,7 @@ $adminLastName = $_SESSION['last_name'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - SJBPS Declined Applications</title>
+    <title>Sub-Admin - SJBPS Approved Applications</title>
     <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -109,7 +109,7 @@ $adminLastName = $_SESSION['last_name'];
         document.addEventListener('DOMContentLoaded', function() {
             const adminFirstName = "<?php echo htmlspecialchars($adminFirstName); ?>";
             const adminLastName = "<?php echo htmlspecialchars($adminLastName); ?>";
-            const welcomeMessage = `WELCOME! Admin ${adminFirstName} ${adminLastName}`;
+            const welcomeMessage = `WELCOME! Sub-Admin ${adminFirstName} ${adminLastName}`;
             document.getElementById('adminWelcomeMessage').textContent = welcomeMessage;
         });
     </script>
@@ -139,12 +139,12 @@ $adminLastName = $_SESSION['last_name'];
         <div class="container-fluid">
             <div class="d-flex align-items-center">
                 <img id="navLogo" src="assets/homepage_images/logo/placeholder.png" alt="Profile" class="logo-image me-2">
-                <a class="navbar-brand" href="admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Admin</a>
+                <a class="navbar-brand" href="sub-admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Sub-Admin</a>
             </div>
             <div class="ms-auto">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-dashboard.php"><i class="fas fa-home me-2"></i>Dashboard</a>
+                        <a class="nav-link" href="sub-admin-dashboard.php"><i class="fas fa-home me-2"></i>Dashboard</a>
                     </li>
                     <li class="nav-item">
                     <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
@@ -182,79 +182,59 @@ $adminLastName = $_SESSION['last_name'];
             <div class="col-md-3 col-lg-2 d-md-block sidebar pt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-dashboard.php">
+                        <a class="nav-link" href="sub-admin-dashboard.php">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-application-for-review.php">
+                        <a class="nav-link" href="sub-admin-application-for-review.php">
                             <i class="fas fa-file-alt me-2"></i>Applications for Review
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-approved-application.php">
+                        <a class="nav-link active" href="sub-admin-approved-application.php">
                             <i class="fas fa-check-circle me-2"></i>Approved Applications
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="admin-declined-application.php">
+                        <a class="nav-link" href="sub-admin-declined-application.php">
                             <i class="fas fa-times-circle me-2"></i>Declined Applications
                         </a>
                     </li>
                     
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-interviews.php">
+                        <a class="nav-link" href="sub-admin-interviews.php">
                             <i class="fas fa-calendar-check me-2"></i>Interviews
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-declined-interviews.php">
+                        <a class="nav-link" href="sub-admin-declined-interviews.php">
                             <i class="fas fa-times-circle me-2"></i>Declined Interviews
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-payment-transaction.php">
-                            <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-transaction-history.php">
-                            <i class="fas fa-history me-2"></i>Transactions History
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-student-for-assignment.php">
+                        <a class="nav-link" href="sub-admin-student-for-assignment.php">
                             <i class="fas fa-tasks me-2"></i>For Assignment
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-all-enrollees.php">
+                        <a class="nav-link" href="sub-admin-all-enrollees.php">
                             <i class="fas fa-users me-2"></i>All Enrollees
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-grade-section.php">
+                        <a class="nav-link" href="sub-admin-grade-section.php">
                             <i class="fas fa-chalkboard-teacher me-2"></i>Grade-Section
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-curriculum.php">
+                        <a class="nav-link" href="sub-admin-curriculum.php">
                             <i class="fas fa-book-open me-2"></i>Curriculum
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-school-years.php">
-                        <i class="fas fa-graduation-cap me-2"></i>School Years
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-homepage-editor.php">
+                        <a class="nav-link" href="sub-admin-homepage-editor.php">
                             <i class="fas fa-edit me-2"></i>Home Page Editor
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-user-management.php">
-                            <i class="fas fa-user-cog me-2"></i>Users
                         </a>
                     </li>
                 </ul>
@@ -263,7 +243,7 @@ $adminLastName = $_SESSION['last_name'];
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="mb-0">Declined Applications</h4>
+                    <h4 class="mb-0">Approved Applications</h4>
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
                         <i class="fas fa-filter me-2"></i>Advanced Filters
                     </button>
@@ -272,7 +252,7 @@ $adminLastName = $_SESSION['last_name'];
                 <!-- Search Bar -->
                 <div class="search-container d-flex justify-content-end">
                     <div class="input-group" style="max-width: 300px;">
-                        <input type="text" id="searchInput" class="form-control" placeholder="Search applications" aria-label="Search">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search approved applications" aria-label="Search">
                         <button class="btn btn-outline-secondary" type="button" id="clearBtn">
                             <i class="fas fa-times"></i>
                         </button>
@@ -292,8 +272,8 @@ $adminLastName = $_SESSION['last_name'];
                                 <th>Enrollment Status</th>
                             </tr>
                         </thead>
-                        <tbody id="declinedApplicationsTable">
-                            <!-- JavaScript will populate this section -->
+                        <tbody id="approvedApplicationsTable">
+                            <!-- Data will be inserted here by JavaScript -->
 
                         </tbody>
                     </table>
@@ -311,7 +291,6 @@ $adminLastName = $_SESSION['last_name'];
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    
                     <!-- Grade Applying For Filter -->
                     <div class="mb-3">
                         <label class="form-label">Grade Applying For</label>
@@ -341,6 +320,16 @@ $adminLastName = $_SESSION['last_name'];
 
                         </select>
                     </div>
+
+                    <!-- Enrollment Status Filter -->
+                    <div class="mb-3">
+                        <label class="form-label">Enrollment Status</label>
+                        <select id="enrollmentStatusFilter" class="form-select">
+                            <option value="">All Statuses</option>
+                            <option value="For Interview">For Interview</option>
+                            <option value="For Payment">For Payment</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -349,16 +338,17 @@ $adminLastName = $_SESSION['last_name'];
             </div>
         </div>
     </div>
-
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-
-    <!-- Advance Filter Method -->
+    <!-- Fetch the logo from the database and display it in the navbar -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Fetch enrollments when the page loads
+
+            // Fetch enrollments from the database
             fetchEnrollments();
+
             // Fetch school years for the filter dropdown
             fetchSchoolYears();
             
@@ -387,22 +377,23 @@ $adminLastName = $_SESSION['last_name'];
                 searchInput.value = "";
                 document.querySelectorAll("tbody tr").forEach(row => row.style.display = "");
             });
+
         });
 
-        // Fetch enrollments from the database
+       // Fetch enrollments from the database
         function fetchEnrollments() {
-            fetch("databases/fetch_declined_applications.php")
+            fetch("databases/fetch_approved_applications.php")
                 .then(response => response.json())
                 .then(data => {
-                    let declinedApplicationsTable = document.querySelector("#declinedApplicationsTable");
-                    declinedApplicationsTable.innerHTML = ""; // Clear existing rows
+                    let approvedApplicationsTable = document.querySelector("#approvedApplicationsTable");
+                    approvedApplicationsTable.innerHTML = '';
 
                     if (data.length === 0) {
-                        declinedApplicationsTable.innerHTML = `
+                        approvedApplicationsTable.innerHTML = `
                             <tr>
-                                <td colspan="6" class="text-center py-5 empty-table-message">
+                                <td colspan="7" class="text-center py-5 empty-table-message">
                                     <i class="fas fa-inbox fa-3x mb-3"></i>
-                                    <p>No declined application at this time</p>
+                                    <p>No applications for review at this time</p>
                                 </td>
                             </tr>
                         `;
@@ -413,18 +404,21 @@ $adminLastName = $_SESSION['last_name'];
                             row.setAttribute("data-id", student.student_id);
 
                             row.innerHTML += `
-                                <td>${index + 1}</td>
-                                <td>${student.student_name}</td>
-                                <td>${student.grade_applying_name}</td>
-                                <td>${student.school_year}</td>
-                                <td>${student.enrollment_status}</td>
+                                <tr class="student-row" data-id="${student.student_id}">
+                                    <td>${index + 1}</td>
+                                    <td>${student.student_name}</td>
+                                    <td>${student.grade_applying_name}</td>
+                                    <td>${student.school_year}</td>
+                                    <td>${student.enrollment_status}</td>
+                                </tr>
                             `;
-                            declinedApplicationsTable.appendChild(row);
+                            approvedApplicationsTable.appendChild(row);
                         });
                     }
                 })
                 .catch(error => console.error("Error fetching data:", error));
         }
+
 
         // Fetch school years for the filter dropdown Modal
         function fetchSchoolYears() {
@@ -458,32 +452,20 @@ $adminLastName = $_SESSION['last_name'];
         function filterTable() {
             let gradeApplying = document.getElementById("gradeApplyingFilter").value.toLowerCase();
             let schoolYear = document.getElementById("schoolYearFilter").value.toLowerCase();
+            let enrollmentStatus = document.getElementById("enrollmentStatusFilter").value.toLowerCase();
 
             document.querySelectorAll("tbody tr").forEach(row => {
                 let gradeMatch = gradeApplying === "" || row.cells[2].textContent.toLowerCase() === gradeApplying;
                 let yearMatch = schoolYear === "" || row.cells[3].textContent.toLowerCase() === schoolYear;
+                let statusMatch = enrollmentStatus === "" || row.cells[4].textContent.toLowerCase() === enrollmentStatus;
 
-                if (gradeMatch && yearMatch) {
+                if (gradeMatch && yearMatch && statusMatch) {
                     row.style.display = "";
                 } else {
                     row.style.display = "none";
                 }
             });
         }
-        
-
-
-
-
-
-
-        
-
-
-        
-
-
-
 
     </script>
 </body>

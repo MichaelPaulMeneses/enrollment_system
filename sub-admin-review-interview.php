@@ -2,7 +2,7 @@
 session_start();
 
 // Redirect to login if the user is not authenticated
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'sub-admin') {
     header("Location: login.php");
     exit();
 }
@@ -62,8 +62,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["student_id"])) {
         JOIN refbrgy b ON s.barangay_id = b.id
         JOIN nationalities n ON s.nationality_id = n.nationality_id
         JOIN religions rel ON s.religion_id = rel.religion_id
-        JOIN grade_levels g ON s.prev_grade_lvl = g.grade_level_id  -- Joining for previous grade level
-        JOIN grade_levels ga ON s.grade_applying_for = ga.grade_level_id  -- Joining again for applying grade
+        JOIN grade_levels g ON s.prev_grade_lvl = g.grade_level_id  
+        JOIN grade_levels ga ON s.grade_applying_for = ga.grade_level_id  
         JOIN school_year sy ON s.school_year_id = sy.school_year_id
         WHERE s.student_id = ?";
         
@@ -88,12 +88,13 @@ $adminFirstName = $_SESSION['first_name'];
 $adminLastName = $_SESSION['last_name'];
 ?>
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - SJBPS Review Admission Form</title>
+    <title>Sub-Admin - SJBPS Interview Form</title>
     <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -314,11 +315,13 @@ $adminLastName = $_SESSION['last_name'];
             border: none;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
+        
         .modal-header {
             color: white;
             border-radius: 10px 10px 0 0;
             border-bottom: none;
         }
+
         .approve {
             background-color: var(--primary-dark-blue);
         }
@@ -326,6 +329,7 @@ $adminLastName = $_SESSION['last_name'];
         .decline {
             background-color: var(--decline-red);
         }
+        
         
         .modal-footer {
             border-top: 1px solid #eaeaea;
@@ -382,7 +386,7 @@ $adminLastName = $_SESSION['last_name'];
         document.addEventListener('DOMContentLoaded', function() {
             const adminFirstName = "<?php echo htmlspecialchars($adminFirstName); ?>";
             const adminLastName = "<?php echo htmlspecialchars($adminLastName); ?>";
-            const welcomeMessage = `WELCOME! Admin ${adminFirstName} ${adminLastName}`;
+            const welcomeMessage = `WELCOME! Sub-Admin ${adminFirstName} ${adminLastName}`;
             document.getElementById('adminWelcomeMessage').textContent = welcomeMessage;
             
             // Initialize Bootstrap tooltips
@@ -417,14 +421,14 @@ $adminLastName = $_SESSION['last_name'];
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === "success") {
-                        document.getElementById("schoolName").textContent = data.school_name + " Admission Form";
+                        document.getElementById("schoolName").textContent = data.school_name + " Interview";
                     } else {
-                        document.getElementById("schoolName").textContent = "Admission Form";
+                        document.getElementById("schoolName").textContent = "Interview";
                     }
                 })
                 .catch(error => {
                     console.error("Error fetching school name:", error);
-                    document.getElementById("schoolName").textContent = "Admission Form";
+                    document.getElementById("schoolName").textContent = "Interview";
                 });
         });
     </script>
@@ -436,12 +440,12 @@ $adminLastName = $_SESSION['last_name'];
         <div class="container-fluid">
             <div class="d-flex align-items-center">
                 <img id="navLogo" src="assets/homepage_images/logo/placeholder.png" alt="Profile" class="logo-image me-2">
-                <a class="navbar-brand" href="admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Admin</a>
+                <a class="navbar-brand" href="sub-admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Sub-Admin</a>
             </div>
             <div class="ms-auto">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-dashboard.php"><i class="fas fa-home me-2"></i>Dashboard</a>
+                        <a class="nav-link" href="sub-admin-dashboard.php"><i class="fas fa-home me-2"></i>Dashboard</a>
                     </li>
                     <li class="nav-item">
                     <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
@@ -478,74 +482,59 @@ $adminLastName = $_SESSION['last_name'];
             <div class="col-md-3 col-lg-2 d-md-block sidebar pt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-dashboard.php">
+                        <a class="nav-link" href="sub-admin-dashboard.php">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="admin-application-for-review.php">
+                        <a class="nav-link" href="sub-admin-application-for-review.php">
                             <i class="fas fa-file-alt me-2"></i>Applications for Review
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-approved-application.php">
+                        <a class="nav-link" href="sub-admin-approved-application.php">
                             <i class="fas fa-check-circle me-2"></i>Approved Applications
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-declined-application.php">
+                        <a class="nav-link" href="sub-admin-declined-application.php">
                             <i class="fas fa-times-circle me-2"></i>Declined Applications
                         </a>
                     </li>
                     
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-interviews.php">
+                        <a class="nav-link active" href="sub-admin-interviews.php">
                             <i class="fas fa-calendar-check me-2"></i>Interviews
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-declined-interviews.php">
+                        <a class="nav-link" href="sub-admin-declined-interviews.php">
                             <i class="fas fa-times-circle me-2"></i>Declined Interviews
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-payment-transaction.php">
-                            <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-transaction-history.php">
-                            <i class="fas fa-history me-2"></i>Transactions History
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-student-for-assignment.php">
+                        <a class="nav-link" href="sub-admin-student-for-assignment.php">
                             <i class="fas fa-tasks me-2"></i>For Assignment
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-all-enrollees.php">
+                        <a class="nav-link" href="sub-admin-all-enrollees.php">
                             <i class="fas fa-users me-2"></i>All Enrollees
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-grade-section.php">
+                        <a class="nav-link" href="sub-admin-grade-section.php">
                             <i class="fas fa-chalkboard-teacher me-2"></i>Grade-Section
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-curriculum.php">
+                        <a class="nav-link" href="sub-admin-curriculum.php">
                             <i class="fas fa-book-open me-2"></i>Curriculum
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-homepage-editor.php">
+                        <a class="nav-link" href="sub-admin-homepage-editor.php">
                             <i class="fas fa-edit me-2"></i>Home Page Editor
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-user-management.php">
-                            <i class="fas fa-user-cog me-2"></i>Users
                         </a>
                     </li>
                 </ul>
@@ -843,7 +832,6 @@ $adminLastName = $_SESSION['last_name'];
                                 </div>
                             </div>
                             
-                            
                             <!-- Document Thumbnails -->
                             <div class="container mt-4">
                                 <h3>Uploaded Documents</h3>
@@ -915,6 +903,7 @@ $adminLastName = $_SESSION['last_name'];
                                 </button>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -932,7 +921,7 @@ $adminLastName = $_SESSION['last_name'];
                 <div class="modal-body">
                     <form id="declineForm">
                         <div class="mb-3">
-                            <label for="declineReason" class="form-label">Please provide a reason for declining this application:</label>
+                            <label for="declineReason" class="form-label">Please provide a reason for declining this interview:</label>
                             <textarea class="form-control" id="declineReason" rows="4" required></textarea>
                         </div>
                     </form>
@@ -954,7 +943,7 @@ $adminLastName = $_SESSION['last_name'];
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="confirmModalBody">
-                    Are you sure you want to approve this application?
+                    Are you sure you want to approve this interview?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -1024,7 +1013,7 @@ $adminLastName = $_SESSION['last_name'];
                     document.getElementById("finalConfirmBtn").disabled = true;
 
                     // Send the POST request to the PHP script
-                    fetch("databases/approve_application_email.php", {
+                    fetch("databases/approve_interview_email.php", {
                         method: "POST",
                         body: JSON.stringify({
                         student_id: studentId,
@@ -1036,9 +1025,9 @@ $adminLastName = $_SESSION['last_name'];
                     .then(data => {
                         if (data.success) {
                             // Success case: Show message and redirect
-                            alert("Enrollment approved and email sent successfully!");
+                            alert("Interview approved and email sent successfully!");
                             setTimeout(function() {
-                                window.location.href = "admin-application-for-review.php";  // Redirect after success
+                                window.location.href = "sub-admin-interviews.php";  // Redirect after success
                             }, 250);
                         } else {
                             // Error case: Show error message from response
@@ -1076,7 +1065,7 @@ $adminLastName = $_SESSION['last_name'];
                 document.getElementById("confirmDeclineBtn").disabled = true;
 
                 // Send the data using Fetch API
-                fetch('databases/decline_application_email.php', {
+                fetch('databases/decline_interview_email.php', {
                     method: 'POST',
                     body: JSON.stringify({
                         student_id: studentId,
@@ -1091,7 +1080,7 @@ $adminLastName = $_SESSION['last_name'];
                         alert(data.message); // Display success message
                         
                         setTimeout(function() {
-                            window.location.href = "admin-application-for-review.php";  // Redirect after success
+                            window.location.href = "sub-admin-interviews.php";  // Redirect after success
                         }, 250);
                         
                     } else {

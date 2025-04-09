@@ -2,12 +2,13 @@
 session_start();
 
 // Redirect to login if the user is not authenticated
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'sub-admin') {
     header("Location: login.php");
     exit();
 }
 
 // Retrieve admin details from session
+$adminUserId = $_SESSION['user_id'];
 $adminFirstName = $_SESSION['first_name'];
 $adminLastName = $_SESSION['last_name'];
 ?>
@@ -17,7 +18,7 @@ $adminLastName = $_SESSION['last_name'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - SJBPS Declined Applications</title>
+    <title>Sub-Admin - SJBPS Interview</title>
     <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -34,16 +35,16 @@ $adminLastName = $_SESSION['last_name'];
             background-color: #f4f6f9;
             font-family: 'Arial', sans-serif;
         }
-        .navbar {
-            background-color: var(--primary-blue);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
         .logo-image {
             width: 40px;
             height: 40px;
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid white;
+        }
+        .navbar {
+            background-color: var(--primary-blue);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .navbar-brand {
             display: flex;
@@ -93,27 +94,38 @@ $adminLastName = $_SESSION['last_name'];
         .table-hover tbody tr:hover {
             background-color: rgba(52, 152, 219, 0.05);
         }
+        .review-btn {
+            background-color: #2ecc71;
+            border-color: #2ecc71;
+            transition: all 0.3s ease;
+        }
+        .review-btn:hover {
+            transform: scale(1.05);
+            background-color: #27ae60;
+        }
+        .empty-table-message {
+            color: #6c757d;
+        }
+        .input-group .form-control:focus,
+        .input-group .btn:focus {
+            box-shadow: none;
+            border-color: var(--primary-blue);
+        }
         @media (max-width: 768px) {
             .sidebar {
                 display: none;
             }
         }
-        .status-paid {
-            color: #2ecc71;
-            font-weight: bold;
-        }
     </style>
-
     <!-- Fetch the name of the User -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const adminFirstName = "<?php echo htmlspecialchars($adminFirstName); ?>";
             const adminLastName = "<?php echo htmlspecialchars($adminLastName); ?>";
-            const welcomeMessage = `WELCOME! Admin ${adminFirstName} ${adminLastName}`;
+            const welcomeMessage = `WELCOME! Sub-Admin ${adminFirstName} ${adminLastName}`;
             document.getElementById('adminWelcomeMessage').textContent = welcomeMessage;
         });
     </script>
-
     <!-- Fetch the logo from the database and display it in the navbar -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -131,7 +143,6 @@ $adminLastName = $_SESSION['last_name'];
                 .catch(error => console.error("Error fetching logo:", error));
         });
     </script>
-
 </head>
 <body>
     <!-- Top Navigation Bar -->
@@ -139,12 +150,12 @@ $adminLastName = $_SESSION['last_name'];
         <div class="container-fluid">
             <div class="d-flex align-items-center">
                 <img id="navLogo" src="assets/homepage_images/logo/placeholder.png" alt="Profile" class="logo-image me-2">
-                <a class="navbar-brand" href="admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Admin</a>
+                <a class="navbar-brand" href="sub-admin-dashboard.php" id="adminWelcomeMessage">WELCOME! Sub-Admin</a>
             </div>
             <div class="ms-auto">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-dashboard.php"><i class="fas fa-home me-2"></i>Dashboard</a>
+                        <a class="nav-link" href="sub-admin-dashboard.php"><i class="fas fa-home me-2"></i>Dashboard</a>
                     </li>
                     <li class="nav-item">
                     <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
@@ -182,88 +193,68 @@ $adminLastName = $_SESSION['last_name'];
             <div class="col-md-3 col-lg-2 d-md-block sidebar pt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-dashboard.php">
+                        <a class="nav-link" href="sub-admin-dashboard.php">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-application-for-review.php">
+                        <a class="nav-link" href="sub-admin-application-for-review.php">
                             <i class="fas fa-file-alt me-2"></i>Applications for Review
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-approved-application.php">
+                        <a class="nav-link" href="sub-admin-approved-application.php">
                             <i class="fas fa-check-circle me-2"></i>Approved Applications
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="admin-declined-application.php">
+                        <a class="nav-link" href="sub-admin-declined-application.php">
                             <i class="fas fa-times-circle me-2"></i>Declined Applications
                         </a>
                     </li>
                     
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-interviews.php">
+                        <a class="nav-link active" href="sub-admin-interviews.php">
                             <i class="fas fa-calendar-check me-2"></i>Interviews
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-declined-interviews.php">
+                        <a class="nav-link" href="sub-admin-declined-interviews.php">
                             <i class="fas fa-times-circle me-2"></i>Declined Interviews
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-payment-transaction.php">
-                            <i class="fas fa-money-check-alt me-2"></i>Payment Transactions
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-transaction-history.php">
-                            <i class="fas fa-history me-2"></i>Transactions History
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-student-for-assignment.php">
+                        <a class="nav-link" href="sub-admin-student-for-assignment.php">
                             <i class="fas fa-tasks me-2"></i>For Assignment
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-all-enrollees.php">
+                        <a class="nav-link" href="sub-admin-all-enrollees.php">
                             <i class="fas fa-users me-2"></i>All Enrollees
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-grade-section.php">
+                        <a class="nav-link" href="sub-admin-grade-section.php">
                             <i class="fas fa-chalkboard-teacher me-2"></i>Grade-Section
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-curriculum.php">
+                        <a class="nav-link" href="sub-admin-curriculum.php">
                             <i class="fas fa-book-open me-2"></i>Curriculum
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin-school-years.php">
-                        <i class="fas fa-graduation-cap me-2"></i>School Years
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-homepage-editor.php">
+                        <a class="nav-link" href="sub-admin-homepage-editor.php">
                             <i class="fas fa-edit me-2"></i>Home Page Editor
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-user-management.php">
-                            <i class="fas fa-user-cog me-2"></i>Users
                         </a>
                     </li>
                 </ul>
             </div>
-        
+
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="mb-0">Declined Applications</h4>
+                    <h4 class="mb-0">Interviews</h4>
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
                         <i class="fas fa-filter me-2"></i>Advanced Filters
                     </button>
@@ -272,7 +263,7 @@ $adminLastName = $_SESSION['last_name'];
                 <!-- Search Bar -->
                 <div class="search-container d-flex justify-content-end">
                     <div class="input-group" style="max-width: 300px;">
-                        <input type="text" id="searchInput" class="form-control" placeholder="Search applications" aria-label="Search">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search interviews" aria-label="Search">
                         <button class="btn btn-outline-secondary" type="button" id="clearBtn">
                             <i class="fas fa-times"></i>
                         </button>
@@ -282,23 +273,27 @@ $adminLastName = $_SESSION['last_name'];
                 
                 <!-- Table -->
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
+                    <table class="table table-bordered table-hover" id="interviewsTable">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>#</th>
                                 <th>Student Name</th>
-                                <th>Applying For</th>
+                                <th>Type of Student</th>
+                                <th>Grade Applying For</th>
+                                <th>Interview Date</th>
+                                <th>Interview Time</th>
                                 <th>School Year</th>
-                                <th>Enrollment Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="declinedApplicationsTable">
-                            <!-- JavaScript will populate this section -->
+                        <tbody id="interviewTable">
+                            <!-- Data will be inserted here by JavaScript -->
 
                         </tbody>
                     </table>
                 </div>
-            </>
+
+            </div>
         </div>
     </div>
 
@@ -311,12 +306,11 @@ $adminLastName = $_SESSION['last_name'];
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    
                     <!-- Grade Applying For Filter -->
                     <div class="mb-3">
                         <label class="form-label">Grade Applying For</label>
                         <select id="gradeApplyingFilter" class="form-select">
-                            <option value="">All Grade Levels</option>
+                            <option value="">Select Grade Levels</option>
                             <option value="Prekindergarten">Prekindergarten</option>
                             <option value="Kindergarten">Kindergarten</option>
                             <option value="Grade 1">Grade 1</option>
@@ -333,7 +327,20 @@ $adminLastName = $_SESSION['last_name'];
                             <option value="Grade 12">Grade 12</option>
                         </select>
                     </div>
-                    
+
+                    <!-- Interview Date Range Filter -->
+                    <div class="mb-3">
+                        <label class="form-label">Interview Date Range</label>
+                        <select id="interviewDateRange" class="form-select">
+                            <option value="">Select Date Range</option>
+                            <option value="today">Today</option>
+                            <option value="1_week">1 Week</option>
+                            <option value="2_weeks">2 Weeks</option>
+                            <option value="3_weeks">3 Weeks</option>
+                            <option value="1_month">1 Month</option>
+                        </select>
+                    </div>
+
                     <!-- School Year Filter -->
                     <div class="mb-3">
                         <label class="form-label">School Year</label>
@@ -350,19 +357,19 @@ $adminLastName = $_SESSION['last_name'];
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
-
-    <!-- Advance Filter Method -->
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Fetch enrollments when the page loads
-            fetchEnrollments();
+        document.addEventListener("DOMContentLoaded", function () {            
+            
+            // Fetch interviews when the page loads
+            fetchInterviews();
             // Fetch school years for the filter dropdown
             fetchSchoolYears();
-            
-            // Search Functionality            
+
+            // Filter subjects based on search input
             const searchInput = document.getElementById("searchInput");
             const clearBtn = document.getElementById("clearBtn");
             const tableBody = document.querySelector("tbody");
@@ -380,7 +387,6 @@ $adminLastName = $_SESSION['last_name'];
                         row.style.display = "none";
                     }
                 });
-
             });
 
             clearBtn.addEventListener("click", function () {
@@ -389,41 +395,51 @@ $adminLastName = $_SESSION['last_name'];
             });
         });
 
-        // Fetch enrollments from the database
-        function fetchEnrollments() {
-            fetch("databases/fetch_declined_applications.php")
-                .then(response => response.json())
+        // Fetch interviews for review from the database
+        function fetchInterviews() {
+            fetch("databases/fetch_interview_data.php")  // Your PHP script
+                .then(response => response.json())  // Parse the JSON response
                 .then(data => {
-                    let declinedApplicationsTable = document.querySelector("#declinedApplicationsTable");
-                    declinedApplicationsTable.innerHTML = ""; // Clear existing rows
+                    let interviewTable = document.querySelector("#interviewTable");  // Select the tbody element
+                    interviewTable.innerHTML = "";  // Clear existing rows
 
+                    // If no data is returned (empty result)
                     if (data.length === 0) {
-                        declinedApplicationsTable.innerHTML = `
+                        interviewTable.innerHTML = `
                             <tr>
-                                <td colspan="6" class="text-center py-5 empty-table-message">
+                                <td colspan="8" class="text-center py-5 empty-table-message">
                                     <i class="fas fa-inbox fa-3x mb-3"></i>
-                                    <p>No declined application at this time</p>
+                                    <p>No interviews for review at this time</p>
                                 </td>
                             </tr>
                         `;
                     } else {
-                        data.forEach((student, index) => {
+                        // If there are interviews, populate the table
+                        data.forEach((interview, index) => {
                             let row = document.createElement("tr");
-                            row.classList.add("student-row");
-                            row.setAttribute("data-id", student.student_id);
+                            row.classList.add("interview-row");
+                            row.setAttribute("data-id", interview.student_id);
 
                             row.innerHTML += `
-                                <td>${index + 1}</td>
-                                <td>${student.student_name}</td>
-                                <td>${student.grade_applying_name}</td>
-                                <td>${student.school_year}</td>
-                                <td>${student.enrollment_status}</td>
+                                <td>${index + 1}</td> 
+                                <td>${interview.student_name}</td>
+                                <td>${interview.type_of_student}</td>
+                                <td>${interview.grade_applying_for}</td>
+                                <td>${interview.appointment_date}</td>
+                                <td>${interview.appointment_time}</td>
+                                <td>${interview.school_year}</td>
+                                <td>
+                                    <form action="sub-admin-review-interview.php" method="POST" style="display:inline;">
+                                        <input type="hidden" name="student_id" value="${interview.student_id}">
+                                        <button type="submit" class="btn btn-primary btn-sm">Review</button>
+                                    </form>
+                                </td>
                             `;
-                            declinedApplicationsTable.appendChild(row);
+                            interviewTable.appendChild(row);
                         });
                     }
                 })
-                .catch(error => console.error("Error fetching data:", error));
+                .catch(error => console.error("Error fetching data:", error));  // Error handling
         }
 
         // Fetch school years for the filter dropdown Modal
@@ -448,8 +464,43 @@ $adminLastName = $_SESSION['last_name'];
                 .catch(error => console.error("Error fetching school years:", error));
         }
 
-        // Advane Filter Method
-        document.getElementById("applyFiltersBtn").addEventListener("click", function() {
+        // Date range calculation function
+        function getDateRange(range) {
+            const today = new Date();
+
+            let startDate = new Date(today);
+            let endDate = new Date(today);
+
+            switch (range) {
+                case "today":
+                    endDate.setDate(today.getDate());   // Set endDate to today
+                    console.log("Today:", today.getDate());
+                    break;
+                case "1_week":
+                    endDate.setDate(today.getDate() + 7); // Add 7 days to today for a 1-week range
+                    console.log("1_week:", today.getDate() + 7);
+                    break;
+                case "2_weeks":
+                    endDate.setDate(today.getDate() + 14); // Add 14 days to today for a 2-week range
+                    console.log("2_weeks:", today.getDate() + 14);
+                    break;
+                case "3_weeks":
+                    endDate.setDate(today.getDate() + 21); // Add 21 days to today for a 3-week range
+                    console.log("3_weeks:", today.getDate() + 21);
+                    break;
+                case "1_month":
+                    endDate.setMonth(today.getMonth() + 1); // Add 1 month to today for a 1-month range
+                    console.log("1_month:", today.getMonth() + 1);
+                    break;
+                default:
+                    return { startDate: null, endDate: null };
+            }
+            return { startDate, endDate };
+        }
+
+
+        // Apply Filters on Click
+        document.getElementById("applyFiltersBtn").addEventListener("click", function () {
             filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
             $('#filterModal').modal('hide');  // Close the modal after applying filters
         });
@@ -458,33 +509,38 @@ $adminLastName = $_SESSION['last_name'];
         function filterTable() {
             let gradeApplying = document.getElementById("gradeApplyingFilter").value.toLowerCase();
             let schoolYear = document.getElementById("schoolYearFilter").value.toLowerCase();
+            let dateRange = document.getElementById("interviewDateRange").value;
+            let { startDate, endDate } = getDateRange(dateRange);
 
             document.querySelectorAll("tbody tr").forEach(row => {
-                let gradeMatch = gradeApplying === "" || row.cells[2].textContent.toLowerCase() === gradeApplying;
-                let yearMatch = schoolYear === "" || row.cells[3].textContent.toLowerCase() === schoolYear;
+                let gradeMatch = gradeApplying === "" || row.cells[3].textContent.toLowerCase() === gradeApplying;
+                let yearMatch = schoolYear === "" || row.cells[6].textContent.toLowerCase() === schoolYear;
 
-                if (gradeMatch && yearMatch) {
+                // Parse the interview date from the table cell
+                let interviewDateText = row.cells[4].textContent.trim(); // assuming interview date is in cell 5
+                let interviewDate = new Date(interviewDateText);
+
+                // Check if interviewDate is within the selected range
+                let dateMatch = true;
+                if (startDate && endDate) {
+                    // Remove time part for a fair comparison
+                    interviewDate.setHours(0, 0, 0, 0);
+                    startDate.setHours(0, 0, 0, 0);
+                    endDate.setHours(23, 59, 59, 999);
+
+                    dateMatch = interviewDate >= startDate && interviewDate <= endDate;
+                }
+
+                if (gradeMatch && yearMatch && dateMatch) {
                     row.style.display = "";
                 } else {
                     row.style.display = "none";
                 }
             });
         }
-        
-
-
-
-
-
-
-        
-
-
-        
-
-
-
 
     </script>
+
+
 </body>
 </html>
