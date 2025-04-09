@@ -11,11 +11,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
 // Include database connection
 require_once 'db_connection.php';
 
-// Set headers for Excel download
-header('Content-Type: application/vnd.ms-excel');
-header('Content-Disposition: attachment; filename="SJBPS_All_Enrollees_' . date('Y-m-d') . '.xls"');
-header('Pragma: no-cache');
-header('Expires: 0');
+// Include PhpSpreadsheet
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 // Get filter parameters
 $gradeFilter = isset($_GET['grade']) ? $_GET['grade'] : '';
@@ -24,135 +25,136 @@ $trackFilter = isset($_GET['track']) ? $_GET['track'] : '';
 $semesterFilter = isset($_GET['semester']) ? $_GET['semester'] : '';
 $schoolYearFilter = isset($_GET['school_year']) ? $_GET['school_year'] : '';
 
-// Base query
+// Query the database
 $query = "SELECT 
-            s.first_name, 
-            s.last_name, 
-            s.middle_name,
-            g.grade_name,
+            a.assigned_id,
+            CONCAT(s.last_name, ', ', s.first_name, ' ', s.middle_name) AS student_name,
+            gl.grade_name,
             sec.section_name,
-            e.academic_track,
-            e.academic_semester,
+            s.academic_track,
+            s.academic_semester,
             sy.school_year,
-            e.enrollment_status
+            s.enrollment_status
           FROM 
-            student_grade_assignments e
-            JOIN students s ON e.student_id = s.student_id
-            JOIN grades g ON e.grade_id = g.grade_id
-            JOIN sections sec ON e.section_id = sec.section_id
-            JOIN school_years sy ON e.school_year_id = sy.id
-          WHERE 1=1";
+            assigned_students a
+            JOIN students s ON a.student_id = s.student_id
+            JOIN sections sec ON a.section_id = sec.section_id
+            JOIN grade_levels gl ON sec.grade_level_id = gl.grade_level_id
+            JOIN school_year sy ON sec.school_year_id = sy.school_year_id
+          WHERE 
+            s.enrollment_status = 'Fully Enrolled'";
 
 // Add filters if provided
 if (!empty($gradeFilter)) {
-    $query .= " AND g.grade_name = '$gradeFilter'";
+    $query .= " AND gl.grade_name = '" . mysqli_real_escape_string($conn, $gradeFilter) . "'";
 }
 if (!empty($sectionFilter)) {
-    $query .= " AND sec.section_name = '$sectionFilter'";
+    $query .= " AND sec.section_name = '" . mysqli_real_escape_string($conn, $sectionFilter) . "'";
 }
 if (!empty($trackFilter)) {
-    $query .= " AND e.academic_track = '$trackFilter'";
+    $query .= " AND s.academic_track = '" . mysqli_real_escape_string($conn, $trackFilter) . "'";
 }
 if (!empty($semesterFilter)) {
-    $query .= " AND e.academic_semester = '$semesterFilter'";
+    $query .= " AND s.academic_semester = '" . mysqli_real_escape_string($conn, $semesterFilter) . "'";
 }
 if (!empty($schoolYearFilter)) {
-    $query .= " AND sy.school_year = '$schoolYearFilter'";
+    $query .= " AND sy.school_year = '" . mysqli_real_escape_string($conn, $schoolYearFilter) . "'";
 }
 
-$query .= " ORDER BY g.grade_id ASC, sec.section_name ASC, s.last_name ASC";
+$query .= " ORDER BY gl.grade_level_id ASC, sec.section_name ASC, s.last_name ASC";
 
 $result = mysqli_query($conn, $query);
 
-// Start the Excel file content
-echo '<!DOCTYPE html>';
-echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
-echo '<head>';
-echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
-echo '<meta name="ProgId" content="Excel.Sheet">';
-echo '<meta name="Generator" content="Microsoft Excel 11">';
-echo '<style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #000000;
-            padding: 5px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-        .header {
-            font-size: 16pt;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        .subheader {
-            font-size: 12pt;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-      </style>';
-echo '</head>';
-echo '<body>';
-
-// Header information
-echo '<div class="header">St. John\'s Baptist Parochial School</div>';
-echo '<div class="subheader">Enrollees Report - Generated on ' . date('F d, Y') . '</div>';
-
-// Filter information
-echo '<table style="margin-bottom: 15px; width: 50%;">';
-echo '<tr><th colspan="2">Filter Criteria</th></tr>';
-echo '<tr><td>Grade Level</td><td>' . (!empty($gradeFilter) ? $gradeFilter : 'All') . '</td></tr>';
-echo '<tr><td>Section</td><td>' . (!empty($sectionFilter) ? $sectionFilter : 'All') . '</td></tr>';
-echo '<tr><td>Academic Track</td><td>' . (!empty($trackFilter) ? $trackFilter : 'All') . '</td></tr>';
-echo '<tr><td>Academic Semester</td><td>' . (!empty($semesterFilter) ? $semesterFilter : 'All') . '</td></tr>';
-echo '<tr><td>School Year</td><td>' . (!empty($schoolYearFilter) ? $schoolYearFilter : 'All') . '</td></tr>';
-echo '</table>';
-
-// Start the main table
-echo '<table>';
-echo '<thead>';
-echo '<tr>';
-echo '<th>#</th>';
-echo '<th>Student Name</th>';
-echo '<th>Grade Level</th>';
-echo '<th>Section</th>';
-echo '<th>Track</th>';
-echo '<th>Semester</th>';
-echo '<th>School Year</th>';
-echo '<th>Status</th>';
-echo '</tr>';
-echo '</thead>';
-echo '<tbody>';
-
-if (mysqli_num_rows($result) > 0) {
-    $count = 1;
-    while ($row = mysqli_fetch_assoc($result)) {
-        echo '<tr>';
-        echo '<td>' . $count . '</td>';
-        echo '<td>' . $row['last_name'] . ', ' . $row['first_name'] . ' ' . $row['middle_name'] . '</td>';
-        echo '<td>' . $row['grade_name'] . '</td>';
-        echo '<td>' . $row['section_name'] . '</td>';
-        echo '<td>' . ($row['academic_track'] ? $row['academic_track'] : 'N/A') . '</td>';
-        echo '<td>' . ($row['academic_semester'] ? $row['academic_semester'] : 'N/A') . '</td>';
-        echo '<td>' . $row['school_year'] . '</td>';
-        echo '<td>' . $row['enrollment_status'] . '</td>';
-        echo '</tr>';
-        $count++;
-    }
-} else {
-    echo '<tr><td colspan="8" style="text-align: center;">No enrollees found with the specified criteria.</td></tr>';
+if (!$result) {
+    // If there's an error with the query, log it and provide a useful message
+    error_log("Query Error: " . mysqli_error($conn));
+    echo "Error fetching data: " . mysqli_error($conn);
+    exit;
 }
 
-echo '</tbody>';
-echo '</table>';
-echo '</body>';
-echo '</html>';
+// Create a new Spreadsheet object
+$spreadsheet = new Spreadsheet();
+$sheet = $spreadsheet->getActiveSheet();
+
+// Set title and filters
+$sheet->setCellValue('A1', 'St. John\'s Baptist Parochial School');
+$sheet->setCellValue('A2', 'Enrollees Report - Generated on ' . date('F d, Y'));
+$sheet->setCellValue('A3', 'Grade Level: ' . (!empty($gradeFilter) ? $gradeFilter : 'All'));
+$sheet->setCellValue('A4', 'Section: ' . (!empty($sectionFilter) ? $sectionFilter : 'All'));
+$sheet->setCellValue('A5', 'Track: ' . (!empty($trackFilter) ? $trackFilter : 'All'));
+$sheet->setCellValue('A6', 'Semester: ' . (!empty($semesterFilter) ? $semesterFilter : 'All'));
+$sheet->setCellValue('A7', 'School Year: ' . (!empty($schoolYearFilter) ? $schoolYearFilter : 'All'));
+
+// Apply bold and larger font size for title and filters
+$sheet->getStyle('A1:A7')->getFont()->setBold(true);
+$sheet->getStyle('A1')->getFont()->setSize(16);
+$sheet->getStyle('A2')->getFont()->setSize(14);
+
+// Set headers for the data table
+$sheet->setCellValue('A9', 'No');
+$sheet->setCellValue('B9', 'Student Name');
+$sheet->setCellValue('C9', 'Grade Level');
+$sheet->setCellValue('D9', 'Section');
+$sheet->setCellValue('E9', 'Track');
+$sheet->setCellValue('F9', 'Semester');
+$sheet->setCellValue('G9', 'School Year');
+$sheet->setCellValue('H9', 'Status');
+
+// Apply header styles
+$sheet->getStyle('A9:H9')->getFont()->setBold(true);
+$sheet->getStyle('A9:H9')->getAlignment()->setHorizontal('center');
+$sheet->getStyle('A9:H9')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
+$sheet->getStyle('A9:H9')->getFill()->getStartColor()->setRGB('D9EAD3');
+
+// Set column width
+$sheet->getColumnDimension('A')->setWidth(5);
+$sheet->getColumnDimension('B')->setWidth(30);
+$sheet->getColumnDimension('C')->setWidth(15);
+$sheet->getColumnDimension('D')->setWidth(15);
+$sheet->getColumnDimension('E')->setWidth(15);
+$sheet->getColumnDimension('F')->setWidth(15);
+$sheet->getColumnDimension('G')->setWidth(15);
+$sheet->getColumnDimension('H')->setWidth(15);
+
+// Fetch data and populate rows
+$rowNum = 10;
+$count = 1;
+while ($row = mysqli_fetch_assoc($result)) {
+    $sheet->setCellValue('A' . $rowNum, $count);
+    $sheet->setCellValue('B' . $rowNum, $row['student_name']);
+    $sheet->setCellValue('C' . $rowNum, $row['grade_name']);
+    $sheet->setCellValue('D' . $rowNum, $row['section_name']);
+    $sheet->setCellValue('E' . $rowNum, $row['academic_track'] ?: 'N/A');
+    $sheet->setCellValue('F' . $rowNum, $row['academic_semester'] ?: 'N/A');
+    $sheet->setCellValue('G' . $rowNum, $row['school_year']);
+    $sheet->setCellValue('H' . $rowNum, $row['enrollment_status']);
+
+    // Apply alternating row colors for better readability
+    if ($rowNum % 2 == 0) {
+        $sheet->getStyle('A' . $rowNum . ':H' . $rowNum)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
+        $sheet->getStyle('A' . $rowNum . ':H' . $rowNum)->getFill()->getStartColor()->setRGB('F4F4F4');
+    }
+
+    // Apply borders to each row
+    $sheet->getStyle('A' . $rowNum . ':H' . $rowNum)->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+
+    $rowNum++;
+    $count++;
+}
+
+// Apply overall table borders
+$sheet->getStyle('A9:H' . ($rowNum - 1))->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+
+// Create an Excel writer
+$writer = new Xlsx($spreadsheet);
+
+// Set headers for the Excel file download
+header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+header('Content-Disposition: attachment; filename="SJBPS_All_Enrollees_' . date('Y-m-d') . '.xlsx"');
+header('Cache-Control: max-age=0');
+
+// Write the file to output
+$writer->save('php://output');
 
 // Close database connection
 mysqli_close($conn);

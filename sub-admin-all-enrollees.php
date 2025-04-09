@@ -420,7 +420,7 @@ $adminLastName = $_SESSION['last_name'];
                     if (data.length === 0) {
                         allEnrolleesTable.innerHTML = `
                             <tr>
-                                <td colspan="7" class="text-center py-5 empty-table-message">
+                                <td colspan="8" class="text-center py-5 empty-table-message">
                                     <i class="fas fa-inbox fa-3x mb-3"></i>
                                     <p>No applications for review at this time</p>
                                 </td>
