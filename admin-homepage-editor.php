@@ -332,7 +332,7 @@ $adminLastName = $_SESSION['last_name'];
                     <!-- Second Row - 2 Cards -->
                     <div class="col-12 mb-4">
                         <h4 class="text-title text-align">
-                            Mission & Vission Page
+                            Mission & Vision Page
                         </h4>
                     </div>
 
