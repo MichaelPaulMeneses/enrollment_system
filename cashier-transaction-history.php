@@ -212,6 +212,44 @@ $adminLastName = $_SESSION['last_name'];
                                 <!-- Options will be populated dynamically -->
                             </select>
                         </div>
+
+                        <div class="me-3">
+                            <button id="exportExcelBtn" class="btn btn-success me-2">
+                                <i class="fas fa-file-excel me-2"></i>Export to Excel
+                            </button>
+                        </div>
+
+                        <script>
+                        document.getElementById('exportExcelBtn').addEventListener('click', function () {
+                        const schoolYearId = document.getElementById('schoolYearSelect').value;
+                        const minAmount = document.getElementById('minAmount').value;
+                        const maxAmount = document.getElementById('maxAmount').value;
+                        const startDate = document.getElementById('startDate').value;
+                        const endDate = document.getElementById('endDate').value;
+                        const facilitator = document.getElementById('userFilter').value;
+
+                        console.log(schoolYearId, minAmount, maxAmount, startDate, endDate, facilitator);
+
+                        // Build the query string with actual filter variables
+                        let queryString = "databases/export_transaction_excel.php?";
+                        
+                        if (schoolYearId) queryString += `school_year_id=${encodeURIComponent(schoolYearId)}&`;
+                        if (minAmount) queryString += `min_amount=${encodeURIComponent(minAmount)}&`;
+                        if (maxAmount) queryString += `max_amount=${encodeURIComponent(maxAmount)}&`;
+                        if (startDate) queryString += `start_date=${encodeURIComponent(startDate)}&`;
+                        if (endDate) queryString += `end_date=${encodeURIComponent(endDate)}&`;
+                        if (facilitator) queryString += `facilitator=${encodeURIComponent(facilitator)}&`;
+
+                        // Remove the trailing "&" if it exists
+                        queryString = queryString.replace(/&$/, "");
+
+                        // Redirect to the export script with filters
+                        window.location.href = queryString;
+                    });
+
+
+
+                        </script>
                         
                         <!-- Advanced Filters Button -->
                         <div>
@@ -275,19 +313,13 @@ $adminLastName = $_SESSION['last_name'];
                         </div>
                     </div>
 
-
                     <!-- Interview Date Range Filter -->
                     <div class="mb-3">
                         <label class="form-label">Interview Date Range</label>
-                        <select id="interviewDateRange" class="form-select">
-                            <option value="">Select Date Range</option>
-                            <option value="today">Today</option>
-                            <option value="1_week_ago">1 Week Ago</option>
-                            <option value="2_weeks_ago">2 Weeks Ago</option>
-                            <option value="1_month_ago">1 Month Ago</option>
-                            <option value="1_month_ago">3 Months Ago</option>
-                            <option value="6_months_ago"> 6 Months Ago</option>
-                        </select>
+                        <div class="d-flex">
+                            <input type="date" id="startDate" class="form-control me-2" placeholder="Start Date">
+                            <input type="date" id="endDate" class="form-control" placeholder="End Date">
+                        </div>
                     </div>
 
                     <!-- School Year Filter -->
@@ -306,7 +338,64 @@ $adminLastName = $_SESSION['last_name'];
         </div>
     </div>
 
+    <script>
+        
+        function getDateRange() {
+            const startDate = document.getElementById("startDate").value;
+            const endDate = document.getElementById("endDate").value;
 
+            if (!startDate || !endDate) {
+                return { startDate: null, endDate: null };
+            }
+
+            return { startDate: new Date(startDate), endDate: new Date(endDate) };
+        }
+
+        // Apply Filters on Click
+        document.getElementById("applyFiltersBtn").addEventListener("click", function () {
+            filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
+            $('#filterModal').modal('hide');  // Close the modal after applying filters
+        });
+
+        function filterTable() {
+            let minAmount = parseFloat(document.getElementById('minAmount').value) || 0;
+            let maxAmount = parseFloat(document.getElementById('maxAmount').value) || Infinity;
+
+            let { startDate, endDate } = getDateRange();
+
+            let userFilter = document.getElementById("userFilter").value.toLowerCase();
+
+            document.querySelectorAll("tbody tr").forEach(row => {
+                // Amount filter (assumed to be in column index 2)
+                let amountText = row.cells[2].textContent.replace(/[^0-9.-]+/g, ""); // remove currency symbols, commas, etc.
+                let amount = parseFloat(amountText) || 0;
+
+                let amountMatch = amount >= minAmount && amount <= maxAmount;
+
+                // Interview date filter (assumed to be in column index 3)
+                let interviewDateText = row.cells[3].textContent.trim();
+                let interviewDate = new Date(interviewDateText);
+
+                let dateMatch = true;
+                if (startDate && endDate) {
+                    interviewDate.setHours(0, 0, 0, 0);
+                    startDate.setHours(0, 0, 0, 0);
+                    endDate.setHours(23, 59, 59, 999);
+                    dateMatch = interviewDate >= startDate && interviewDate <= endDate;
+                }
+
+                // User filter (assumed to be in column index 4)
+                let userMatch = userFilter === "" || row.cells[4].textContent.toLowerCase() === userFilter;
+
+                if (amountMatch && dateMatch && userMatch) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+
+    </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -460,80 +549,6 @@ $adminLastName = $_SESSION['last_name'];
                 .catch(error => console.error("Error fetching users:", error));
         }
 
-        function getDateRange(range) {
-            const endDate = new Date();  // Today
-            const startDate = new Date(); // Will be modified
-
-            switch (range) {
-                case "today":
-                    // Start and end are the same day
-                    break;
-                case "1_week_ago":
-                    startDate.setDate(endDate.getDate() - 7);
-                    break;
-                case "2_weeks_ago":
-                    startDate.setDate(endDate.getDate() - 14);
-                    break;
-                case "1_month_ago":
-                    startDate.setMonth(endDate.getMonth() - 1);
-                    break;
-                case "3_months_ago":
-                    startDate.setMonth(endDate.getMonth() - 3);
-                    break;
-                case "6_months_ago":
-                    startDate.setMonth(endDate.getMonth() - 6);
-                    break;
-                default:
-                    return { startDate: null, endDate: null };
-            }
-
-            return { startDate, endDate };
-        }
-
-        // Apply Filters on Click
-        document.getElementById("applyFiltersBtn").addEventListener("click", function () {
-            filterTable();  // Call the filterTable function when the "Apply Filters" button is clicked
-            $('#filterModal').modal('hide');  // Close the modal after applying filters
-        });
-
-        function filterTable() {
-            let minAmount = parseFloat(document.getElementById('minAmount').value) || 0;
-            let maxAmount = parseFloat(document.getElementById('maxAmount').value) || Infinity;
-
-            let dateRange = document.getElementById("interviewDateRange").value;
-            let { startDate, endDate } = getDateRange(dateRange);
-
-            let userFilter = document.getElementById("userFilter").value.toLowerCase();
-
-            document.querySelectorAll("tbody tr").forEach(row => {
-                // Amount filter (assumed to be in column index 2)
-                let amountText = row.cells[2].textContent.replace(/[^0-9.-]+/g, ""); // remove currency symbols, commas, etc.
-                let amount = parseFloat(amountText) || 0;
-
-                let amountMatch = amount >= minAmount && amount <= maxAmount;
-
-                // Interview date filter (assumed to be in column index 3)
-                let interviewDateText = row.cells[3].textContent.trim();
-                let interviewDate = new Date(interviewDateText);
-
-                let dateMatch = true;
-                if (startDate && endDate) {
-                    interviewDate.setHours(0, 0, 0, 0);
-                    startDate.setHours(0, 0, 0, 0);
-                    endDate.setHours(23, 59, 59, 999);
-                    dateMatch = interviewDate >= startDate && interviewDate <= endDate;
-                }
-
-                // User filter (assumed to be in column index 4)
-                let userMatch = userFilter === "" || row.cells[4].textContent.toLowerCase() === userFilter;
-
-                if (amountMatch && dateMatch && userMatch) {
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none";
-                }
-            });
-        }
 
 
     </script>

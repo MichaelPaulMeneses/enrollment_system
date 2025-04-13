@@ -28,7 +28,7 @@ $schoolYearFilter = isset($_GET['school_year']) ? $_GET['school_year'] : '';
 // Query the database
 $query = "SELECT 
             a.assigned_id,
-            CONCAT(s.last_name, ', ', s.first_name, ' ', s.middle_name) AS student_name,
+            CONCAT(s.last_name, ', ', s.first_name, ' ', COALESCE(s.suffix, '')) AS student_name,
             gl.grade_name,
             sec.section_name,
             s.academic_track,

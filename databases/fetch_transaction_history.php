@@ -7,9 +7,10 @@ if ($school_year_id) {
     // Query to fetch payment history for the specific school year
     $query = "SELECT
                 p.payment_id,
-                CONCAT(s.last_name, ', ', s.first_name, ' ', IFNULL(s.middle_name, ''), ' ', IFNULL(s.suffix, '')) AS student_name,
+                CONCAT(s.last_name, ', ', s.first_name, ' ', IFNULL(s.suffix, '')) AS student_name,
                 CONCAT('₱', FORMAT(p.payment_amount, 2)) AS payment_amount,
                 p.payment_date,
+                p.payment_facilitated_by,
                 CONCAT(u.user_type, ' ', u.first_name, ' ', u.last_name) AS facilitator_name
             FROM payment_history p
             JOIN students s ON p.student_id = s.student_id

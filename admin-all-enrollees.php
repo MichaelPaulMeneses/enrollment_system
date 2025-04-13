@@ -276,30 +276,6 @@ $adminLastName = $_SESSION['last_name'];
                     </div>
                 </div>
 
-
-                <script>
-                    // Excel Export Functionality
-document.getElementById("exportExcelBtn").addEventListener("click", function () {
-    // Get filter values
-    const gradeFilter = document.getElementById("gradeApplyingFilter").value;
-    const sectionFilter = document.getElementById("sectionFilter").value;
-    const trackFilter = document.getElementById("academicTrack").value;
-    const semesterFilter = document.getElementById("academicSemester").value;
-    const schoolYearFilter = document.getElementById("schoolYearFilter").value;
-    
-    // Build the query string with current filters
-    let queryString = "databases/export_enrollees_excel.php?";
-    if (gradeFilter) queryString += `grade=${encodeURIComponent(gradeFilter)}&`;
-    if (sectionFilter) queryString += `section=${encodeURIComponent(sectionFilter)}&`;
-    if (trackFilter) queryString += `track=${encodeURIComponent(trackFilter)}&`;
-    if (semesterFilter) queryString += `semester=${encodeURIComponent(semesterFilter)}&`;
-    if (schoolYearFilter) queryString += `school_year=${encodeURIComponent(schoolYearFilter)}&`;
-    
-    // Redirect to the export script
-    window.location.href = queryString;
-});
-                </script>
-                
                 <!-- Search Bar -->
                 <div class="search-container d-flex justify-content-end">
                     <div class="input-group" style="max-width: 300px;">
@@ -579,6 +555,30 @@ document.getElementById("exportExcelBtn").addEventListener("click", function () 
 
 
     </script>
+
+    <script>
+        // Excel Export Functionality
+        document.getElementById("exportExcelBtn").addEventListener("click", function () {
+            // Get filter values
+            const gradeFilter = document.getElementById("gradeApplyingFilter").value;
+            const sectionFilter = document.getElementById("sectionFilter").value;
+            const trackFilter = document.getElementById("academicTrack").value;
+            const semesterFilter = document.getElementById("academicSemester").value;
+            const schoolYearFilter = document.getElementById("schoolYearFilter").value;
+            
+            // Build the query string with current filters
+            let queryString = "databases/export_enrollees_excel.php?";
+            if (gradeFilter) queryString += `grade=${encodeURIComponent(gradeFilter)}&`;
+            if (sectionFilter) queryString += `section=${encodeURIComponent(sectionFilter)}&`;
+            if (trackFilter) queryString += `track=${encodeURIComponent(trackFilter)}&`;
+            if (semesterFilter) queryString += `semester=${encodeURIComponent(semesterFilter)}&`;
+            if (schoolYearFilter) queryString += `school_year=${encodeURIComponent(schoolYearFilter)}&`;
+            
+            // Redirect to the export script
+            window.location.href = queryString;
+        });
+    </script>
+                
     
 </body>
 </html>
