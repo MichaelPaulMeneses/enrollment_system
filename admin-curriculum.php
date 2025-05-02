@@ -17,7 +17,7 @@ $adminLastName = $_SESSION['last_name'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SJBPS Admin - Curriculum</title>
+    <title>Admin - SJBPS Curriculum</title>
     <link rel="icon" type="image/png" href="assets/main/logo/st-johns-logo.png">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -245,7 +245,12 @@ $adminLastName = $_SESSION['last_name'];
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" href="admin-curriculum.php">
-                            <i class="fas fa-book-open me-2"></i>Curriculum
+                            <i class="fas fa-scroll me-2"></i>Curriculum
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-subjects.php">
+                            <i class="fas fa-book-open me-2"></i>Subjects
                         </a>
                     </li>
                     <li class="nav-item">
@@ -455,7 +460,7 @@ $adminLastName = $_SESSION['last_name'];
                                     <td>${curriculum.curriculum_name}</td>
                                     <td>${curriculum.status}</td>
                                     <td>
-                                        <form action="admin-subjects.php" method="POST" style="display:inline;">
+                                        <form action="admin-curriculum-subjects.php" method="POST" style="display:inline;">
                                             <input type="hidden" name="curriculum_id" value="${curriculum.curriculum_id}">
                                             <button type="submit" class="btn btn-info btn-sm">Subjects</button>
                                         </form>
@@ -486,7 +491,6 @@ $adminLastName = $_SESSION['last_name'];
                     .then(data => {
                         const select = document.getElementById('curriculumIsActive');
                         const editSelect = document.getElementById('editCurriculumIsActive');
-                        const hasActive = data.hasActive;
 
                         console.log("this is the:", editCurriculumIsActive.value);
 
@@ -508,8 +512,7 @@ $adminLastName = $_SESSION['last_name'];
 
                         const optionActive = document.createElement('option');
                         optionActive.value = "1";
-                        optionActive.textContent = hasActive ? "Active (already in use)" : "Active";
-                        optionActive.disabled = hasActive; // Disable "Active" if it’s already in use and not being edited
+                        optionActive.textContent = "Active";
                         select.appendChild(optionActive);
 
                         // Clone the "Active" option and append to editSelect

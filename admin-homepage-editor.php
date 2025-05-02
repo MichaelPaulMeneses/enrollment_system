@@ -270,7 +270,12 @@ $adminLastName = $_SESSION['last_name'];
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="admin-curriculum.php">
-                            <i class="fas fa-book-open me-2"></i>Curriculum
+                            <i class="fas fa-scroll me-2"></i>Curriculum
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-subjects.php">
+                            <i class="fas fa-book-open me-2"></i>Subjects
                         </a>
                     </li>
                     <li class="nav-item">
@@ -446,49 +451,188 @@ $adminLastName = $_SESSION['last_name'];
         </div>
     </div>
 
-    <!-- Modal for Editing Carousel -->
-    <div class="modal fade" id="editCarouselModal" tabindex="-1" aria-labelledby="editCarouselModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editCarouselModalLabel">Edit Carousel</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="carouselForm" enctype="multipart/form-data">
-                    <div class="modal-body">
-                        <!-- Display current carousel images -->
-                        <h6>Current Carousel Images:</h6>
-                        <div id="carouselImagesContainer" class="mb-3 text-center">
-                            <!-- Images will be dynamically loaded here -->
-                        </div>
-                        <!-- File input for new images -->
-                        <div class="mb-3">
-                            <label for="carouselFile1" class="form-label">Upload Image 1</label>
-                            <input type="file" class="form-control" id="carouselFile1" name="carouselFile1" accept="image/*" required>
-                            <small class="text-muted">Select an image file to replace the current carousel image.</small>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="carouselFile2" class="form-label">Upload Image 2</label>
-                            <input type="file" class="form-control" id="carouselFile2" name="carouselFile2" accept="image/*" required>
-                            <small class="text-muted">Select an image file to replace the current carousel image.</small>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="carouselFile3" class="form-label">Upload Image 3</label>
-                            <input type="file" class="form-control" id="carouselFile3" name="carouselFile3" accept="image/*"  required>
-                            <small class="text-muted">Select an image file to replace the current carousel image.</small>
-                        </div>
-
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </div>
-                </form>
+<!-- Modal for Editing Carousel -->
+<div class="modal fade" id="editCarouselModal" tabindex="-1" aria-labelledby="editCarouselModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editCarouselModalLabel">Edit Carousel</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <form id="carouselForm" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <h6>Current Carousel Images:</h6>
+                    <div id="carouselImagesContainer" class="mb-3 text-center">
+                        <!-- Existing images will be shown here -->
+                    </div>
+
+                    <h6>Add New Carousel Images:</h6>
+                    <div id="carouselInputsContainer" class="mb-3">
+                        <!-- Dynamic input fields will appear here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let inputCount = 0;
+
+    const inputContainer = document.getElementById("carouselInputsContainer");
+    const imageContainer = document.getElementById("carouselImagesContainer");
+
+    function createFileInput(index) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "mb-3";
+
+        const label = document.createElement("label");
+        label.className = "form-label";
+        label.setAttribute("for", `carouselFile${index}`);
+        label.textContent = `Upload Image`;
+
+        const input = document.createElement("input");
+        input.type = "file";
+        input.className = "form-control";
+        input.id = `carouselFile${index}`;
+        input.name = `carouselFile${index}`;
+        input.accept = "image/*";
+
+        input.addEventListener("change", () => {
+            if (input.value) {
+                inputCount++;
+                createFileInput(inputCount);
+            }
+        });
+
+        const small = document.createElement("small");
+        small.className = "text-muted";
+        small.textContent = "Select an image file to add to the carousel.";
+
+        wrapper.appendChild(label);
+        wrapper.appendChild(input);
+        wrapper.appendChild(small);
+
+        inputContainer.appendChild(wrapper);
+    }
+
+    function initializeInputs() {
+        inputContainer.innerHTML = "";
+        inputCount = 0;
+        createFileInput(inputCount);
+        inputCount++;
+    }
+
+    function loadCarouselImages() {
+        fetch("databases/fetch_carousel.php")
+            .then(response => response.json())
+            .then(images => {
+                imageContainer.innerHTML = "";
+
+                if (Array.isArray(images) && images.length > 0) {
+                    images.forEach(image => {
+                        const imgWrapper = document.createElement("div");
+                        imgWrapper.className = "d-inline-block position-relative me-2";
+
+                        const img = document.createElement("img");
+                        img.src = image.image_path;
+                        img.className = "img-thumbnail";
+                        img.style.width = "150px";
+
+                        const deleteButton = document.createElement("button");
+                        deleteButton.className = "btn btn-danger btn-sm position-absolute top-0 end-0";
+                        deleteButton.innerHTML = "&times;";
+                        deleteButton.addEventListener("click", function () {
+                            deleteImage(image.id, imgWrapper);
+                        });
+
+                        imgWrapper.appendChild(img);
+                        imgWrapper.appendChild(deleteButton);
+                        imageContainer.appendChild(imgWrapper);
+                    });
+                }
+
+                initializeInputs();
+            })
+            .catch(error => {
+                console.error("Error loading images:", error);
+                imageContainer.innerHTML = "<p class='text-danger'>Failed to load images.</p>";
+                initializeInputs();
+            });
+    }
+
+    function deleteImage(imageId, imgWrapper) {
+    if (confirm("Are you sure you want to delete this image?")) {
+        const formData = new FormData();
+        formData.append("image_id", imageId);
+
+        fetch("databases/delete_carousel_image.php", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                imgWrapper.remove();
+            } else {
+                alert("Failed to delete image.");
+            }
+        })
+        .catch(error => {
+            console.error("Error deleting image:", error);
+            alert("An error occurred while deleting the image.");
+        });
+    }
+}
+
+
+    loadCarouselImages();
+
+    document.getElementById("carouselForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch("databases/edit_carousel.php", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (data.status === "success") {
+                loadCarouselImages();
+
+                const modalEl = document.getElementById("editCarouselModal");
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+
+                this.reset();
+                initializeInputs();
+
+                setTimeout(() => {
+                    window.location.href = "admin-homepage-editor.php";
+                }, 500);
+            }
+        })
+        .catch(error => {
+            console.error("Error submitting form:", error);
+            alert("An error occurred while uploading images.");
+        });
+    });
+});
+
+</script>
+
+
+
+
+
 
     <!-- Modal for Editing School Name -->
     <div class="modal fade" id="editSchoolNameModal" tabindex="-1" aria-labelledby="editSchoolNameModalLabel" aria-hidden="true">
@@ -837,63 +981,7 @@ $adminLastName = $_SESSION['last_name'];
         });
     </script>   
 
-    <!-- Script to handle carousel image upload and edit -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            loadCarouselImages();
-
-            document.getElementById("carouselForm").addEventListener("submit", function (event) {
-                event.preventDefault();
-
-                let formData = new FormData(this);
-                fetch("databases/edit_carousel.php", {
-                    method: "POST",
-                    body: formData,
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.message);
-                    if (data.status === "success") {
-                        loadCarouselImages();
-                        let modal = bootstrap.Modal.getInstance(document.getElementById("editCarouselModal"));
-                        modal.hide();
-
-                        // Clear the file input fields after submission
-                        document.querySelectorAll("#carouselForm input[type='file']").forEach(input => {
-                            input.value = "";
-                        });
-
-                        alert("Carousel Images uploaded successfully!");
-
-                        // Refresh the admin-homepage-editor.php page
-                        setTimeout(() => {
-                            window.location.href = "admin-homepage-editor.php";
-                        }, 500);
-
-                    }
-                })
-                .catch(error => console.error("Error:", error));
-            });
-        });
-
-        function loadCarouselImages() {
-            fetch("databases/fetch_carousel.php")
-                .then(response => response.json())
-                .then(images => {
-                    let container = document.getElementById("carouselImagesContainer");
-                    container.innerHTML = "";
-
-                    images.forEach((image, index) => {
-                        let imgElement = document.createElement("img");
-                        imgElement.src = image.image_path;
-                        imgElement.className = "img-thumbnail me-2";
-                        imgElement.style.width = "150px";
-                        container.appendChild(imgElement);
-                    });
-                })
-                .catch(error => console.error("Error loading images:", error));
-        }
-    </script>
+    
 
     <!-- Script to handle mission editing -->
     <script>

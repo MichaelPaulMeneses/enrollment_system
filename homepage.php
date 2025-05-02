@@ -368,9 +368,17 @@
 
     <!-- Banner Carousel -->
     <div id="bannerCarousel" class="carousel slide container banner" data-bs-ride="carousel">
-        <div class="carousel-inner" id="carouselContainer">
-            <!-- Images will be dynamically loaded here -->
+        <!-- Indicators -->
+        <div class="carousel-indicators" id="carouselIndicators">
+            <!-- JS will inject indicator buttons here -->
         </div>
+
+        <!-- Slides -->
+        <div class="carousel-inner" id="carouselContainer">
+            <!-- JS will inject <div class="carousel-item"> here -->
+        </div>
+
+        <!-- Controls (Moved outside of indicators!) -->
         <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Previous</span>
@@ -380,6 +388,71 @@
             <span class="visually-hidden">Next</span>
         </button>
     </div>
+
+    <!-- Load the carousel images dynamically -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        loadBannerCarousel();
+    });
+
+    function loadBannerCarousel() {
+        fetch("databases/fetch_carousel.php")
+            .then(response => {
+                if (!response.ok) throw new Error("Network response was not ok");
+                return response.json();
+            })
+            .then(images => {
+                const container = document.getElementById("carouselContainer");
+                const indicators = document.getElementById("carouselIndicators");
+
+                container.innerHTML = "";
+                indicators.innerHTML = "";
+
+                if (!images || images.length === 0) {
+                    container.innerHTML = `
+                        <div class="carousel-item active">
+                            <img src="assets/homepage_images/logo/placeholder.png"
+                                class="d-block w-100"
+                                style="height:50vh; object-fit:cover;"
+                                alt="Default Banner">
+                        </div>`;
+                    return;
+                }
+
+                images.forEach((image, idx) => {
+                    // Slide
+                    const item = document.createElement("div");
+                    item.className = `carousel-item${idx === 0 ? " active" : ""}`;
+                    item.innerHTML = `
+                        <img src="${image.image_path}"
+                            class="d-block w-100"
+                            style="height:50vh; object-fit:cover;"
+                            alt="Banner ${idx + 1}">`;
+                    container.appendChild(item);
+
+                    // Indicator
+                    const btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.setAttribute("data-bs-target", "#bannerCarousel");
+                    btn.setAttribute("data-bs-slide-to", idx);
+                    btn.setAttribute("aria-label", `Slide ${idx + 1}`);
+                    if (idx === 0) btn.classList.add("active");
+                    indicators.appendChild(btn);
+                });
+            })
+            .catch(error => {
+                console.error("Error loading carousel images:", error);
+                const container = document.getElementById("carouselContainer");
+                container.innerHTML = `
+                    <div class="carousel-item active">
+                        <img src="assets/homepage_images/logo/placeholder.png"
+                            class="d-block w-100"
+                            style="height:50vh; object-fit:cover;"
+                            alt="Default Banner">
+                    </div>`;
+            });
+    }
+    </script>
 
     <!-- Call to Action -->
     <div class="container call-to-action">
@@ -458,6 +531,42 @@
         </div>
     </div>
 
+    <!-- Load the gallery images dynamically -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            loadGallery();
+        });
+
+        function loadGallery() {
+            fetch("databases/fetch_gallery.php")
+                .then(response => response.json())
+                .then(data => {
+                    const galleryContainer = document.getElementById("galleryContainer");
+                    galleryContainer.innerHTML = ""; // Clear existing content
+
+                    if (data.status === "success" && data.images.length > 0) {
+                        data.images.forEach(image => {
+                            const imageElement = `
+                                <div class="col-md-3 col-lg-4 mb-4">
+                                    <div class="card gallery-card">
+                                        <img src="${image}" class="card-img-top" alt="Gallery Image">
+                                    </div>
+                                </div>
+                            `;
+                            galleryContainer.innerHTML += imageElement;
+                        });
+                    } else {
+                        galleryContainer.innerHTML = `<p class="text-center">No images available.</p>`;
+                        console.error("Error:", data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching gallery data:", error);
+                    document.getElementById("galleryContainer").innerHTML = `<p class="text-center">Error loading gallery.</p>`;
+                });
+        }
+    </script>
+
     <!-- Enrollment Procedures -->
     <div id="procedures" class="container procedures">
         <h2 class="text-center pt-5 mb-4">ENROLLMENT PROCEDURES</h2>
@@ -529,72 +638,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Load the carousel images dynamically -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            loadBannerCarousel();
-        });
 
-        function loadBannerCarousel() {
-            fetch("databases/fetch_carousel.php")
-                .then(response => response.json())
-                .then(images => {
-                    let container = document.getElementById("carouselContainer");
-                    container.innerHTML = ""; // Clear existing content
 
-                    if (images.length === 0) {
-                        container.innerHTML = `<div class="carousel-item active">
-                            <img src="assets/homepage_images/logo/placeholder.png" alt="Default Banner" class="d-block w-100" style="height: 50vh; object-fit: cover;">
-                        </div>`;
-                        return;
-                    }
 
-                    images.forEach((image, index) => {
-                        let carouselItem = document.createElement("div");
-                        carouselItem.className = `carousel-item ${index === 0 ? "active" : ""}`;
-                        carouselItem.innerHTML = `<img src="${image.image_path}" class="d-block w-100" style="height: 50vh; object-fit: cover;">`;
-                        container.appendChild(carouselItem);
-                    });
-                })
-                .catch(error => console.error("Error loading carousel images:", error));
-        }
-    </script>
-
-    <!-- Load the gallery images dynamically -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            loadGallery();
-        });
-
-        function loadGallery() {
-            fetch("databases/fetch_gallery.php")
-                .then(response => response.json())
-                .then(data => {
-                    const galleryContainer = document.getElementById("galleryContainer");
-                    galleryContainer.innerHTML = ""; // Clear existing content
-
-                    if (data.status === "success" && data.images.length > 0) {
-                        data.images.forEach(image => {
-                            const imageElement = `
-                                <div class="col-md-3 col-lg-4 mb-4">
-                                    <div class="card gallery-card">
-                                        <img src="${image}" class="card-img-top" alt="Gallery Image">
-                                    </div>
-                                </div>
-                            `;
-                            galleryContainer.innerHTML += imageElement;
-                        });
-                    } else {
-                        galleryContainer.innerHTML = `<p class="text-center">No images available.</p>`;
-                        console.error("Error:", data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error("Error fetching gallery data:", error);
-                    document.getElementById("galleryContainer").innerHTML = `<p class="text-center">Error loading gallery.</p>`;
-                });
-        }
-    </script>
 
     <!-- Load the enrollment information dynamically -->
     <script>

@@ -93,10 +93,10 @@ if (isset($data['student_id'], $data['admin_user_id'], $data['amount_paid'], $da
 
         // Email body
         $message = "<p>Dear $salutation $surname,</p>
-                    <p>We are pleased to inform you that your payment has been received successfully.</p>";
-        $message .= "<p>Your enrollment status has been updated to <strong>For Assignment</strong>. You will be assigned to a section shortly. Please wait for further updates from our Admissions Office.</p>";
+                <p>We are pleased to inform you that your payment of <strong>PHP $amount_paid</strong> has been received successfully.</p>";
+        $message .= "<p>Your enrollment status has been updated to <strong>For Assignment</strong> with the following remarks: <em>$status_remarks</em>. You will be assigned to a section shortly. Please wait for further updates from our Admissions Office.</p>";
         $message .= "<p>For any inquiries, feel free to contact our Admissions Office:</p>
-                        <p><a href='mailto:registrar.sjbps@gmail.com'>registrar.sjbps@gmail.com</a> | (02) 8296 5896 | 0920 122 5764</p>";
+                <p><a href='mailto:registrar.sjbps@gmail.com'>registrar.sjbps@gmail.com</a> | (02) 8296 5896 | 0920 122 5764</p>";
 
         $mail->Body = $message;
 

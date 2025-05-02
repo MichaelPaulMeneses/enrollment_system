@@ -235,7 +235,17 @@ $adminLastName = $_SESSION['last_name'];
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" href="sub-admin-curriculum.php">
-                            <i class="fas fa-book-open me-2"></i>Curriculum
+                            <i class="fas fa-scroll me-2"></i>Curriculum
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="sub-admin-subjects.php">
+                            <i class="fas fa-book-open me-2"></i>Subjects
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="sub-admin-school-years.php">
+                        <i class="fas fa-graduation-cap me-2"></i>School Years
                         </a>
                     </li>
                     <li class="nav-item">
@@ -435,7 +445,7 @@ $adminLastName = $_SESSION['last_name'];
                                     <td>${curriculum.curriculum_name}</td>
                                     <td>${curriculum.status}</td>
                                     <td>
-                                        <form action="sub-admin-subjects.php" method="POST" style="display:inline;">
+                                        <form action="sub-admin-curriculum-subjects.php" method="POST" style="display:inline;">
                                             <input type="hidden" name="curriculum_id" value="${curriculum.curriculum_id}">
                                             <button type="submit" class="btn btn-info btn-sm">Subjects</button>
                                         </form>
@@ -466,7 +476,6 @@ $adminLastName = $_SESSION['last_name'];
                     .then(data => {
                         const select = document.getElementById('curriculumIsActive');
                         const editSelect = document.getElementById('editCurriculumIsActive');
-                        const hasActive = data.hasActive;
 
                         console.log("this is the:", editCurriculumIsActive.value);
 
@@ -488,8 +497,7 @@ $adminLastName = $_SESSION['last_name'];
 
                         const optionActive = document.createElement('option');
                         optionActive.value = "1";
-                        optionActive.textContent = hasActive ? "Active (already in use)" : "Active";
-                        optionActive.disabled = hasActive; // Disable "Active" if it’s already in use and not being edited
+                        optionActive.textContent = "Active";
                         select.appendChild(optionActive);
 
                         // Clone the "Active" option and append to editSelect

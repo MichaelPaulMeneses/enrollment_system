@@ -103,6 +103,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin-bottom: 15px;
             text-align: center;
         }
+        .logo-image {
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+        }
     </style>
 
         <!-- Fetch the logo from the database and display it in the navbar and form -->

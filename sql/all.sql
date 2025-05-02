@@ -80,12 +80,19 @@ CREATE TABLE subjects (
     subject_id INT(11) AUTO_INCREMENT PRIMARY KEY,
     subject_code VARCHAR(50) NOT NULL,
     subject_name VARCHAR(255) NOT NULL,
-	curriculum_id INT(11) NOT NULL,
     grade_level_id INT(11) NOT NULL,
     academic_track VARCHAR(100) DEFAULT NULL,
     academic_semester VARCHAR(50) DEFAULT NULL,
-    FOREIGN KEY (curriculum_id) REFERENCES curriculums(curriculum_id) ON DELETE CASCADE,
     FOREIGN KEY (grade_level_id) REFERENCES grade_levels(grade_level_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Create the curriculum_subjects table 
+CREATE TABLE curriculum_subjects (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    subject_id INT(11) NOT NULL,
+    curriculum_id INT(11) NOT NULL,
+    FOREIGN KEY (subject_id) REFERENCES subjects(subject_id),
+    FOREIGN KEY (curriculum_id) REFERENCES curriculums(curriculum_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create the sections table

@@ -1,32 +1,27 @@
 <?php
-require 'db_connection.php'; // Include database connection
+require 'db_connection.php';
 
 $response = ["status" => "error", "message" => "Something went wrong."];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $uploadDir = __DIR__ . "/../assets/homepage_images/carousel/"; // Folder for images
+    $uploadDir = __DIR__ . "/../assets/homepage_images/carousel/";
     $imagePaths = [];
 
-    // Ensure the folder exists
     if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0777, true);
     }
 
-    // Process uploaded files
-    for ($i = 1; $i <= 3; $i++) {
-        $fileKey = "carouselFile$i";
-        if (!empty($_FILES[$fileKey]["name"])) {
-            $fileName = time() . "_" . basename($_FILES[$fileKey]["name"]);
+    foreach ($_FILES as $key => $file) {
+        if (!empty($file["name"])) {
+            $fileName = time() . "_" . basename($file["name"]);
             $targetFilePath = $uploadDir . $fileName;
-            $dbFilePath = "assets/homepage_images/carousel/" . $fileName; // Relative path for database
-            
-            // Validate file type (only images)
+            $dbFilePath = "assets/homepage_images/carousel/" . $fileName;
             $fileType = strtolower(pathinfo($targetFilePath, PATHINFO_EXTENSION));
             $allowedTypes = ["jpg", "jpeg", "png", "gif"];
 
             if (in_array($fileType, $allowedTypes)) {
-                if (move_uploaded_file($_FILES[$fileKey]["tmp_name"], $targetFilePath)) {
-                    $imagePaths[$i] = $dbFilePath;
+                if (move_uploaded_file($file["tmp_name"], $targetFilePath)) {
+                    $imagePaths[] = $dbFilePath;
                 } else {
                     $response["message"] = "Failed to upload $fileName.";
                     echo json_encode($response);
@@ -40,10 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    // Clear previous carousel images
-    $conn->query("DELETE FROM homepage_carousel");
-
-    // Insert new images
+    // Insert only new image records without deleting old ones
     foreach ($imagePaths as $path) {
         $stmt = $conn->prepare("INSERT INTO homepage_carousel (image_path) VALUES (?)");
         $stmt->bind_param("s", $path);
