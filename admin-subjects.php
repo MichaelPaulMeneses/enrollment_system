@@ -8,28 +8,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
     exit();
 }
 
-include "databases/db_connection.php"; // Include database connection
-
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["curriculum_id"])) {
-    $curriculum_id = $_POST["curriculum_id"];
-
-    $query = "SELECT curriculum_name FROM curriculums WHERE curriculum_id = ?";
-        
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("i", $curriculum_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
-        $subject = $result->fetch_assoc();
-    } else {
-        die("Curriculum not found.");
-    }
-    $stmt->close();
-} else {
-    die("Access denied.");
-}
-
 // Retrieve admin details from session
 $adminFirstName = $_SESSION['first_name'];
 $adminLastName = $_SESSION['last_name'];
@@ -265,8 +243,13 @@ $adminLastName = $_SESSION['last_name'];
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="admin-curriculum.php">
-                            <i class="fas fa-book-open me-2"></i>Curriculum
+                        <a class="nav-link" href="admin-curriculum.php">
+                            <i class="fas fa-scroll me-2"></i>Curriculum
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="admin-subjects.php">
+                            <i class="fas fa-book-open me-2"></i>Subjects
                         </a>
                     </li>
                     <li class="nav-item">
@@ -290,7 +273,7 @@ $adminLastName = $_SESSION['last_name'];
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="mb-0">Subjects for <?php echo htmlspecialchars($subject['curriculum_name']); ?></h4>
+                    <h4 class="mb-0">Subjects</h4>
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
                         <i class="fas fa-filter me-2"></i>Advanced Filters
                     </button>
@@ -358,8 +341,6 @@ $adminLastName = $_SESSION['last_name'];
                                             </select>
                                         </div>
                                     </div>
-
-                                    <input type="hidden" name="curriculumId" value="<?php echo $curriculum_id; ?>">
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -460,7 +441,6 @@ $adminLastName = $_SESSION['last_name'];
                                 <th>#</th>
                                 <th>Subject Code</th>
                                 <th>Subject Name</th>
-                                <th>Curriculum</th>
                                 <th>Grade Level</th>
                                 <th>Academic Track</th>
                                 <th>Academic Semester</th>
@@ -545,7 +525,6 @@ $adminLastName = $_SESSION['last_name'];
     
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const curriculumId = <?php echo $curriculum_id; ?>;
             const gradeLevelSelect = document.getElementById("gradeLevelId");
             const editGradeLevelSelect = document.getElementById("editGradeLevelId");
 
@@ -638,7 +617,7 @@ $adminLastName = $_SESSION['last_name'];
 
             // Fetch and display subjects
             function fetchSubjects() {
-                fetch(`databases/fetch_subjects_for_display.php?curriculum_id=${curriculumId}`)
+                fetch(`databases/fetch_subjects_for_display.php`)
                     .then(res => res.json())
                     .then(data => {
                         subjectsContainer.innerHTML = "";
@@ -659,7 +638,6 @@ $adminLastName = $_SESSION['last_name'];
                                     <td>${index + 1}</td>
                                     <td>${subject.subject_code}</td>
                                     <td>${subject.subject_name}</td>
-                                    <td>${subject.curriculum_name}</td>
                                     <td>${subject.grade_name}</td>
                                     <td>${subject.academic_track}</td>
                                     <td>${subject.academic_semester}</td>
@@ -700,6 +678,7 @@ $adminLastName = $_SESSION['last_name'];
                         })
                         .then(res => res.json())
                         .then(data => {
+                            console.log(data); // Log the response from the server for debugging
                             alert(data.status === "success" ? "Subject added successfully!" : "Error: " + data.message);
                             if (data.status === "success") {
                                 const modalElement = document.getElementById("addSubjectsModal");
@@ -712,6 +691,7 @@ $adminLastName = $_SESSION['last_name'];
                             console.error("Add subject error:", err);
                             alert("An error occurred while adding a subject.");
                         });
+
                     });
                 }
 

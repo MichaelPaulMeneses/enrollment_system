@@ -1,17 +1,20 @@
 <?php
-
 include 'db_connection.php'; // Database connection
 
+// Enable error reporting for debugging (remove in production)
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $subject_code = $_POST['subjectCode'];
-    $subject_name = $_POST['subjectName'];
-    $curriculum_id = $_POST['curriculumId'];
-    $grade_level_id = intval($_POST['gradeLevelId']); 
+    // Sanitize input
+    $subject_code = $_POST['subjectCode'] ?? '';
+    $subject_name = $_POST['subjectName'] ?? '';
+    $grade_level_id = intval($_POST['gradeLevelId'] ?? 0); 
     $academic_track = $_POST['academicTrackId'] ?? null;
     $academic_semester = $_POST['academicSemesterId'] ?? null;
 
     // Validate input (basic)
-    if (empty($subject_code) || empty($subject_name) || empty($curriculum_id) || empty($grade_level_id)) {
+    if (empty($subject_code) || empty($subject_name) || empty($grade_level_id)) {
         echo json_encode(['status' => 'error', 'message' => 'All fields are required.']);
         exit();
     }
@@ -23,16 +26,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Prepare SQL query
-    $query = "INSERT INTO subjects (subject_code, subject_name, curriculum_id, grade_level_id, academic_track, academic_semester) VALUES (?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($query); // This line was missing
-    $stmt->bind_param('ssiisi', $subject_code, $subject_name, $curriculum_id, $grade_level_id, $academic_track, $academic_semester);
+    $query = "INSERT INTO subjects (subject_code, subject_name, grade_level_id, academic_track, academic_semester) 
+              VALUES (?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($query);
     
+    // Check for query preparation failure
+    if ($stmt === false) {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to prepare SQL query.']);
+        exit();
+    }
+
+    // Bind parameters
+    $stmt->bind_param('ssiss', $subject_code, $subject_name, $grade_level_id, $academic_track, $academic_semester);
+    
+    // Execute query and check for success
     if ($stmt->execute()) {
         echo json_encode(['status' => 'success']);
     } else {
-        echo json_encode(['status' => 'error', 'message' => 'Failed to add subject.']);
+        echo json_encode(['status' => 'error', 'message' => 'Failed to add subject. Error: ' . $stmt->error]);
     }
 
+    // Close statement
     $stmt->close();
 } else {
     echo json_encode(['status' => 'error', 'message' => 'Invalid request.']);

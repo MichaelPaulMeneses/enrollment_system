@@ -244,7 +244,12 @@ $adminLastName = $_SESSION['last_name'];
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="admin-curriculum.php">
-                            <i class="fas fa-book-open me-2"></i>Curriculum
+                            <i class="fas fa-scroll me-2"></i>Curriculum
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-subjects.php">
+                            <i class="fas fa-book-open me-2"></i>Subjects
                         </a>
                     </li>
                     <li class="nav-item">
@@ -276,8 +281,8 @@ $adminLastName = $_SESSION['last_name'];
                             <div class="col">
                                 <!--<label for="schoolYearSelect" class="form-label mb-0 me-2">School Year:</label>
                                 <select id="schoolYearSelect" class="form-select school-year-select"> -->
-                                    <!-- Options will be populated dynamically -->
-                                </select>
+                                    <!-- Options will be populated dynamically
+                                </select> -->
                             </div>
                         </div>
                     </div>
@@ -481,7 +486,6 @@ $adminLastName = $_SESSION['last_name'];
                     .then(data => {
                         const select = document.getElementById('schoolYearIsActive');
                         const editSelect = document.getElementById('editSchoolYearIsActive');
-                        const hasActive = data.hasActive;
 
                         console.log("this is the:", editSchoolYearIsActive.value);
 
@@ -500,11 +504,9 @@ $adminLastName = $_SESSION['last_name'];
                         editSelect.appendChild(clonedInactiveOption);
 
                         // Conditionally add "Active"
-
                         const optionActive = document.createElement('option');
                         optionActive.value = "1";
-                        optionActive.textContent = hasActive ? "Active (already in use)" : "Active";
-                        optionActive.disabled = hasActive; // Disable "Active" if it’s already in use and not being edited
+                        optionActive.textContent = "Active";
                         select.appendChild(optionActive);
 
                         // Clone the "Active" option and append to editSelect

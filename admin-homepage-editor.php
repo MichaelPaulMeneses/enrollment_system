@@ -118,6 +118,7 @@ $adminLastName = $_SESSION['last_name'];
         .metric-card.green { background-color: #2ecc71; }
         .metric-card.blue { background-color: #3498db; }
         .metric-card.navy { background-color: #34495e; }
+        .metric-card.cyan { background-color: #00bcd4; }
         .metric-card.yellow { background-color: #f1c40f; }
         .metric-card.purple { background-color: #9b59b6; }
         .metric-card.teal { background-color: #1abc9c; }
@@ -270,7 +271,12 @@ $adminLastName = $_SESSION['last_name'];
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="admin-curriculum.php">
-                            <i class="fas fa-book-open me-2"></i>Curriculum
+                            <i class="fas fa-scroll me-2"></i>Curriculum
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin-subjects.php">
+                            <i class="fas fa-book-open me-2"></i>Subjects
                         </a>
                     </li>
                     <li class="nav-item">
@@ -363,10 +369,20 @@ $adminLastName = $_SESSION['last_name'];
                         </h4>
                     </div>
 
-                    <div class="col-md-12 col-lg-12 mb-4">
+                    <div class="col-md-6 col-lg-6 mb-4">
+                        <div class="card-container">
+                            <div class="card-title">Folders</div>
+                            <div class="metric-card navy" data-bs-toggle="modal" data-bs-target="#editFolderModal">
+                                <div class="card-action">Edit</div>
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-6 mb-4">
                         <div class="card-container">
                             <div class="card-title">Pictures</div>
-                            <div class="metric-card navy" data-bs-toggle="modal" data-bs-target="#editGalleryModal">
+                            <div class="metric-card cyan" data-bs-toggle="modal" data-bs-target="#editGalleryModal">
                                 <div class="card-action">Edit</div>
                                 <i class="fas fa-arrow-right"></i>
                             </div>
@@ -456,30 +472,15 @@ $adminLastName = $_SESSION['last_name'];
                 </div>
                 <form id="carouselForm" enctype="multipart/form-data">
                     <div class="modal-body">
-                        <!-- Display current carousel images -->
                         <h6>Current Carousel Images:</h6>
                         <div id="carouselImagesContainer" class="mb-3 text-center">
-                            <!-- Images will be dynamically loaded here -->
-                        </div>
-                        <!-- File input for new images -->
-                        <div class="mb-3">
-                            <label for="carouselFile1" class="form-label">Upload Image 1</label>
-                            <input type="file" class="form-control" id="carouselFile1" name="carouselFile1" accept="image/*" required>
-                            <small class="text-muted">Select an image file to replace the current carousel image.</small>
+                            <!-- Existing images will be shown here -->
                         </div>
 
-                        <div class="mb-3">
-                            <label for="carouselFile2" class="form-label">Upload Image 2</label>
-                            <input type="file" class="form-control" id="carouselFile2" name="carouselFile2" accept="image/*" required>
-                            <small class="text-muted">Select an image file to replace the current carousel image.</small>
+                        <h6>Add New Carousel Images:</h6>
+                        <div id="carouselInputsContainer" class="mb-3">
+                            <!-- Dynamic input fields will appear here -->
                         </div>
-
-                        <div class="mb-3">
-                            <label for="carouselFile3" class="form-label">Upload Image 3</label>
-                            <input type="file" class="form-control" id="carouselFile3" name="carouselFile3" accept="image/*"  required>
-                            <small class="text-muted">Select an image file to replace the current carousel image.</small>
-                        </div>
-
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -489,6 +490,154 @@ $adminLastName = $_SESSION['last_name'];
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let inputCount = 0;
+
+            const inputContainer = document.getElementById("carouselInputsContainer");
+            const imageContainer = document.getElementById("carouselImagesContainer");
+
+            function createFileInput(index) {
+                const wrapper = document.createElement("div");
+                wrapper.className = "mb-3";
+
+                const label = document.createElement("label");
+                label.className = "form-label";
+                label.setAttribute("for", `carouselFile${index}`);
+                label.textContent = `Upload Image`;
+
+                const input = document.createElement("input");
+                input.type = "file";
+                input.className = "form-control";
+                input.id = `carouselFile${index}`;
+                input.name = `carouselFile${index}`;
+                input.accept = "image/*";
+
+                input.addEventListener("change", () => {
+                    if (input.value) {
+                        inputCount++;
+                        createFileInput(inputCount);
+                    }
+                });
+
+                const small = document.createElement("small");
+                small.className = "text-muted";
+                small.textContent = "Select an image file to add to the carousel.";
+
+                wrapper.appendChild(label);
+                wrapper.appendChild(input);
+                wrapper.appendChild(small);
+
+                inputContainer.appendChild(wrapper);
+            }
+
+            function initializeInputs() {
+                inputContainer.innerHTML = "";
+                inputCount = 0;
+                createFileInput(inputCount);
+                inputCount++;
+            }
+
+            function loadCarouselImages() {
+                fetch("databases/fetch_carousel.php")
+                    .then(response => response.json())
+                    .then(images => {
+                        imageContainer.innerHTML = "";
+
+                        if (Array.isArray(images) && images.length > 0) {
+                            images.forEach(image => {
+                                const imgWrapper = document.createElement("div");
+                                imgWrapper.className = "d-inline-block position-relative me-2";
+
+                                const img = document.createElement("img");
+                                img.src = image.image_path;
+                                img.className = "img-thumbnail";
+                                img.style.width = "150px";
+
+                                const deleteButton = document.createElement("button");
+                                deleteButton.className = "btn btn-danger btn-sm position-absolute top-0 end-0";
+                                deleteButton.innerHTML = "&times;";
+                                deleteButton.addEventListener("click", function () {
+                                    deleteImage(image.id, imgWrapper);
+                                });
+
+                                imgWrapper.appendChild(img);
+                                imgWrapper.appendChild(deleteButton);
+                                imageContainer.appendChild(imgWrapper);
+                            });
+                        }
+
+                        initializeInputs();
+                    })
+                    .catch(error => {
+                        console.error("Error loading images:", error);
+                        imageContainer.innerHTML = "<p class='text-danger'>Failed to load images.</p>";
+                        initializeInputs();
+                    });
+            }
+
+            function deleteImage(imageId, imgWrapper) {
+                if (confirm("Are you sure you want to delete this image?")) {
+                    const formData = new FormData();
+                    formData.append("image_id", imageId);
+
+                    fetch("databases/delete_carousel_image.php", {
+                        method: "POST",
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            imgWrapper.remove();
+                        } else {
+                            alert("Failed to delete image.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error deleting image:", error);
+                        alert("An error occurred while deleting the image.");
+                    });
+                }
+            }
+
+
+            loadCarouselImages();
+
+            document.getElementById("carouselForm").addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                const formData = new FormData(this);
+
+                fetch("databases/edit_carousel.php", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.status === "success") {
+                        loadCarouselImages();
+
+                        const modalEl = document.getElementById("editCarouselModal");
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) modal.hide();
+
+                        this.reset();
+                        initializeInputs();
+
+                        setTimeout(() => {
+                            window.location.href = "admin-homepage-editor.php";
+                        }, 500);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error submitting form:", error);
+                    alert("An error occurred while uploading images.");
+                });
+            });
+        });
+    </script>
 
     <!-- Modal for Editing School Name -->
     <div class="modal fade" id="editSchoolNameModal" tabindex="-1" aria-labelledby="editSchoolNameModalLabel" aria-hidden="true">
@@ -565,75 +714,426 @@ $adminLastName = $_SESSION['last_name'];
         </div>
     </div>
     
-    <!-- Modal for Editing Gallery Pictures -->
-    <div class="modal fade" id="editGalleryModal" tabindex="-1" aria-labelledby="editGalleryModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editGalleryModalLabel">Edit Gallery Pictures</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="galleryForm" enctype="multipart/form-data">
-                    <div class="modal-body">
-                        <h6>Current Gallery Pictures:</h6>
-                        <div id="galleryImagesContainer" class="mb-3 text-center">
-                            <!-- Images will be dynamically loaded here -->
-                        </div>
-                        <!-- File inputs for new images -->
-                        <div class="mb-3">
-                            <label for="galleryFile1" class="form-label">Upload Image 1</label>
-                            <input type="file" class="form-control" id="galleryFile1" name="galleryFile1" accept="image/*">
-                            <small class="text-muted">Select an image file to replace the current gallery image.</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="galleryFile2" class="form-label">Upload Image 2</label>
-                            <input type="file" class="form-control" id="galleryFile2" name="galleryFile2" accept="image/*">
-                            <small class="text-muted">Select an image file to replace the current gallery image.</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="galleryFile3" class="form-label">Upload Image 3</label>
-                            <input type="file" class="form-control" id="galleryFile3" name="galleryFile3" accept="image/*">
-                            <small class="text-muted">Select an image file to replace the current gallery image.</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="galleryFile4" class="form-label">Upload Image 4</label>
-                            <input type="file" class="form-control" id="galleryFile4" name="galleryFile4" accept="image/*">
-                            <small class="text-muted">Select an image file to replace the current gallery image.</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="galleryFile5" class="form-label">Upload Image 5</label>
-                            <input type="file" class="form-control" id="galleryFile5" name="galleryFile5" accept="image/*">
-                            <small class="text-muted">Select an image file to replace the current gallery image.</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="galleryFile6" class="form-label">Upload Image 6</label>
-                            <input type="file" class="form-control" id="galleryFile6" name="galleryFile6" accept="image/*">
-                            <small class="text-muted">Select an image file to replace the current gallery image.</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="galleryFile7" class="form-label">Upload Image 7</label>
-                            <input type="file" class="form-control" id="galleryFile7" name="galleryFile7" accept="image/*">
-                            <small class="text-muted">Select an image file to replace the current gallery image.</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="galleryFile8" class="form-label">Upload Image 8</label>
-                            <input type="file" class="form-control" id="galleryFile8" name="galleryFile8" accept="image/*">
-                            <small class="text-muted">Select an image file to replace the current gallery image.</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="galleryFile9" class="form-label">Upload Image 9</label>
-                            <input type="file" class="form-control" id="galleryFile9" name="galleryFile9" accept="image/*">
-                            <small class="text-muted">Select an image file to replace the current gallery image.</small>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </div>
-                </form>
+
+<!-- Modal for Managing Folders (Galleries) -->
+<div class="modal fade" id="editFolderModal" tabindex="-1" aria-labelledby="editFolderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editFolderModalLabel">Manage Folders</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <form id="folderForm">
+                <div class="modal-body">
+                    <!-- Existing folders section with table -->
+                    <h6>Existing Folders:</h6>
+                    <table class="table table-bordered" id="existingFoldersTable">
+                        <thead>
+                            <tr>
+                                <th>Folder Name</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="existingFoldersContainer">
+                            <!-- Existing folders will be populated here -->
+                        </tbody>
+                    </table>
+
+                    <hr>
+
+                    <!-- Add new folders -->
+                    <h6>Add New Folders:</h6>
+                    <div class="mb-3">
+                        <label for="folderName" class="form-label">Folder Name</label>
+                        <input type="text" class="form-control" id="folderName" name="folderNames[]" required>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Folders</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const inputContainer = document.getElementById("newFoldersContainer");
+        const existingFoldersContainer = document.getElementById("existingFoldersContainer");
+        const folderForm = document.getElementById("folderForm");
+        const modal = document.getElementById("editFolderModal");
+
+        // Load existing folders from the database
+        const loadExistingFolders = () => {
+            fetch("databases/fetch_existing_folders.php")
+                .then(res => res.json())
+                .then(folders => {
+                    existingFoldersContainer.innerHTML = "";
+
+                    if (Array.isArray(folders) && folders.length > 0) {
+                        folders.forEach(folder => {
+                            const row = document.createElement("tr");
+
+                            row.innerHTML = `
+                                <td>${folder.folder_name}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm">Edit</button>
+                                    <button class="btn btn-danger btn-sm ms-2">Delete</button>
+                                </td>
+                            `;
+
+                            const [editBtn, deleteBtn] = row.querySelectorAll("button");
+
+                            editBtn.addEventListener("click", () => editFolder(folder.folder_id, folder.folder_name));
+                            deleteBtn.addEventListener("click", () => deleteFolderById(folder.folder_id, row));
+
+                            existingFoldersContainer.appendChild(row);
+                        });
+                    } else {
+                        existingFoldersContainer.innerHTML = "<tr><td colspan='2'>No folders found.</td></tr>";
+                    }
+                })
+                .catch(err => {
+                    console.error("Error loading folders:", err);
+                    existingFoldersContainer.innerHTML = "<tr><td colspan='2' class='text-danger'>Failed to load folders.</td></tr>";
+                });
+        };
+
+        // Handle form submission for adding new folders
+        folderForm.addEventListener("submit", e => {
+            e.preventDefault();
+            const formData = new FormData(folderForm);
+
+            fetch("databases/add_folder.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                if (data.status === "success") {
+                    loadExistingFolders();
+                    folderForm.reset();
+                }
+            })
+            .catch(err => {
+                console.error("Error submitting form:", err);
+                alert("An error occurred while adding folders.");
+            });
+        });
+
+        // Edit folder
+        const editFolder = (id, currentName) => {
+            const newName = prompt("Edit Folder Name:", currentName);
+            if (newName && newName !== currentName) {
+                const formData = new FormData();
+                formData.append("folder_id", id);
+                formData.append("folder_name", newName);
+
+                fetch("databases/edit_folder.php", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        loadExistingFolders();
+                    } else {
+                        alert("Failed to edit folder.");
+                    }
+                })
+                .catch(err => {
+                    console.error("Error editing folder:", err);
+                    alert("An error occurred while editing the folder.");
+                });
+            }
+        };
+
+        const deleteFolderById = (folderId, rowElement, callback = null) => {
+            if (!confirm("Are you sure you want to delete this folder?")) return;
+
+            const formData = new FormData();
+            formData.append("folder_id", folderId);
+
+            console.log("Deleting folder with ID:", folderId);
+
+            fetch("databases/delete_folder.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    rowElement.remove();
+                    if (typeof callback === "function") callback(true, data);
+                } else {
+                    if (typeof callback === "function") callback(false, data);
+                }
+            })
+            .catch(error => {
+                console.error("Delete folder error:", error);
+                alert("An error occurred while deleting the folder.");
+                if (typeof callback === "function") callback(false, error);
+            });
+        };
+
+        // Initialize Bootstrap modal event if needed
+        if (modal) {
+            modal.addEventListener("shown.bs.modal", () => {
+                console.log("Modal is shown");
+            });
+        }
+
+        // Load folders on initial page load
+        loadExistingFolders();
+    });
+
+</script>
+
+<!-- Gallery Management Modal -->
+<div class="modal fade" id="editGalleryModal" tabindex="-1" aria-labelledby="editGalleryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editGalleryModalLabel">Manage Pictures</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="galleryForm" enctype="multipart/form-data">
+                <div class="modal-body">
+                    
+                    <!-- Existing Pictures Display -->
+                    <div id="existingPicturesContainer" class="mb-3 text-center"></div>
+
+                    <hr>
+
+                    <!-- Add New Pictures Section -->
+                    <h6>Add New Pictures:</h6>
+                    <!-- Folder Select (for uploading) -->
+                    <div class="mb-3">
+                        <label for="folderSelect" class="form-label">Select Folder</label>
+                        <select class="form-select" id="folderSelect" name="folderSelect" required></select>
+                    </div>
+
+                    <div id="newPicturesContainer" class="mb-3"></div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const existingPicturesContainer = document.getElementById("existingPicturesContainer");
+    const newPicturesContainer = document.getElementById("newPicturesContainer");
+    const galleryForm = document.getElementById("galleryForm");
+
+    let pictureInputCount = 0;
+    
+    // Fetch available folders for selection
+    fetch('databases/fetch_all_folders.php')  // Replace with the actual path
+        .then(response => response.json())
+        .then(folders => {
+            const folderSelect = document.getElementById('folderSelect');
+
+            folderSelect.innerHTML = ''; // Clear existing options
+            // Check if folders are found
+            if (folders.length > 0) {
+                folders.forEach(folder => {
+                    const option1 = document.createElement('option');
+                    option1.value = folder.folder_id;
+                    option1.textContent = folder.folder_name;
+                    folderSelect.appendChild(option1);
+                });
+
+                // Add event listener to load pictures when folderSelect is changed
+                folderSelect.addEventListener("change", function () {
+                    const selectedFolder = folderSelect.value;
+                    loadExistingPictures(selectedFolder);  // Pass the selected folder
+                });
+
+                // Load pictures for the default selected folder on page load for both selects
+                const defaultFolder = folderSelect.value;
+                if (defaultFolder) {
+                    loadExistingPictures(defaultFolder);
+                }
+            } else {
+                const option1 = document.createElement('option1');
+                option1.value = '';
+                option1.textContent = 'No folders available';
+                folderSelect.appendChild(option1);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching folders:', error);
+        });
+
+    // Load existing pictures for the selected folder
+    const loadExistingPictures = (folderId) => {
+        if (!folderId) return;
+
+        fetch(`databases/fetch_gallery_picture.php?folder_id=${folderId}`)
+            .then(res => res.json())
+            .then(pictures => {
+                existingPicturesContainer.innerHTML = "";
+
+                if (Array.isArray(pictures) && pictures.length > 0) {
+                    pictures.forEach(picture => {
+                        const wrapper = document.createElement("div");
+                        wrapper.className = "d-inline-block position-relative me-2 mb-2";
+
+                        const img = document.createElement("img");
+                        img.src = picture.image_path;
+                        img.className = "img-thumbnail";
+                        img.style.width = "150px";
+
+                        const deleteBtn = document.createElement("button");
+                        deleteBtn.type = "button";
+                        deleteBtn.className = "btn btn-danger btn-sm position-absolute top-0 end-0";
+                        deleteBtn.innerHTML = "&times;";
+                        deleteBtn.onclick = () => {
+                            console.log("Image in folder:",picture.image_id);
+                            deleteImageFolder(picture.image_id, wrapper);
+                        };
+
+                        wrapper.appendChild(img);
+                        wrapper.appendChild(deleteBtn);
+                        existingPicturesContainer.appendChild(wrapper);
+                    });
+                } else {
+                    existingPicturesContainer.innerHTML = "<p class='text-muted'>No pictures found.</p>";
+                }
+
+                initializePictureInputs();
+            })
+            .catch(err => {
+                console.error("Error loading pictures:", err);
+                existingPicturesContainer.innerHTML = "<p class='text-danger'>Failed to load pictures.</p>";
+                initializePictureInputs();
+            });
+    };
+
+    function deleteImageFolder(imageId, imgWrapper) {
+        if (!confirm("Are you sure you want to delete this picture?")) return;
+
+        const formData = new FormData();
+        formData.append("image_id", imageId);
+
+        fetch("databases/delete_gallery_picture.php", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                imgWrapper.remove();
+            } else {
+                alert("Failed to delete image.");
+            }
+        })
+        .catch(error => {
+            console.error("Error deleting image:", error);
+            alert("An error occurred while deleting the image.");
+        });
+    }
+
+    // Initialize picture input fields
+    const initializePictureInputs = () => {
+        newPicturesContainer.innerHTML = "";
+        pictureInputCount = 0;
+        createPictureInput(pictureInputCount);
+        pictureInputCount++;
+    };
+
+    // Function to create picture input fields
+    const createPictureInput = (index) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "mb-3";
+
+        const label = document.createElement("label");
+        label.className = "form-label";
+        label.setAttribute("for", `pictureFile${index}`);
+        label.textContent = `Upload Picture`;
+
+        const input = document.createElement("input");
+        input.type = "file";
+        input.className = "form-control";
+        input.id = `pictureFile${index}`;
+        input.name = `pictureFile${index}`;
+        input.accept = "image/*";
+
+        console.log(index);
+
+        if (index === 0) {
+            input.required = true; // Make the first input required
+        }
+
+        input.addEventListener("change", () => {
+            if (input.value) {
+                pictureInputCount++;
+                createPictureInput(pictureInputCount);
+            }
+        });
+
+        wrapper.appendChild(label);
+        wrapper.appendChild(input);
+        newPicturesContainer.appendChild(wrapper);
+    };
+
+    document.getElementById("galleryForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        console.log("This is the folderId:",  document.getElementById("folderSelect").value);
+
+        const form = event.target;
+        const formData = new FormData();
+
+        const folderId = document.getElementById("folderSelect").value;
+        if (!folderId) {
+            alert("Please select a folder.");
+            return;
+        }
+
+        formData.append("folder_id", folderId);
+
+        const fileInputs = form.querySelectorAll('input[type="file"]');
+        let hasFile = false;
+
+        fileInputs.forEach((input, index) => {
+            if (input.files.length > 0) {
+                formData.append("file" + index, input.files[0]);
+                hasFile = true;
+            }
+        });
+
+        fetch("databases/add_gallery_picture.php", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.text())
+        .then(result => {
+            alert(result);
+            form.querySelectorAll('input[type="file"]').forEach(input => input.value = '');
+            loadExistingPictures(folderId); 
+        })
+        .catch(err => {
+            alert("Error uploading: " + err);
+        });
+    });
+});
+</script>
+
+
+
+
 
     <!-- Modal for Editing Enrollment Important Information -->
     <div class="modal fade" id="editEnrollmentInfoModal" tabindex="-1" aria-labelledby="editEnrollmentInfoModalLabel" aria-hidden="true">
@@ -837,63 +1337,7 @@ $adminLastName = $_SESSION['last_name'];
         });
     </script>   
 
-    <!-- Script to handle carousel image upload and edit -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            loadCarouselImages();
-
-            document.getElementById("carouselForm").addEventListener("submit", function (event) {
-                event.preventDefault();
-
-                let formData = new FormData(this);
-                fetch("databases/edit_carousel.php", {
-                    method: "POST",
-                    body: formData,
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.message);
-                    if (data.status === "success") {
-                        loadCarouselImages();
-                        let modal = bootstrap.Modal.getInstance(document.getElementById("editCarouselModal"));
-                        modal.hide();
-
-                        // Clear the file input fields after submission
-                        document.querySelectorAll("#carouselForm input[type='file']").forEach(input => {
-                            input.value = "";
-                        });
-
-                        alert("Carousel Images uploaded successfully!");
-
-                        // Refresh the admin-homepage-editor.php page
-                        setTimeout(() => {
-                            window.location.href = "admin-homepage-editor.php";
-                        }, 500);
-
-                    }
-                })
-                .catch(error => console.error("Error:", error));
-            });
-        });
-
-        function loadCarouselImages() {
-            fetch("databases/fetch_carousel.php")
-                .then(response => response.json())
-                .then(images => {
-                    let container = document.getElementById("carouselImagesContainer");
-                    container.innerHTML = "";
-
-                    images.forEach((image, index) => {
-                        let imgElement = document.createElement("img");
-                        imgElement.src = image.image_path;
-                        imgElement.className = "img-thumbnail me-2";
-                        imgElement.style.width = "150px";
-                        container.appendChild(imgElement);
-                    });
-                })
-                .catch(error => console.error("Error loading images:", error));
-        }
-    </script>
+    
 
     <!-- Script to handle mission editing -->
     <script>
@@ -1007,60 +1451,7 @@ $adminLastName = $_SESSION['last_name'];
         });
     </script>
 
-    <!-- Script to handle gallery image upload and edit -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            fetchGalleryImages();
-
-            document.getElementById("galleryForm").addEventListener("submit", function (e) {
-                e.preventDefault();
-                updateGalleryImages();
-            });
-        });
-
-        function fetchGalleryImages() {
-            fetch("databases/fetch_gallery.php")
-                .then(response => response.json())
-                .then(data => {
-                    const container = document.getElementById("galleryImagesContainer");
-                    container.innerHTML = "";
-                    
-                    if (data.status === "success" && data.images.length > 0) {
-                        data.images.forEach(image => {
-                            container.innerHTML += `<img src="${image}" class="img-thumbnail m-2" width="150">`;
-                        });
-                    } else {
-                        container.innerHTML = "<p>No images found.</p>";
-                    }
-                })
-                .catch(error => console.error("Error fetching images:", error));
-        }
-
-        function updateGalleryImages() {
-            let formData = new FormData(document.getElementById("galleryForm"));
-
-            fetch("databases/edit_gallery.php", {
-                method: "POST",
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                fetchGalleryImages(); // Refresh images after upload
-
-                // Clear the file input fields after submission
-                document.querySelectorAll("#galleryForm input[type='file']").forEach(input => {
-                    input.value = "";
-                });
-
-                // Refresh the admin-homepage-editor.php page
-                setTimeout(() => {
-                    window.location.href = "admin-homepage-editor.php";
-                }, 500);
-            })
-            .catch(error => console.error("Error updating gallery:", error));
-        }
-    </script>
+    
 
     <!-- Script to handle enrollment information editing -->
     <script>

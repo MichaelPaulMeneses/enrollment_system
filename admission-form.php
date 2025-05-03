@@ -689,8 +689,6 @@
                 }
             });
 
-
-            // Load Grade Levels
             // Load Grade Levels
             fetchData("databases/grade_levels.php", function (data) {
                 console.log("Grade Levels Loaded:", data);
@@ -702,6 +700,7 @@
                 const allGradeLevels = {};
 
                 prevGradeSelect.innerHTML = '<option value="" disabled selected>Select Grade Level</option>';
+                applyingForSelect.innerHTML = '<option value="" disabled selected>Select Previous Grade Level First</option>';
 
                 data.forEach(grade => {
                     allGradeLevels[grade.grade_level_id] = grade;

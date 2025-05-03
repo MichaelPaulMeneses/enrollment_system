@@ -59,14 +59,22 @@ if (isset($data['student_id'], $data['section_id'], $data['admin_user_id'])) {
     // Step 3: Fetch subjects based on grade level
     if (in_array($gradeApplyingFor, [14, 15])) {
         // Grades 11 and 12 - use track and semester
-        $fetchSubjectsSql = "SELECT subject_code, subject_name FROM subjects 
-                            WHERE curriculum_id = ? AND grade_level_id = ? AND academic_track = ? AND academic_semester = ?";
+        $fetchSubjectsSql = "SELECT s.subject_code, s.subject_name 
+                            FROM subjects s
+                            INNER JOIN curriculum_subjects cs ON s.subject_id = cs.subject_id
+                            WHERE cs.curriculum_id = ? 
+                            AND s.grade_level_id = ? 
+                            AND s.academic_track = ? 
+                            AND s.academic_semester = ?";
         $fetchSubjectsStmt = $conn->prepare($fetchSubjectsSql);
         $fetchSubjectsStmt->bind_param("iisi", $curriculum_id, $gradeApplyingFor, $academicTrack, $academicSemester);
     } else {
         // Grades 2–10 - no track or semester
-        $fetchSubjectsSql = "SELECT subject_code, subject_name FROM subjects 
-                            WHERE curriculum_id = ? AND grade_level_id = ?";
+        $fetchSubjectsSql = "SELECT s.subject_code, s.subject_name 
+                            FROM subjects s
+                            INNER JOIN curriculum_subjects cs ON s.subject_id = cs.subject_id
+                            WHERE cs.curriculum_id = ? 
+                            AND s.grade_level_id = ?";
         $fetchSubjectsStmt = $conn->prepare($fetchSubjectsSql);
         $fetchSubjectsStmt->bind_param("ii", $curriculum_id, $gradeApplyingFor);
     }
@@ -118,6 +126,26 @@ if (isset($data['student_id'], $data['section_id'], $data['admin_user_id'])) {
         $subjectList .= $subject['subject_code'] . " - " . $subject['subject_name'] . "\n";
     }
 
+    $sectionNameSql = "
+    SELECT s.section_name
+    FROM sections s
+    JOIN assigned_students a ON s.section_id = a.section_id
+    WHERE a.student_id = ?
+    ";
+    $sectionNameStmt = $conn->prepare($sectionNameSql);
+    $sectionNameStmt->bind_param("i", $student_id);
+    $sectionNameStmt->execute();
+    $sectionNameResult = $sectionNameStmt->get_result();
+
+    if ($sectionRow = $sectionNameResult->fetch_assoc()) {
+        $sectionName = htmlspecialchars($sectionRow['section_name']);
+        $sectionNameStmt->close();
+    } else {
+        echo json_encode(["success" => false, "message" => "Section name not found for student."]);
+        exit;
+    }
+
+
     $mail = new PHPMailer(true);
     try {
         $mail->isSMTP();
@@ -136,7 +164,7 @@ if (isset($data['student_id'], $data['section_id'], $data['admin_user_id'])) {
 
         $message = "<p>Dear $salutation $surname,</p>";
         $message .= "<p>Congratulations! We are pleased to inform you that you have successfully passed the interview at Saint John the Baptist Parochial School and your enrollment has been approved.</p>";
-        $message .= "<p>You are now officially enrolled in $gradeName and your following subjects are:</p><ul>";
+        $message .= "<p>You are now officially enrolled in $gradeName <strong>$sectionName</strong> and your following subjects are:</p><ul>";
         foreach ($subjects as $subject) {
             $message .= "<li><strong>{$subject['subject_code']}</strong> - {$subject['subject_name']}</li>";
         }
