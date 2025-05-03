@@ -25,7 +25,6 @@ DROP TABLE IF EXISTS school_names;
 DROP TABLE IF EXISTS homepage_carousel;
 DROP TABLE IF EXISTS homepage_mission;
 DROP TABLE IF EXISTS homepage_vision;
-DROP TABLE IF EXISTS homepage_gallery;
 DROP TABLE IF EXISTS homepage_enrollment_important_info;
 DROP TABLE IF EXISTS homepage_transferee_new_students;
 DROP TABLE IF EXISTS homepage_old_students;
@@ -247,10 +246,20 @@ CREATE TABLE homepage_vision (
     content TEXT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE homepage_gallery (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    image_path VARCHAR(255) NOT NULL
+CREATE TABLE folders (
+    folder_id INT AUTO_INCREMENT PRIMARY KEY,
+    folder_name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE images (
+    image_id INT AUTO_INCREMENT PRIMARY KEY,
+    folder_id INT NOT NULL,
+    image_path VARCHAR(255) NOT NULL,
+    FOREIGN KEY (folder_id) REFERENCES folders(folder_id) ON DELETE CASCADE
+);
+
+
 
 CREATE TABLE homepage_enrollment_important_info (
     id INT AUTO_INCREMENT PRIMARY KEY,
