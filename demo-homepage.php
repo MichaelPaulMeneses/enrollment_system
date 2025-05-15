@@ -261,6 +261,73 @@
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
+        #imageModal .modal-dialog {
+            max-height: 100vh;
+            height: 100%;
+        }
+
+        #imageModal .modal-content {
+            height: 100%;
+            max-height: 1080px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #imageModal .modal-body {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 0; /* Remove padding to maximize space */
+        }
+
+        #modalCarousel {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #modalCarousel .carousel-inner,
+        #modalCarousel .carousel-item {
+            height: 100%;
+        }
+
+        #modalCarousel img {
+            max-height: 80vh; /* Give room for preview thumbnails */
+            width: auto;
+            object-fit: contain;
+            margin: auto;
+            display: block;
+        }
+
+        #thumbnailPreview {
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            max-height: 100px;
+        }
+
+        #thumbnailPreview img {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border 0.2s;
+        }
+
+        #thumbnailPreview img:hover {
+            border: 2px solid #007bff;
+        }
+
+
+
     </style>
 
     <!--for the mobile menu toggle-->
@@ -348,7 +415,6 @@
                 <div class="top-links d-none d-lg-flex flex-wrap justify-content-end">
                     <a href="#procedures" class="me-2 mb-2"><i class="fas fa-list-ul me-1"></i> Enrollment Procedures</a>
                     <a href="admission-form.php" class="me-2 mb-2"><i class="fas fa-pen-to-square me-1"></i> Enroll Now</a>
-                    <a href="login.php" class="me-2 mb-2"><i class="fas fa-sign-in-alt me-1"></i> Log In</a>
                 </div>
                 
                 <!-- Mobile Hamburger Menu -->
@@ -361,16 +427,23 @@
             <div class="mobile-menu">
                 <a href="#procedures"><i class="fas fa-list-ul me-2"></i>Enrollment Procedures</a>
                 <a href="admission-form.php"><i class="fas fa-pen-to-square me-2"></i>Enroll Now</a>
-                <a href="login.php"><i class="fas fa-sign-in-alt me-2"></i>Log In</a>
             </div>
         </div>
     </div>
 
     <!-- Banner Carousel -->
     <div id="bannerCarousel" class="carousel slide container banner" data-bs-ride="carousel">
-        <div class="carousel-inner" id="carouselContainer">
-            <!-- Images will be dynamically loaded here -->
+        <!-- Indicators -->
+        <div class="carousel-indicators" id="carouselIndicators">
+            <!-- JS will inject indicator buttons here -->
         </div>
+
+        <!-- Slides -->
+        <div class="carousel-inner" id="carouselContainer">
+            <!-- JS will inject <div class="carousel-item"> here -->
+        </div>
+
+        <!-- Controls (Moved outside of indicators!) -->
         <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Previous</span>
@@ -380,6 +453,71 @@
             <span class="visually-hidden">Next</span>
         </button>
     </div>
+
+    <!-- Load the carousel images dynamically -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        loadBannerCarousel();
+    });
+
+    function loadBannerCarousel() {
+        fetch("databases/fetch_carousel.php")
+            .then(response => {
+                if (!response.ok) throw new Error("Network response was not ok");
+                return response.json();
+            })
+            .then(images => {
+                const container = document.getElementById("carouselContainer");
+                const indicators = document.getElementById("carouselIndicators");
+
+                container.innerHTML = "";
+                indicators.innerHTML = "";
+
+                if (!images || images.length === 0) {
+                    container.innerHTML = `
+                        <div class="carousel-item active">
+                            <img src="assets/homepage_images/logo/placeholder.png"
+                                class="d-block w-100"
+                                style="height:50vh; object-fit:cover;"
+                                alt="Default Banner">
+                        </div>`;
+                    return;
+                }
+
+                images.forEach((image, idx) => {
+                    // Slide
+                    const item = document.createElement("div");
+                    item.className = `carousel-item${idx === 0 ? " active" : ""}`;
+                    item.innerHTML = `
+                        <img src="${image.image_path}"
+                            class="d-block w-100"
+                            style="height:50vh; object-fit:cover;"
+                            alt="Banner ${idx + 1}">`;
+                    container.appendChild(item);
+
+                    // Indicator
+                    const btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.setAttribute("data-bs-target", "#bannerCarousel");
+                    btn.setAttribute("data-bs-slide-to", idx);
+                    btn.setAttribute("aria-label", `Slide ${idx + 1}`);
+                    if (idx === 0) btn.classList.add("active");
+                    indicators.appendChild(btn);
+                });
+            })
+            .catch(error => {
+                console.error("Error loading carousel images:", error);
+                const container = document.getElementById("carouselContainer");
+                container.innerHTML = `
+                    <div class="carousel-item active">
+                        <img src="assets/homepage_images/logo/placeholder.png"
+                            class="d-block w-100"
+                            style="height:50vh; object-fit:cover;"
+                            alt="Default Banner">
+                    </div>`;
+            });
+    }
+    </script>
 
     <!-- Call to Action -->
     <div class="container call-to-action">
@@ -449,14 +587,119 @@
     <!-- School Gallery -->
     <div id="schoolGallery" class="container mt-5">
         <h2 class="text-center mb-4">SCHOOL GALLERY</h2>
-        <div id="galleryCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                <div class="row" id="galleryContainer">
-                    <!-- Gallery cards will be dynamically loaded here -->
+        <div class="row" id="folderContainer">
+            <!-- Folder cards will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Modal for Image Slideshow -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Folder Images</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="modalCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner" id="carouselInner">
+                            <!-- Images will be loaded here -->
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#modalCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#modalCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
+                    </div>
+                    <div id="thumbnailPreview" class="d-flex justify-content-center flex-wrap gap-2 mt-4"></div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            loadFolders();
+        });
+
+        function loadFolders() {
+            fetch("databases/fetch_folders.php")
+                .then(response => response.json())
+                .then(data => {
+                    const folderContainer = document.getElementById("folderContainer");
+                    folderContainer.innerHTML = "";
+
+                    if (data.status === "success") {
+                        data.folders.forEach(folder => {
+                            const folderCard = `
+                                <div class="col-md-4 mb-3">
+                                    <div class="card folder-card h-100" style="max-height: 300px;" onclick="openFolder(${folder.folder_id}, '${folder.folder_name}')">
+                                        <div class="card-body text-center">
+                                            <h6 class="card-title text-truncate">${folder.folder_name}</h6>
+                                            <p class="card-text text-muted small">Click to view images</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            folderContainer.innerHTML += folderCard;
+                        });
+                    } else {
+                        folderContainer.innerHTML = `<p class="text-center">No folders found.</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading folders:", error);
+                    document.getElementById("folderContainer").innerHTML = `<p class="text-center">Error loading folders.</p>`;
+                });
+        }
+
+        function openFolder(folderId, folderName) {
+            fetch(`databases/fetch_images.php?folder_id=${folderId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const carouselInner = document.getElementById("carouselInner");
+                    carouselInner.innerHTML = "";
+
+                    if (data.status === "success" && data.images.length > 0) {
+                        const thumbnailPreview = document.getElementById("thumbnailPreview");
+                        thumbnailPreview.innerHTML = "";
+
+                        data.images.forEach((img, index) => {
+                            const activeClass = index === 0 ? "active" : "";
+                            carouselInner.innerHTML += `
+                                <div class="carousel-item ${activeClass}">
+                                    <img src="${img}" class="d-block w-100" alt="Image ${index + 1}">
+                                </div>
+                            `;
+
+                            thumbnailPreview.innerHTML += `
+                                <img src="${img}" class="img-thumbnail" style="width: 80px; height: 60px; cursor: pointer;" onclick="jumpToSlide(${index})">
+                            `;
+                        });
+
+                        document.querySelector("#imageModal .modal-title").textContent = folderName;
+                        const imageModal = new bootstrap.Modal(document.getElementById("imageModal"));
+                        imageModal.show();
+                    } else {
+                        carouselInner.innerHTML = `<div class="text-center">No images in this folder.</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading images:", error);
+                });
+        }
+
+        function jumpToSlide(index) {
+            const carousel = document.querySelector('#modalCarousel');
+            const bsCarousel = bootstrap.Carousel.getInstance(carousel) || new bootstrap.Carousel(carousel);
+            bsCarousel.to(index);
+        }
+
+
+    </script>
+
+
 
     <!-- Enrollment Procedures -->
     <div id="procedures" class="container procedures">
@@ -529,72 +772,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Load the carousel images dynamically -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            loadBannerCarousel();
-        });
 
-        function loadBannerCarousel() {
-            fetch("databases/fetch_carousel.php")
-                .then(response => response.json())
-                .then(images => {
-                    let container = document.getElementById("carouselContainer");
-                    container.innerHTML = ""; // Clear existing content
 
-                    if (images.length === 0) {
-                        container.innerHTML = `<div class="carousel-item active">
-                            <img src="assets/homepage_images/logo/placeholder.png" alt="Default Banner" class="d-block w-100" style="height: 50vh; object-fit: cover;">
-                        </div>`;
-                        return;
-                    }
 
-                    images.forEach((image, index) => {
-                        let carouselItem = document.createElement("div");
-                        carouselItem.className = `carousel-item ${index === 0 ? "active" : ""}`;
-                        carouselItem.innerHTML = `<img src="${image.image_path}" class="d-block w-100" style="height: 50vh; object-fit: cover;">`;
-                        container.appendChild(carouselItem);
-                    });
-                })
-                .catch(error => console.error("Error loading carousel images:", error));
-        }
-    </script>
-
-    <!-- Load the gallery images dynamically -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            loadGallery();
-        });
-
-        function loadGallery() {
-            fetch("databases/fetch_gallery.php")
-                .then(response => response.json())
-                .then(data => {
-                    const galleryContainer = document.getElementById("galleryContainer");
-                    galleryContainer.innerHTML = ""; // Clear existing content
-
-                    if (data.status === "success" && data.images.length > 0) {
-                        data.images.forEach(image => {
-                            const imageElement = `
-                                <div class="col-md-3 col-lg-4 mb-4">
-                                    <div class="card gallery-card">
-                                        <img src="${image}" class="card-img-top" alt="Gallery Image">
-                                    </div>
-                                </div>
-                            `;
-                            galleryContainer.innerHTML += imageElement;
-                        });
-                    } else {
-                        galleryContainer.innerHTML = `<p class="text-center">No images available.</p>`;
-                        console.error("Error:", data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error("Error fetching gallery data:", error);
-                    document.getElementById("galleryContainer").innerHTML = `<p class="text-center">Error loading gallery.</p>`;
-                });
-        }
-    </script>
 
     <!-- Load the enrollment information dynamically -->
     <script>
