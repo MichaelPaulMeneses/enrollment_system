@@ -480,7 +480,7 @@
                         <div class="carousel-item active">
                             <img src="assets/homepage_images/logo/placeholder.png"
                                 class="d-block w-100"
-                                style="height:50vh; object-fit:cover;"
+                                style="height:60vh; object-fit:cover;"
                                 alt="Default Banner">
                         </div>`;
                     return;
